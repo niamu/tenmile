@@ -39,4 +39,4 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 
 - Our `gameboy.js` is [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
 
-- 
+- Our 'state-machine.js' is {what is it??}.
