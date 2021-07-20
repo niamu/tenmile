@@ -77,6 +77,7 @@ function GameBoyJoyPadEvent(keycode, down) {
 	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
 		if (keycode >= 0 && keycode < 8) {
 			gameboy.JoyPadEvent(keycode, down);
+      console.log(keycode + " " + down + " at iteration " + gameboy.iterations)
 		}
 	}
 }
@@ -112,6 +113,7 @@ async function loadGB() {
   gameboy.iterations = 0;
   let gbRunInterval = setInterval(function() {
     gameboy.run();
+    gameboy.iterations += 1;
     // console.log('tick');
   }, 8);
     
