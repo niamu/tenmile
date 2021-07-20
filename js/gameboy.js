@@ -4440,6 +4440,8 @@ GameBoyCore.prototype.start = function () {
   this.initLCD();   //Initialize the graphics.
   this.initSound(); //Sound object initialization.
   this.run();     //Start the emulation.
+  // [jf]
+  debug("started")
 };
 GameBoyCore.prototype.initMemory = function () {
   //Initialize the RAM:
