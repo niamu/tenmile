@@ -22,6 +22,8 @@ const fsm = new StateMachine({
       from: ["idle", "watching", "riffing", "playing", "recording"],
       to: "playing"
     },
+    
+    { name: "oob", from: "riffing", to: "riffing"},
 
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
@@ -166,14 +168,17 @@ const fsm = new StateMachine({
       delete this.handleJoyPadEvent.apply;
     },
 
-    onEnterRiffing: function() {
+    onEnterRiffing: function() {     
       this.button.value = "Watch pre-recorded play";
-
+      
+      this.gameboy.returnFromState(this.currentQuote.state);
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      
       let oob = false;
 
       this.handleROM.get = function(target, prop) {
         if (fsm.currentQuote.romMask[prop] == 0) {
-          console.log("OOB access:", prop);
+          //console.log("OOB access:", prop);
           oob = true;
         }
         return target[prop];
@@ -184,7 +189,7 @@ const fsm = new StateMachine({
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.gameboy.returnFromState(fsm.currentQuote.state);
+          fsm.oob();
         }
       };
     },
@@ -207,11 +212,11 @@ class Quote {
     let quote = new Quote();
 
     let png = new PNGBaker(buffer);
-    let part = {};
+    let fileArrays = {};
     let jszip = new JSZip();
     let zip = await jszip.loadAsync(png.chunk);
     for (let filename of Object.keys(zip.files)) {
-      part[filename] = await zip.file(filename).async("uint8array");
+      fileArrays[filename] = await zip.file(filename).async("uint8array");
     }
 
     let frameBuffer = new Int32Array(160 * 144);
@@ -221,19 +226,18 @@ class Quote {
       frameBuffer[i] += rgba[4 * i + 1] << 8;
       frameBuffer[i] += rgba[4 * i + 2] << 0;
     }
-    part.frameBuffer = frameBuffer;
 
-    part.rom = new Proxy(part.rom, fsm.handleROM);
-    
-    quote.rom = part.rom;
-    quote.romMask = part.rom_mask;
-    if (part.action_log) {
-      quote.actions = msgpack.deserialize(part.action_log);
+    quote.rom = fileArrays.rom;
+    quote.romMask = fileArrays.rom_mask;
+
+    if (fileArrays.action_log) {
+      quote.actions = msgpack.deserialize(fileArrays.action_log);
     }
-    let state = msgpack.deserialize(part.savestate);
-    state[SAVESTATE_ROM] = part.rom;
-    state[SAVESTATE_FRAMEBUFFER] = part.frameBuffer;
-    
+    let state = msgpack.deserialize(fileArrays.savestate);
+
+    state[SAVESTATE_ROM] = fileArrays.rom;
+    state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
+
     quote.state = state;
 
     return quote;
