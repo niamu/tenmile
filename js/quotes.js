@@ -44,6 +44,8 @@ const fsm = new StateMachine({
   },
   methods: {
     onBeforeTransition: function(lifecycle) {
+      console.log("lifecycle", lifecycle);
+
       if (this.gameboy != null) {
         this.currentState = this.gameboy.saveState();
         this.currentState[0] = this.currentROM; // unproxied ROM
@@ -145,6 +147,8 @@ const fsm = new StateMachine({
     onEnterWatching: function() {
       this.button.value = "Take control";
 
+      fsm.gameboy.returnFromState(fsm.currentQuote.state);
+
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         iteration++;
@@ -169,21 +173,18 @@ const fsm = new StateMachine({
 
       this.handleROM.get = function(target, prop) {
         if (fsm.currentQuote.romMask[prop] == 0) {
-          console.log('OOB access:', prop);
+          console.log("OOB access:", prop);
           oob = true;
         }
         return target[prop];
       };
 
       this.handleExecuteIteration.apply = function() {
+        Reflect.apply(...arguments);
         if (oob) {
-          setTimeout(() => {
-            console.log("Resetting after OOB.");
-            oob = false;
-            fsm.gameboy.returnFromState(fsm.currentQuote.state);
-          },100);
-        } else {
-          Reflect.apply(...arguments);
+          console.log("Resetting after OOB.");
+          oob = false;
+          fsm.gameboy.returnFromState(fsm.currentQuote.state);
         }
       };
     },
@@ -222,6 +223,8 @@ class Quote {
     }
     part.frameBuffer = frameBuffer;
 
+    part.rom = new Proxy(part.rom, fsm.handleROM);
+    
     quote.rom = part.rom;
     quote.romMask = part.rom_mask;
     if (part.action_log) {
@@ -230,6 +233,7 @@ class Quote {
     let state = msgpack.deserialize(part.savestate);
     state[SAVESTATE_ROM] = part.rom;
     state[SAVESTATE_FRAMEBUFFER] = part.frameBuffer;
+    
     quote.state = state;
 
     return quote;
