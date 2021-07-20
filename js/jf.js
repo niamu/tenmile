@@ -4,17 +4,19 @@
 /* START hacky junk */
 
 var keyZones = [
-	["right", [39]],
-	["left", [37]],
-	["up", [38]],
+	["right", [39]], // ArrowRight
+	["left", [37]],  // ArrrowLeft
+	["up", [38]],    // ArrowUp
 	["down", [40]],
-	["a", [88, 74]],
+	["a", [88, 74]],     // 88 = x
 	["b", [90, 81, 89]],
-	["select", [16]],
-	["start", [13]]
+	["select", [16]], // Shift
+	["start", [13]]   // Enter
 ];
 
 function keyDown(event) {
+  console.log(event);
+
 	var keyCode = event.keyCode;
 	var keyMapLength = keyZones.length;
 	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
@@ -33,6 +35,8 @@ function keyDown(event) {
 	}
 }
 function keyUp(event) {
+  console.log(event);
+
 	var keyCode = event.keyCode;
 	var keyMapLength = keyZones.length;
 	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
