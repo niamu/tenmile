@@ -202,7 +202,6 @@ class Quote {
   romMask;
   state;
   actions;
-  actionCursor;
 
   static async loadFromArrayBuffer(buffer) {
     let quote = new Quote();
