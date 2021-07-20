@@ -2,6 +2,9 @@
 
 const EMULATOR_LOOP_INTERVAL = 8;
 
+const SAVESTATE_ROM = 0;
+const SAVESTATE_FRAMEBUFFER = 71;
+
 window.debug = function() {
   console.log("debug:", ...arguments);
 };
@@ -29,7 +32,7 @@ const fsm = new StateMachine({
   ],
   data: {
     button: document.getElementById("button"),
-    currentGame: null,
+    currentROM: null,
     currentQuote: null,
     currentTrace: null,
     currentState: null,
@@ -43,16 +46,16 @@ const fsm = new StateMachine({
     onBeforeTransition: function(lifecycle) {
       if (this.gameboy != null) {
         this.currentState = this.gameboy.saveState();
-        this.currentState[0] = this.currentGame; // unproxied ROM
+        this.currentState[0] = this.currentROM; // unproxied ROM
         this.gameboy = null;
         cancelInterval(this.runInterval);
         this.runInterval = null;
       }
 
-      if (this.currentGame != null) {
+      if (this.currentROM != null) {
         let canvas = document.getElementById("screen");
 
-        this.gameboy = GameBoyCore(canvas, this.currentGame, {
+        this.gameboy = GameBoyCore(canvas, this.currentROM, {
           drawEvents: true
         });
 
@@ -92,6 +95,7 @@ const fsm = new StateMachine({
     onEnterRecording: function() {
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
+      this.currentTrace.initialState[0] = this.currentROM;
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
 
@@ -128,8 +132,7 @@ const fsm = new StateMachine({
       // TODO[jf]: compile the trace using await as needed
       setTimeout(() => {
         // at the end of recording, take them back to where recording started so that it is easy to record another take
-        fsm.currentState = fsm.currentTrace.initialState;
-        fsm.currentState[0] = fsm.currentGame; // unproxied ROM
+        fsm.gameboy.returnFromState(fsm.currentTrace.initialState)
         fsm.complete();
       }, 500);
     },
@@ -194,6 +197,8 @@ class Quote {
   actionCursor;
 
   static async loadFromArrayBuffer(buffer) {
+    let quote = new Quote();
+    
     let png = new PNGBaker(buffer);
     let part = {};
     let jszip = new JSZip();
@@ -211,15 +216,17 @@ class Quote {
     }
     part.frameBuffer = frameBuffer;
 
-    this.rom = part.rom;
-    this.romMask = part.rom_mask;
+    quote.rom = part.rom;
+    quote.romMask = part.rom_mask;
     if(part.action_log) {
-      this.actions = msgpack.deserialize(part.action_log);
+      quote.actions = msgpack.deserialize(part.action_log);
     }
-    state = msgpack.deserialize(part.savestate);
-    state[SAVESTATE_ROM] = rom;
+    let state = msgpack.deserialize(part.savestate);
+    state[SAVESTATE_ROM] = part.rom;
     state[SAVESTATE_FRAMEBUFFER] = part.frameBuffer;
-    this.state = state;
+    quote.state = state;
+    
+    return quote;
   }
 }
 
@@ -275,16 +282,18 @@ const buttonToKeycode = {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
   let buffer = await (await fetch(resource)).arrayBuffer();
   let rom = new Uint8Array(buffer);
-  fsm.currentGame = rom;
+  fsm.currentROM = rom;
   fsm.currentState = null;
   fsm.dropGame();*/
 
   // simulate the example game being dropped when the page loads
   let resource =
-    "hhttps://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
+    "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
   let buffer = await (await fetch(resource)).arrayBuffer();
-  fsm.currentState = await Quote.loadFromArrayBuffer(buffer);
-  fsm.currentGame = fsm.currentState[0]; // ROM was embedded in the save
+  fsm.currentQuote = await Quote.loadFromArrayBuffer(buffer);
+  console.log(fsm.currentQuote);
+  fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
+  fsm.currentState = fsm.currentQuote.state;
   fsm.dropQuote();
 
   // https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png

@@ -37,6 +37,10 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 
 ## Credits
 
-- Our `gameboy.js` is [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
-
-- Our `state-machine.js` is [https://github.com/jakesgordon/javascript-state-machine](https://github.com/jakesgordon/javascript-state-machine).
+- `gameboy.js`: [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
+- `state-machine.js`: [Jake Gordon's Javascript State Machine](https://github.com/jakesgordon/javascript-state-machine).
+- `png-baker.js`: Slight modified version of ... to support binary chunks.
+- `jszip.min.js`: ...
+- `pako.min.js`: ...
+- `msgpack.js`: ...
+- `emitter.js`: ...
