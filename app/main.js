@@ -9,4 +9,6 @@ define(function (require) {
     var print = require('print');
 
     print(messages.getHello());
+  
+    document.getElementById("test").value = "hello";
 });
