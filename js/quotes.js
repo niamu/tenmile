@@ -23,8 +23,6 @@ const fsm = new StateMachine({
       to: "playing"
     },
     
-    { name: "oob", from: "riffing", to: "riffing"},
-
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
@@ -46,7 +44,7 @@ const fsm = new StateMachine({
   },
   methods: {
     onBeforeTransition: function(lifecycle) {
-      console.log("lifecycle", lifecycle);
+      console.log("transition:", lifecycle.transition, lifecycle.to, lifecycle.from);
 
       if (this.gameboy != null) {
         this.currentState = this.gameboy.saveState();
@@ -170,10 +168,7 @@ const fsm = new StateMachine({
 
     onEnterRiffing: function() {     
       this.button.value = "Watch pre-recorded play";
-      
-      this.gameboy.returnFromState(this.currentQuote.state);
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-      
+
       let oob = false;
 
       this.handleROM.get = function(target, prop) {
@@ -189,7 +184,8 @@ const fsm = new StateMachine({
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.oob();
+          fsm.gameboy.returnFromState(fsm.currentQuote.state);
+          fsm.gameboy.ROM = new Proxy(fsm.gameboy.ROM, fsm.handleROM);
         }
       };
     },
