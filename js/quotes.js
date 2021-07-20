@@ -1,4 +1,5 @@
-/* global GameBoyCore */
+/* global GameBoyCore, StateMachine */
+
 const EMULATOR_LOOP_INTERVAL = 8;
 
 const keyToButton = {
@@ -27,19 +28,59 @@ window.debug = function() {
   console.log('debug:', ...arguments);
 }
 
-// https://github.com/jakesgordon/javascript-state-machine
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
-    {name: "dropQuote", from: ["watching",
+    {name: "dropQuote", from: ["idle",
+                               "watching",
                                "riffing",
-                              ""], to: "watching"},
+                               "playing",
+                               "recording"], to: "watching"},
+    {name: "dropGame", from: ["idle",
+                               "watching",
+                               "riffing",
+                               "playing",
+                               "recording"], to: "playing"},
+    
+    {name: "tap", from: "watching", to: "riffing"},
+    {name: "tap", from: "riffing", to: "watching"},
+    {name: "tap", from: "playing", to: "recording"},
+    {name: "tap", from: "recording", to: "compiling"},
+    
+    {name: "complete", from: "compiling", to: "playing"},
   ],
+  data: {
+    button: document.getElementById('button'),
+    currentGame: null,
+    currentQuote: null,
+    currentTrace: null,
+    handleJoyPadEvent: {},
+    handleExecuteIteration: {},
+    gameboy: null
+  },
   methods: {
-    onStopped: function() {}
+    onEnterPlaying: function() {
+      let canvas = document.getElementById("screen");
+      this.gameboy = GameBoyCore(canvas, this.currentGame, { drawEvents: true });
+    }
   }
 });
 
+
+class Quote {
+  rom;
+  romMask;
+  savestate;
+  actions;
+  actionCursor;
+}
+
+class Trace {
+  initialFrameBuffer;
+  initialSaveState;
+  actions;
+  romDependencies;
+}
 
 /*
 
