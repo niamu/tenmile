@@ -55,12 +55,8 @@ const fsm = new StateMachine({
     currentQuote: null,
     currentTrace: null,
     handleJoyPadEvent: {},
-    handleExecuteIteration: {
-      get: function() {
-        console.log('tick');
-        Reflect.apply(...arguments);
-      }
-    },
+    handleExecuteIteration: {},
+    handleROM: {},
     runInterval: null,
     gameboy: null
   },
@@ -73,7 +69,7 @@ const fsm = new StateMachine({
 
       this.gameboy.stopEmulator = 1; // required for some reason
       this.gameboy.start();
-      
+
       this.gameboy.JoyPadEvent = new Proxy(
         this.gameboy.JoyPadEvent,
         this.handleJoyPadEvent
@@ -84,6 +80,8 @@ const fsm = new StateMachine({
         this.handleExecuteIteration
       );
 
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+
       this.button.value = "Record new quote";
 
       this.runInterval = setInterval(function() {
@@ -92,20 +90,38 @@ const fsm = new StateMachine({
     },
 
     onEnterRecording: function() {
+      this.currentTrace = new Trace();
+      this.currentTrace.initialSaveState = this.gameboy.saveState();
+      this.currentTrace.actions = [];
+      this.currentTrace.romDependencies = new Set();
+
+      let iteration = 0;
+      this.handleExecuteIteration.apply = function() {
+        iteration++;
+        return Reflect.apply(...arguments);
+      };
+
+      this.handleJoyPadEvent.apply = function(target, thisArg, args) {
+        fsm.currentTrace.actions.push({ on: iteration, do: args });
+        return Reflect.apply(...arguments);
+      };
       
-      this.handleExecuteIteration.get = function() {
-        console.log('iteration!');
-        Reflect.apply(...arguments);
-      }
-      
+      this.handleROM.get = function(target, prop) {
+        fsm.currentTrace.romDependencies.add(prop);
+        return target[prop];
+      };
+
       this.button.value = "Stop recording";
     },
-    
+
     onLeaveRecording: function() {
-      delete this.handleExecuteIteration.get;
+      delete this.handleExecuteIteration.apply;
+      delete this.handleJoyPadEvent.apply;
+      delete this.handleROM.get;
     },
 
     onEnterCompiling: function() {
+      console.log(fsm.currentTrace);
       this.button.value = "Compiling...";
       this.button.disabled = true;
     }
@@ -121,7 +137,6 @@ class Quote {
 }
 
 class Trace {
-  initialFrameBuffer;
   initialSaveState;
   actions;
   romDependencies;
