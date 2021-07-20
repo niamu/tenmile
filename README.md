@@ -1,6 +1,6 @@
-# Playable Quotes for GameBoy
+# Playable Quotes for Game Boy
 
-This project offers the ability to create and share **playable quotes** of GameBoy games. A playable quote is a *delimited* reference to a 
+This project offers the ability to create and share **playable quotes** of [GameBoy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *delimited* reference to a 
 *specific* moment in a game along with a reference recording of how that moment plays out.
 
 
@@ -14,7 +14,7 @@ While watching a quote, you use your keyboard to grab control of the game and st
 
 ## Insert ROM to Continue
 
-If you have access to the ROM for the quoted game (or any other GameBoy game), you can drop that ROM image (typically a `.gb` file) onto the player. If your ROM is compatible with the current quote, you can continue unlimited play of the game from the quoted starting point. Otherwise, we'll let you play that new game from the start.
+If you have access to the ROM for the quoted game (or any other GameBoy game), you can drop that ROM image (typically a `.gb` file) onto the player. If your ROM is compatible with the current quote, you can continue unlimited play of the game from the quoted starting point. Otherwise, we'll let you play that new game from the start. You can find some ROM images on [archive.org](https://archive.org/download/game-boy-romset-ultra-us).
 
 ## Recording a Quote
 
@@ -35,3 +35,8 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 
 
 
+## Credits
+
+- Our `gameboy.js` is [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
+
+- 
