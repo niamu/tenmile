@@ -48,7 +48,7 @@ const fsm = new StateMachine({
         this.currentState = this.gameboy.saveState();
         this.currentState[0] = this.currentROM; // unproxied ROM
         this.gameboy = null;
-        cancelInterval(this.runInterval);
+        clearInterval(this.runInterval);
         this.runInterval = null;
       }
 
@@ -132,7 +132,7 @@ const fsm = new StateMachine({
       // TODO[jf]: compile the trace using await as needed
       setTimeout(() => {
         // at the end of recording, take them back to where recording started so that it is easy to record another take
-        fsm.gameboy.returnFromState(fsm.currentTrace.initialState)
+        fsm.gameboy.returnFromState(fsm.currentTrace.initialState);
         fsm.complete();
       }, 500);
     },
@@ -142,44 +142,50 @@ const fsm = new StateMachine({
       this.button.disabled = false;
     },
 
-    onBeginWatching: function() {
-      this.gameboy.returnFromState(this.currentQuote.state);
+    onEnterWatching: function() {
+      this.button.value = "Take control";
 
-      // TODO: start playing action animation
-      
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         iteration++;
         return Reflect.apply(...arguments);
         // TODO: check for actions in the log to apply this frame.
       };
-    },
-    
-    onLeaveWatching: function() {
-      delete this.handleExecuteIteration.apply;
+
+      this.handleJoyPadEvent.apply = function() {
+        // ignore event while watching
+      };
     },
 
-    onBeginRiffing: function() {
-    
+    onLeaveWatching: function() {
+      delete this.handleExecuteIteration.apply;
+      delete this.handleJoyPadEvent.apply;
+    },
+
+    onEnterRiffing: function() {
+      this.button.value = "Watch pre-recorded play";
+
       let oob = false;
-      
+
       this.handleROM.get = function(target, prop) {
         if (fsm.currentQuote.romMask[prop] == 0) {
-          console.log('OOB access to ROM address:', prop);
+          console.log('OOB access:', prop);
           oob = true;
         }
         return target[prop];
       };
-      
+
       this.handleExecuteIteration.apply = function() {
-        if(oob) {
-          console.log('Resetting after OOB.');
-          fsm.gameboy.returnFromState(fsm.currentQuote.state);
+        if (oob) {
+          setTimeout(() => {
+            console.log("Resetting after OOB.");
+            oob = false;
+            fsm.gameboy.returnFromState(fsm.currentQuote.state);
+          },100);
         } else {
           Reflect.apply(...arguments);
         }
       };
-      
     },
 
     onLeaveRiffing: function() {
@@ -198,7 +204,7 @@ class Quote {
 
   static async loadFromArrayBuffer(buffer) {
     let quote = new Quote();
-    
+
     let png = new PNGBaker(buffer);
     let part = {};
     let jszip = new JSZip();
@@ -218,14 +224,14 @@ class Quote {
 
     quote.rom = part.rom;
     quote.romMask = part.rom_mask;
-    if(part.action_log) {
+    if (part.action_log) {
       quote.actions = msgpack.deserialize(part.action_log);
     }
     let state = msgpack.deserialize(part.savestate);
     state[SAVESTATE_ROM] = part.rom;
     state[SAVESTATE_FRAMEBUFFER] = part.frameBuffer;
     quote.state = state;
-    
+
     return quote;
   }
 }
