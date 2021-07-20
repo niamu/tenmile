@@ -1,59 +1,28 @@
 /* global GameBoyCore */
 
 
-/* START hacky junk */
+const GBKeyMap = {
+  "right": 0, 
+  "left": 1,
+  "up": 2,
+  "down": 3,
+  "a": 4,
+  "b": 5,
+  "select": 6,
+  "start": 7
+};
 
-var keyZones = [
-	["right", [39]], // ArrowRight
-	["left", [37]],  // ArrrowLeft
-	["up", [38]],    // ArrowUp
-	["down", [40]],
-	["a", [88, 74]],     // 88 = x
-	["b", [90, 81, 89]],
-	["select", [16]], // Shift
-	["start", [13]]   // Enter
-];
+const buttonMap = {
+  "ArrowRight": "right",
+  "ArrowLeft": "left",
+  "ArrowUp": "up",
+  "ArrowDown": "down",
+  "x": "a",
+  "z": "b",
+  "Shift": "select",
+  "Enter": "start"
+};
 
-function keyDown(event) {
-  console.log(event);
-
-	var keyCode = event.keyCode;
-	var keyMapLength = keyZones.length;
-	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
-		var keyCheck = keyZones[keyMapIndex];
-		var keysMapped = keyCheck[1];
-		var keysTotal = keysMapped.length;
-		for (var index = 0; index < keysTotal; ++index) {
-			if (keysMapped[index] == keyCode) {
-				GameBoyKeyDown(keyCheck[0]);
-				try {
-					event.preventDefault();
-				}
-				catch (error) { }
-			}
-		}
-	}
-}
-function keyUp(event) {
-  console.log(event);
-
-	var keyCode = event.keyCode;
-	var keyMapLength = keyZones.length;
-	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
-		var keyCheck = keyZones[keyMapIndex];
-		var keysMapped = keyCheck[1];
-		var keysTotal = keysMapped.length;
-		for (var index = 0; index < keysTotal; ++index) {
-			if (keysMapped[index] == keyCode) {
-				GameBoyKeyUp(keyCheck[0]);
-				try {
-					event.preventDefault();
-				}
-				catch (error) { }
-			}
-		}
-	}
-}
 
 function matchKey(key) {	//Maps a keyboard key to a gameboy key.
 	//Order: Right, Left, Up, Down, A, B, Select, Start
@@ -93,13 +62,23 @@ function GameBoyKeyUp(key) {
 
 /* END hacky junk */
 
+function handleKey(event) {
+  let down = (event.type == "keydown")
+  let key = event.key;
+  if (key in buttonMap) {
+    let gbKeycode = GBKeyMap[buttonMap[key]];
+    gameboy.JoyPadEvent(gbKeycode, down);
+    console.log(gbKeycode + " " + down + " at iteration " + gameboy.iterations)
+  }
+}
+
 let gameboy = null;
 console.log("Hello world");
 loadGB();
 
 // addEvent("keydown", document, keyDown)
-document.addEventListener("keydown", keyDown, false);
-document.addEventListener("keyup", keyUp, false);
+document.addEventListener("keydown", handleKey, false);
+document.addEventListener("keyup", handleKey, false);
 
 async function loadGB() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
