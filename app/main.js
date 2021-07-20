@@ -1,4 +1,4 @@
-define(function (require) {
+define(['gameboy', 'emitter', 'debug'], function (require) {
     // Load any app-specific modules
     // with a relative require call,
     // like:
@@ -18,6 +18,7 @@ define(function (require) {
 async function startGameboy() {
     let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
     let buffer = await (await fetch(resource)).arrayBuffer();
+    var gb = require("gameboy");
   
     var gb = require("gameboy");
     gb("screen", buffer);

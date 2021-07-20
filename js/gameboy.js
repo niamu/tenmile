@@ -1,4 +1,4 @@
-
+/*
 var Emitter = require('emitter');
 var debug = require('debug')('gameboy');
 
@@ -19,8 +19,14 @@ module.exports = GameBoyCore;
  * GNU General Public License for more details.
  *
  */
+
+// [jf]
+let debug = console.log
+
 function GameBoyCore(canvas, ROMImage, opts) {
   if (!(this instanceof GameBoyCore)) return new GameBoyCore(canvas, ROMImage, opts);
+  
+  debug("GameBoyCore Called");
 
   opts = opts || {};
   this.opts = {};
@@ -300,7 +306,8 @@ function GameBoyCore(canvas, ROMImage, opts) {
   this.intializeWhiteNoise();
 }
 
-Emitter(GameBoyCore.prototype);
+// [jf] Emitter(GameBoyCore.prototype);
+GameBoyCore.prototype.emit = console.log;
 
 GameBoyCore.prototype.GBBOOTROM = [   //GB BOOT ROM
   //Add 256 byte boot rom here if you are going to use it.
