@@ -1,10 +1,5 @@
 /* global GameBoyCore, StateMachine */
 
-const EMULATOR_LOOP_INTERVAL = 8;
-
-const SAVESTATE_ROM = 0;
-const SAVESTATE_FRAMEBUFFER = 71;
-
 window.debug = function() {
   console.log("debug:", ...arguments);
 };
@@ -22,7 +17,7 @@ const fsm = new StateMachine({
       from: ["idle", "watching", "riffing", "playing", "recording"],
       to: "playing"
     },
-    
+
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
@@ -44,7 +39,12 @@ const fsm = new StateMachine({
   },
   methods: {
     onBeforeTransition: function(lifecycle) {
-      console.log("transition:", lifecycle.transition, lifecycle.to, lifecycle.from);
+      console.log(
+        "transition:",
+        lifecycle.transition,
+        lifecycle.to,
+        lifecycle.from
+      );
 
       if (this.gameboy != null) {
         this.currentState = this.gameboy.saveState();
@@ -57,9 +57,7 @@ const fsm = new StateMachine({
       if (this.currentROM != null) {
         let canvas = document.getElementById("screen");
 
-        this.gameboy = GameBoyCore(canvas, this.currentROM, {
-          drawEvents: true
-        });
+        this.gameboy = GameBoyCore(canvas, this.currentROM, {});
 
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
@@ -68,6 +66,7 @@ const fsm = new StateMachine({
           this.gameboy.returnFromState(this.currentState);
         }
 
+        const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
@@ -166,7 +165,7 @@ const fsm = new StateMachine({
       delete this.handleJoyPadEvent.apply;
     },
 
-    onEnterRiffing: function() {     
+    onEnterRiffing: function() {
       this.button.value = "Watch pre-recorded play";
 
       let oob = false;
@@ -202,8 +201,15 @@ class Quote {
   romMask;
   state;
   actions;
+}
 
-  static async loadFromArrayBuffer(buffer) {
+class Trace {
+  initialState;
+  actions;
+  romDependencies;
+}
+
+async function loadQuote(buffer) {
     let quote = new Quote();
 
     let png = new PNGBaker(buffer);
@@ -230,6 +236,9 @@ class Quote {
     }
     let state = msgpack.deserialize(fileArrays.savestate);
 
+    const SAVESTATE_ROM = 0;
+    const SAVESTATE_FRAMEBUFFER = 71;
+
     state[SAVESTATE_ROM] = fileArrays.rom;
     state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
 
@@ -237,16 +246,9 @@ class Quote {
 
     return quote;
   }
-}
 
-class Trace {
-  initialState;
-  actions;
-  romDependencies;
-
-  compileQuoteToArrayBuffer() {
-    // TODO
-  }
+async function compileQuote(trace) {
+  // TODO
 }
 
 const keyToButton = {
@@ -286,24 +288,26 @@ const buttonToKeycode = {
 
   document.getElementById("button").onclick = () => fsm.tap();
 
-  /*
-  // simulate the example game being dropped when the page loads
+  //await dropExampleGame();
+  await dropExampleQuote();
+})();
+
+async function dropExampleGame() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
   let buffer = await (await fetch(resource)).arrayBuffer();
   let rom = new Uint8Array(buffer);
   fsm.currentROM = rom;
   fsm.currentState = null;
-  fsm.dropGame();*/
+  fsm.dropGame();
+}
 
-  // simulate the example game being dropped when the page loads
+async function dropExampleQuote() {
   let resource =
     "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
   let buffer = await (await fetch(resource)).arrayBuffer();
-  fsm.currentQuote = await Quote.loadFromArrayBuffer(buffer);
+  fsm.currentQuote = await loadQuote(buffer);
   console.log(fsm.currentQuote);
   fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
   fsm.currentState = fsm.currentQuote.state;
   fsm.dropQuote();
-
-  // https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png
-})();
+}
