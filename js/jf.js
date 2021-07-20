@@ -10,7 +10,13 @@ async function loadGB() {
   let rom = new Uint8Array(buffer);
   console.log(buffer);
   let canvas = document.getElementById("screen")
-  gb = GameBoyCore(canvas, rom);
+  gb = GameBoyCore(canvas, rom, { drawEvents: true });
   gb.start();
+  gb.run();
   console.log(gb);
+  
+  
+  gb.on('draw', function(){
+    console.log('.');
+  });
 }

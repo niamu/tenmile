@@ -306,8 +306,7 @@ function GameBoyCore(canvas, ROMImage, opts) {
   this.intializeWhiteNoise();
 }
 
-// [jf] Emitter(GameBoyCore.prototype);
-GameBoyCore.prototype.emit = console.log;
+Emitter(GameBoyCore.prototype);
 
 GameBoyCore.prototype.GBBOOTROM = [   //GB BOOT ROM
   //Add 256 byte boot rom here if you are going to use it.
