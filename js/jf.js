@@ -93,7 +93,8 @@ console.log("Hello world");
 loadGB();
 
 // addEvent("keydown", document, keyDown)
-// document.addEventListener("keydown", keydown, false)
+document.addEventListener("keydown", keyDown, false);
+document.addEventListener("keyup", keyUp, false);
 
 async function loadGB() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
@@ -102,9 +103,10 @@ async function loadGB() {
   console.log(buffer);
   let canvas = document.getElementById("screen")
   gameboy = GameBoyCore(canvas, rom, { drawEvents: true });
-  gameboy.stopEmulator = 1;
+  gameboy.stopEmulator = 1; // required
   gameboy.start();
   
+  // START HACKY JUNK
   let dateObj = new Date();
   gameboy.firstIteration = dateObj.getTime();
   gameboy.iterations = 0;
@@ -116,4 +118,5 @@ async function loadGB() {
   gameboy.on('draw', function(){
     //console.log('.');
   });
+  // END HACKY JUNK
 }
