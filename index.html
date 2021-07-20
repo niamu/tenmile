@@ -37,12 +37,13 @@
       content="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2Fhello-website-social.png?v=1616712748147"
     />
     <meta name="twitter:card" content="summary" />
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://oo-playable-quotes.glitch.me">
 
     <!-- Import the webpage's stylesheet -->
     <link rel="stylesheet" href="/style.css" />
 
     <!-- Import the webpage's javascript file -->
-    <script src="/script.js" defer></script>
+    <script data-main="app" src="js/require.js" defer></script>
   </head>
   <body>
     <!--
@@ -56,6 +57,7 @@
     <!-- The wrapper and content divs set margins and positioning -->
     <div class="wrapper">
       <div class="content" role="main">
+        <div id="test"></div>
         <!-- This is the start of content for our page -->
 
         fnord
