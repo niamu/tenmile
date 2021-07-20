@@ -2,32 +2,6 @@
 
 const EMULATOR_LOOP_INTERVAL = 8;
 
-const keyToButton = {
-  ArrowRight: "right",
-  ArrowLeft: "left",
-  ArrowUp: "up",
-  ArrowDown: "down",
-  x: "a",
-  z: "b",
-  Shift: "select",
-  Enter: "start"
-};
-
-const buttonToKeycode = {
-  right: 0,
-  left: 1,
-  up: 2,
-  down: 3,
-  a: 4,
-  b: 5,
-  select: 6,
-  start: 7
-};
-
-window.debug = function() {
-  console.log("debug:", ...arguments);
-};
-
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
@@ -54,6 +28,7 @@ const fsm = new StateMachine({
     currentGame: null,
     currentQuote: null,
     currentTrace: null,
+    currentState: null,
     handleJoyPadEvent: {},
     handleExecuteIteration: {},
     handleROM: {},
@@ -69,6 +44,10 @@ const fsm = new StateMachine({
 
       this.gameboy.stopEmulator = 1; // required for some reason
       this.gameboy.start();
+
+      if (this.currentState != null) {
+        this.gameboy.returnFromState(this.currentState);
+      }
 
       this.gameboy.JoyPadEvent = new Proxy(
         this.gameboy.JoyPadEvent,
@@ -91,7 +70,7 @@ const fsm = new StateMachine({
 
     onEnterRecording: function() {
       this.currentTrace = new Trace();
-      this.currentTrace.initialSaveState = this.gameboy.saveState();
+      this.currentTrace.initialState = this.gameboy.saveState();
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
 
@@ -105,7 +84,7 @@ const fsm = new StateMachine({
         fsm.currentTrace.actions.push({ on: iteration, do: args });
         return Reflect.apply(...arguments);
       };
-      
+
       this.handleROM.get = function(target, prop) {
         fsm.currentTrace.romDependencies.add(prop);
         return target[prop];
@@ -120,10 +99,22 @@ const fsm = new StateMachine({
       delete this.handleROM.get;
     },
 
-    onEnterCompiling: function() {
+    onEnterCompiling: async function() {
       console.log(fsm.currentTrace);
       this.button.value = "Compiling...";
       this.button.disabled = true;
+
+      // TODO[jf]: compile the trace using await as needed
+      setTimeout(() => {
+        // at the end of recording, take them back to where recording started so that it is easy to record another take
+        fsm.currentState = fsm.currentTrace.initialState;
+        fsm.currentState[0] = fsm.currentGame; // unproxied ROM
+        fsm.complete();
+      }, 500);
+    },
+
+    onLeaveCompiling: function() {
+      this.button.disabled = false;
     }
   }
 });
@@ -131,13 +122,13 @@ const fsm = new StateMachine({
 class Quote {
   rom;
   romMask;
-  savestate;
+  state;
   actions;
   actionCursor;
 }
 
 class Trace {
-  initialSaveState;
+  initialState;
   actions;
   romDependencies;
 }
@@ -170,27 +161,55 @@ class Trace {
 
 */
 
-loadGB();
+const keyToButton = {
+  ArrowRight: "right",
+  ArrowLeft: "left",
+  ArrowUp: "up",
+  ArrowDown: "down",
+  x: "a",
+  z: "b",
+  Shift: "select",
+  Enter: "start"
+};
 
-async function loadGB() {
-  let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
-  let buffer = await (await fetch(resource)).arrayBuffer();
-  let rom = new Uint8Array(buffer);
+const buttonToKeycode = {
+  right: 0,
+  left: 1,
+  up: 2,
+  down: 3,
+  a: 4,
+  b: 5,
+  select: 6,
+  start: 7
+};
 
-  fsm.currentGame = rom;
-  fsm.dropGame();
+window.debug = function() {
+  console.log("debug:", ...arguments);
+};
 
+
+(async function onPageLoad() {
+  
+  
   function handleKey(event) {
-    let down = event.type == "keydown";
-    let key = event.key;
-    if (key in keyToButton) {
-      let keycode = buttonToKeycode[keyToButton[key]];
-      fsm.gameboy.JoyPadEvent(keycode, down);
-      console.log(keycode + " " + down);
+    if (fsm.gameboy) {
+      let key = event.key;
+      if (key in keyToButton) {
+        let keycode = buttonToKeycode[keyToButton[key]];
+        fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
+      }
     }
   }
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
 
   document.getElementById("button").onclick = () => fsm.tap();
-}
+
+  // simulate the example game being dropped when the page loads
+  let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
+  let buffer = await (await fetch(resource)).arrayBuffer();
+  let rom = new Uint8Array(buffer);
+  fsm.currentGame = rom;
+  fsm.currentState = null;
+  fsm.dropGame();
+})();
