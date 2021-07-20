@@ -58,8 +58,8 @@ const fsm = new StateMachine({
 
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
-        
-        if(this.currentState != null) {
+
+        if (this.currentState != null) {
           this.gameboy.returnFromState(this.currentState);
         }
 
@@ -127,7 +127,6 @@ const fsm = new StateMachine({
 
       // TODO[jf]: compile the trace using await as needed
       setTimeout(() => {
-        
         // at the end of recording, take them back to where recording started so that it is easy to record another take
         fsm.currentState = fsm.currentTrace.initialState;
         fsm.currentState[0] = fsm.currentGame; // unproxied ROM
@@ -142,18 +141,48 @@ const fsm = new StateMachine({
 
     onBeginWatching: function() {
       this.gameboy.returnFromState(this.currentQuote.state);
-      
+
       // TODO: start playing action animation
+      
+      let iteration = 0;
+      this.handleExecuteIteration.apply = function() {
+        iteration++;
+        return Reflect.apply(...arguments);
+        // TODO: check for actions in the log to apply this frame.
+      };
     },
     
+    onLeaveWatching: function() {
+      delete this.handleExecuteIteration.apply;
+    },
+
     onBeginRiffing: function() {
     
-    },
-    
-    onLeaveRiffing: function() {
+      let oob = false;
       
+      this.handleROM.get = function(target, prop) {
+        if (fsm.currentQuote.romMask[prop] == 0) {
+          console.log('OOB access to ROM address:', prop);
+          oob = true;
+        }
+        return target[prop];
+      };
+      
+      this.handleExecuteIteration.apply = function() {
+        if(oob) {
+          console.log('Resetting after OOB.');
+          fsm.gameboy.returnFromState(fsm.currentQuote.state);
+        } else {
+          Reflect.apply(...arguments);
+        }
+      };
+      
+    },
+
+    onLeaveRiffing: function() {
+      delete this.handleROM.get;
+      delete this.handleExecuteIteration.apply;
     }
-    
   }
 });
 
@@ -163,26 +192,34 @@ class Quote {
   state;
   actions;
   actionCursor;
-  
-  static loadFromArrayBuffer(buffer) {
-  let png = new PNGBaker(buffer);
-  let quote = {};
-  let jszip = new JSZip();
-  let zip = await jszip.loadAsync(png.chunk);
-  for (let filename of Object.keys(zip.files)) {
-    quote[filename] = await zip.file(filename).async("uint8array");
-  }
 
-  let frameBuffer = new Int32Array(160 * 144);
-  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
-  for (let i = 0; i < frameBuffer.length; i++) {
-    frameBuffer[i] += rgba[4 * i + 0] << 16;
-    frameBuffer[i] += rgba[4 * i + 1] << 8;
-    frameBuffer[i] += rgba[4 * i + 2] << 0;
-  }
-  quote.frameBuffer = frameBuffer;
+  static async loadFromArrayBuffer(buffer) {
+    let png = new PNGBaker(buffer);
+    let part = {};
+    let jszip = new JSZip();
+    let zip = await jszip.loadAsync(png.chunk);
+    for (let filename of Object.keys(zip.files)) {
+      part[filename] = await zip.file(filename).async("uint8array");
+    }
 
-  return quote;
+    let frameBuffer = new Int32Array(160 * 144);
+    let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
+    for (let i = 0; i < frameBuffer.length; i++) {
+      frameBuffer[i] += rgba[4 * i + 0] << 16;
+      frameBuffer[i] += rgba[4 * i + 1] << 8;
+      frameBuffer[i] += rgba[4 * i + 2] << 0;
+    }
+    part.frameBuffer = frameBuffer;
+
+    this.rom = part.rom;
+    this.romMask = part.rom_mask;
+    if(part.action_log) {
+      this.actions = msgpack.deserialize(part.action_log);
+    }
+    state = msgpack.deserialize(part.savestate);
+    state[SAVESTATE_ROM] = rom;
+    state[SAVESTATE_FRAMEBUFFER] = part.frameBuffer;
+    this.state = state;
   }
 }
 
@@ -190,7 +227,7 @@ class Trace {
   initialState;
   actions;
   romDependencies;
-  
+
   compileQuoteToArrayBuffer() {
     // TODO
   }
@@ -241,16 +278,14 @@ const buttonToKeycode = {
   fsm.currentGame = rom;
   fsm.currentState = null;
   fsm.dropGame();*/
-  
-  
+
   // simulate the example game being dropped when the page loads
-  let resource = "hhttps://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
+  let resource =
+    "hhttps://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
   let buffer = await (await fetch(resource)).arrayBuffer();
   fsm.currentState = await Quote.loadFromArrayBuffer(buffer);
   fsm.currentGame = fsm.currentState[0]; // ROM was embedded in the save
   fsm.dropQuote();
-  
-  
+
   // https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png
-  
 })();

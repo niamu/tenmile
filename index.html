@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="https://glitch.com/favicon.ico" />
 
-
     <title>Playable Quotes for GameBoy</title>
 
     <link rel="canonical" href="https://glitch-hello-website.glitch.me/" />
@@ -27,22 +26,29 @@
     />
     <meta name="twitter:card" content="summary" />
 
-
     <link rel="stylesheet" href="/style.css" />
-    
+
+    <script src="js/jszip.min.js" defer></script>
+    <script src="js/pako.min.js" defer></script>
+    <script src="js/png-baker.js" defer></script>
+    <script src="js/msgpack.js" defer></script>
+
     <script src="js/emitter.js" defer></script>
     <script src="js/gameboy.js" defer></script>
     <script src="js/state-machine.js" defer></script>
     <script src="js/quotes.js" defer></script>
   </head>
   <body>
-    
     <div id="jf"></div>
-    <canvas id="screen" style="image-rendering: crisp-edges; visibility: visible;" width="320" height="288"></canvas>
-    <br/>
-    <input id="button" type="button"/>
-    
-    <footer class="footer">
-    </footer>
+    <canvas
+      id="screen"
+      style="image-rendering: crisp-edges; visibility: visible;"
+      width="320"
+      height="288"
+    ></canvas>
+    <br />
+    <input id="button" type="button" />
+
+    <footer class="footer"></footer>
   </body>
 </html>
