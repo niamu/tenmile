@@ -1,5 +1,5 @@
 /* global GameBoyCore */
-
+const EMULATOR_LOOP_INTERVAL = 8;
 
 const keyToButton = {
   "ArrowRight": "right",
@@ -23,9 +23,52 @@ const buttonToKeycode = {
   "start": 7
 };
 
+window.debug = function() {
+  console.log('debug:', ...arguments);
+}
+
+// https://github.com/jakesgordon/javascript-state-machine
+const fsm = new StateMachine({
+  init: "idle",
+  transitions: [
+    {name: "dropQuote", from: ["watching",
+                               "riffing",
+                              ""], to: "watching"},
+  ],
+  methods: {
+    onStopped: function() {}
+  }
+});
 
 
-console.log("Hello world");
+/*
+
+- idle,dropQuote,watching
+- idle,dropGame,playing
+
+- watching,dropQuote,watching
+- watching,dropGame,playing (continue if compatible)
+- watching,tap,riffing
+- watching,oob,watching (can't happen?)
+
+- riffing,dropQuote,watching
+- riffing,dropGame,playing (continue if compatible)
+- riffing,tap,watching
+- riffing,oob,riffing
+
+- playing,dropQuote,watching
+- playing,dropGame,playing (fresh)
+- playing,tap,recording
+
+- recording,dropQuote,watching
+- recording,dropGame,playing (fresh)
+- recording,tap,compiling
+- recording,safety,compiling
+
+- compiling,complete,playing (at *start* of recording for another take)
+
+*/
+  
 loadGB();
 
 async function loadGB() {
@@ -41,11 +84,12 @@ async function loadGB() {
   let dateObj = new Date();
   gameboy.firstIteration = dateObj.getTime();
   gameboy.iterations = 0;
+  let emulatorTicks = 0;
   let gbRunInterval = setInterval(function() {
     gameboy.run();
-    gameboy.iterations += 1; // jf did this
+    emulatorTicks += 1;
     // console.log('tick');
-  }, 8);
+  }, EMULATOR_LOOP_INTERVAL);
     
   gameboy.on('draw', function(){
     //console.log('.');

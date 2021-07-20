@@ -3,6 +3,7 @@ var Emitter = require('emitter');
 var debug = require('debug')('gameboy');
 
 module.exports = GameBoyCore;
+*/
 
 /*
  * JavaScript GameBoy Color Emulator
@@ -19,8 +20,6 @@ module.exports = GameBoyCore;
  * GNU General Public License for more details.
  *
  */
-
-let debug = console.log // [jf]
 
 function GameBoyCore(canvas, ROMImage, opts) {
   if (!(this instanceof GameBoyCore)) return new GameBoyCore(canvas, ROMImage, opts);
