@@ -56,12 +56,31 @@ const fsm = new StateMachine({
     currentTrace: null,
     handleJoyPadEvent: {},
     handleExecuteIteration: {},
+    runInterval: null,
     gameboy: null
   },
   methods: {
     onEnterPlaying: function() {
+      
       let canvas = document.getElementById("screen");
       this.gameboy = GameBoyCore(canvas, this.currentGame, { drawEvents: true });
+      
+      this.gameboy.JoyPadEvent = new Proxy(
+        this.gameboy.JoyPadEvent,
+        this.handleJoyPadEvent);
+      
+      this.gameboy.executeIteration = new Proxy(
+        this.gameboy.executeIteration,
+        this.handleExecuteIteration);
+      
+      this.gameboy.stopEmulator = 1; // required for some reason
+      this.gameboy.start();
+      
+      this.button.value = "Record new quote";
+      
+      this.runInterval = setInterval(function() {
+        fsm.gameboy.run();
+      }, EMULATOR_LOOP_INTERVAL);
     }
   }
 });
@@ -116,34 +135,18 @@ async function loadGB() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
   let buffer = await (await fetch(resource)).arrayBuffer();
   let rom = new Uint8Array(buffer);
-  let canvas = document.getElementById("screen")
-  let gameboy = GameBoyCore(canvas, rom, { drawEvents: true });
-  gameboy.stopEmulator = 1; // required
-  gameboy.start();
   
-  // START HACKY JUNK
-  let dateObj = new Date();
-  gameboy.firstIteration = dateObj.getTime();
-  gameboy.iterations = 0;
-  let emulatorTicks = 0;
-  let gbRunInterval = setInterval(function() {
-    gameboy.run();
-    emulatorTicks += 1;
-    // console.log('tick');
-  }, EMULATOR_LOOP_INTERVAL);
-    
-  gameboy.on('draw', function(){
-    //console.log('.');
-  });
-  // END HACKY JUNK
+  fsm.currentGame = rom;
+  fsm.dropGame();
+  
   
   function handleKey(event) {
     let down = (event.type == "keydown")
     let key = event.key;
     if (key in keyToButton) {
       let keycode = buttonToKeycode[keyToButton[key]];
-      gameboy.JoyPadEvent(keycode, down);
-      console.log(keycode + " " + down + " at iteration " + gameboy.iterations)
+      fsm.gameboy.JoyPadEvent(keycode, down);
+      console.log(keycode + " " + down)
     }
   }
   document.addEventListener("keydown", handleKey, false);
