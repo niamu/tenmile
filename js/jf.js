@@ -1,8 +1,99 @@
 /* global GameBoyCore */
 
-let gb = null;
+
+/* START hacky junk */
+
+var keyZones = [
+	["right", [39]],
+	["left", [37]],
+	["up", [38]],
+	["down", [40]],
+	["a", [88, 74]],
+	["b", [90, 81, 89]],
+	["select", [16]],
+	["start", [13]]
+];
+
+function keyDown(event) {
+	var keyCode = event.keyCode;
+	var keyMapLength = keyZones.length;
+	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
+		var keyCheck = keyZones[keyMapIndex];
+		var keysMapped = keyCheck[1];
+		var keysTotal = keysMapped.length;
+		for (var index = 0; index < keysTotal; ++index) {
+			if (keysMapped[index] == keyCode) {
+				GameBoyKeyDown(keyCheck[0]);
+				try {
+					event.preventDefault();
+				}
+				catch (error) { }
+			}
+		}
+	}
+}
+function keyUp(event) {
+	var keyCode = event.keyCode;
+	var keyMapLength = keyZones.length;
+	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
+		var keyCheck = keyZones[keyMapIndex];
+		var keysMapped = keyCheck[1];
+		var keysTotal = keysMapped.length;
+		for (var index = 0; index < keysTotal; ++index) {
+			if (keysMapped[index] == keyCode) {
+				GameBoyKeyUp(keyCheck[0]);
+				try {
+					event.preventDefault();
+				}
+				catch (error) { }
+			}
+		}
+	}
+}
+
+function matchKey(key) {	//Maps a keyboard key to a gameboy key.
+	//Order: Right, Left, Up, Down, A, B, Select, Start
+	var keymap = ["right", "left", "up", "down", "a", "b", "select", "start"];	//Keyboard button map.
+	for (var index = 0; index < keymap.length; index++) {
+		if (keymap[index] == key) {
+			return index;
+		}
+	}
+	return -1;
+}
+function GameBoyEmulatorInitialized() {
+	return (typeof gameboy == "object" && gameboy != null);
+}
+function GameBoyEmulatorPlaying() {
+	return ((gameboy.stopEmulator & 2) == 0);
+}
+
+function GameBoyKeyDown(key) {
+	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+		GameBoyJoyPadEvent(matchKey(key), true);
+	}
+}
+function GameBoyJoyPadEvent(keycode, down) {
+	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+		if (keycode >= 0 && keycode < 8) {
+			gameboy.JoyPadEvent(keycode, down);
+		}
+	}
+}
+function GameBoyKeyUp(key) {
+	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+		GameBoyJoyPadEvent(matchKey(key), false);
+	}
+}
+
+/* END hacky junk */
+
+let gameboy = null;
 console.log("Hello world");
 loadGB();
+
+// addEvent("keydown", document, keyDown)
+// document.addEventListener("keydown", keydown, false)
 
 async function loadGB() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
@@ -10,22 +101,19 @@ async function loadGB() {
   let rom = new Uint8Array(buffer);
   console.log(buffer);
   let canvas = document.getElementById("screen")
-  gb = GameBoyCore(canvas, rom, { drawEvents: true });
-  gb.stopEmulator = 1;
-  gb.start();
+  gameboy = GameBoyCore(canvas, rom, { drawEvents: true });
+  gameboy.stopEmulator = 1;
+  gameboy.start();
   
   let dateObj = new Date();
-  gb.firstIteration = dateObj.getTime();
-  gb.iterations = 0;
+  gameboy.firstIteration = dateObj.getTime();
+  gameboy.iterations = 0;
   let gbRunInterval = setInterval(function() {
-    gb.run();
+    gameboy.run();
     // console.log('tick');
   }, 8);
-  
-  console.log(gb);
-  
-  
-  gb.on('draw', function(){
-    console.log('.');
+    
+  gameboy.on('draw', function(){
+    //console.log('.');
   });
 }
