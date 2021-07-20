@@ -1,4 +1,4 @@
-/*
+/* [jf]
 var Emitter = require('emitter');
 var debug = require('debug')('gameboy');
 
@@ -20,8 +20,7 @@ module.exports = GameBoyCore;
  *
  */
 
-// [jf]
-let debug = console.log
+let debug = console.log // [jf]
 
 function GameBoyCore(canvas, ROMImage, opts) {
   if (!(this instanceof GameBoyCore)) return new GameBoyCore(canvas, ROMImage, opts);
@@ -4439,8 +4438,6 @@ GameBoyCore.prototype.start = function () {
   this.initLCD();   //Initialize the graphics.
   this.initSound(); //Sound object initialization.
   this.run();     //Start the emulation.
-  // [jf]
-  debug("started")
 };
 GameBoyCore.prototype.initMemory = function () {
   //Initialize the RAM:
