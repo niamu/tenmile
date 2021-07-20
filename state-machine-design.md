@@ -40,11 +40,14 @@ Transitions:
 
 idle: trigger load game or quote based on hash fragment
 
-Global state:
-- fsm
+FSM state:
+- button
 - currentGame (ROM)
-- currentQuote (obj)
-- currentTrace (obj)
+- currentQuote (object)
+- currentTrace (object)
+- handleJoyPadEvent (object)
+- handleExecuteIteration (object)
+- handleROM (object)
 
 class Quote:
 - rom (with many zeros)
