@@ -2,6 +2,12 @@
 
 const EMULATOR_LOOP_INTERVAL = 8;
 
+
+window.debug = function() {
+  console.log("debug:", ...arguments);
+};
+
+
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
@@ -36,14 +42,27 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onEnterPlaying: function() {
+    
+    onBeforeTransition: function (lifecycle) {
+      console.log('lifecycle:', lifecycle);
+      
+      if(this.gameboy) {
+        this.currentState = this.gameboy.saveState();
+        this.currentState[0] = this.currentGame; // unproxied ROM
+      }
+      
       let canvas = document.getElementById("screen");
+      
       this.gameboy = GameBoyCore(canvas, this.currentGame, {
         drawEvents: true
       });
 
       this.gameboy.stopEmulator = 1; // required for some reason
       this.gameboy.start();
+      
+      this.runInterval = setInterval(function() {
+        fsm.gameboy.run();
+      }, EMULATOR_LOOP_INTERVAL);
 
       if (this.currentState != null) {
         this.gameboy.returnFromState(this.currentState);
@@ -60,12 +79,11 @@ const fsm = new StateMachine({
       );
 
       this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-
+      
+    },
+    
+    onEnterPlaying: function() {
       this.button.value = "Record new quote";
-
-      this.runInterval = setInterval(function() {
-        fsm.gameboy.run();
-      }, EMULATOR_LOOP_INTERVAL);
     },
 
     onEnterRecording: function() {
@@ -115,7 +133,11 @@ const fsm = new StateMachine({
 
     onLeaveCompiling: function() {
       this.button.disabled = false;
-    }
+    },
+    
+    onBeginWatching: function() {
+      
+    },
   }
 });
 
@@ -183,9 +205,6 @@ const buttonToKeycode = {
   start: 7
 };
 
-window.debug = function() {
-  console.log("debug:", ...arguments);
-};
 
 
 (async function onPageLoad() {
