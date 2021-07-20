@@ -2,11 +2,9 @@
 
 const EMULATOR_LOOP_INTERVAL = 8;
 
-
 window.debug = function() {
   console.log("debug:", ...arguments);
 };
-
 
 const fsm = new StateMachine({
   init: "idle",
@@ -42,46 +40,51 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    
-    onBeforeTransition: function (lifecycle) {
-      console.log('lifecycle:', lifecycle);
-      
-      if(this.gameboy) {
+    onBeforeTransition: function(lifecycle) {
+      if (this.gameboy != null) {
         this.currentState = this.gameboy.saveState();
         this.currentState[0] = this.currentGame; // unproxied ROM
-      }
-      
-      let canvas = document.getElementById("screen");
-      
-      this.gameboy = GameBoyCore(canvas, this.currentGame, {
-        drawEvents: true
-      });
-
-      this.gameboy.stopEmulator = 1; // required for some reason
-      this.gameboy.start();
-      
-      this.runInterval = setInterval(function() {
-        fsm.gameboy.run();
-      }, EMULATOR_LOOP_INTERVAL);
-
-      if (this.currentState != null) {
-        this.gameboy.returnFromState(this.currentState);
+        this.gameboy = null;
+        cancelInterval(this.runInterval);
+        this.runInterval = null;
       }
 
-      this.gameboy.JoyPadEvent = new Proxy(
-        this.gameboy.JoyPadEvent,
-        this.handleJoyPadEvent
-      );
+      if (this.currentGame != null) {
+        let canvas = document.getElementById("screen");
 
-      this.gameboy.executeIteration = new Proxy(
-        this.gameboy.executeIteration,
-        this.handleExecuteIteration
-      );
+        this.gameboy = GameBoyCore(canvas, this.currentGame, {
+          drawEvents: true
+        });
 
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-      
+        this.gameboy.stopEmulator = 1; // required for some reason
+        this.gameboy.start();
+        
+        if(this.currentState != null) {
+          this.gameboy.returnFromState(this.currentState);
+        }
+
+        this.runInterval = setInterval(function() {
+          fsm.gameboy.run();
+        }, EMULATOR_LOOP_INTERVAL);
+
+        if (this.currentState != null) {
+          this.gameboy.returnFromState(this.currentState);
+        }
+
+        this.gameboy.JoyPadEvent = new Proxy(
+          this.gameboy.JoyPadEvent,
+          this.handleJoyPadEvent
+        );
+
+        this.gameboy.executeIteration = new Proxy(
+          this.gameboy.executeIteration,
+          this.handleExecuteIteration
+        );
+
+        this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      }
     },
-    
+
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
     },
@@ -124,6 +127,7 @@ const fsm = new StateMachine({
 
       // TODO[jf]: compile the trace using await as needed
       setTimeout(() => {
+        
         // at the end of recording, take them back to where recording started so that it is easy to record another take
         fsm.currentState = fsm.currentTrace.initialState;
         fsm.currentState[0] = fsm.currentGame; // unproxied ROM
@@ -132,12 +136,24 @@ const fsm = new StateMachine({
     },
 
     onLeaveCompiling: function() {
+      fsm.currentTrace = null;
       this.button.disabled = false;
     },
-    
+
     onBeginWatching: function() {
+      this.gameboy.returnFromState(this.currentQuote.state);
       
+      // TODO: start playing action animation
     },
+    
+    onBeginRiffing: function() {
+    
+    },
+    
+    onLeaveRiffing: function() {
+      
+    }
+    
   }
 });
 
@@ -147,41 +163,38 @@ class Quote {
   state;
   actions;
   actionCursor;
+  
+  static loadFromArrayBuffer(buffer) {
+  let png = new PNGBaker(buffer);
+  let quote = {};
+  let jszip = new JSZip();
+  let zip = await jszip.loadAsync(png.chunk);
+  for (let filename of Object.keys(zip.files)) {
+    quote[filename] = await zip.file(filename).async("uint8array");
+  }
+
+  let frameBuffer = new Int32Array(160 * 144);
+  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
+  for (let i = 0; i < frameBuffer.length; i++) {
+    frameBuffer[i] += rgba[4 * i + 0] << 16;
+    frameBuffer[i] += rgba[4 * i + 1] << 8;
+    frameBuffer[i] += rgba[4 * i + 2] << 0;
+  }
+  quote.frameBuffer = frameBuffer;
+
+  return quote;
+  }
 }
 
 class Trace {
   initialState;
   actions;
   romDependencies;
+  
+  compileQuoteToArrayBuffer() {
+    // TODO
+  }
 }
-
-/*
-
-- idle,dropQuote,watching
-- idle,dropGame,playing
-
-- watching,dropQuote,watching
-- watching,dropGame,playing (continue if compatible)
-- watching,tap,riffing
-- watching,oob,watching (can't happen?)
-
-- riffing,dropQuote,watching
-- riffing,dropGame,playing (continue if compatible)
-- riffing,tap,watching
-- riffing,oob,riffing
-
-- playing,dropQuote,watching
-- playing,dropGame,playing (fresh)
-- playing,tap,recording
-
-- recording,dropQuote,watching
-- recording,dropGame,playing (fresh)
-- recording,tap,compiling
-- recording,safety,compiling
-
-- compiling,complete,playing (at *start* of recording for another take)
-
-*/
 
 const keyToButton = {
   ArrowRight: "right",
@@ -205,11 +218,7 @@ const buttonToKeycode = {
   start: 7
 };
 
-
-
 (async function onPageLoad() {
-  
-  
   function handleKey(event) {
     if (fsm.gameboy) {
       let key = event.key;
@@ -224,11 +233,24 @@ const buttonToKeycode = {
 
   document.getElementById("button").onclick = () => fsm.tap();
 
+  /*
   // simulate the example game being dropped when the page loads
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
   let buffer = await (await fetch(resource)).arrayBuffer();
   let rom = new Uint8Array(buffer);
   fsm.currentGame = rom;
   fsm.currentState = null;
-  fsm.dropGame();
+  fsm.dropGame();*/
+  
+  
+  // simulate the example game being dropped when the page loads
+  let resource = "hhttps://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
+  let buffer = await (await fetch(resource)).arrayBuffer();
+  fsm.currentState = await Quote.loadFromArrayBuffer(buffer);
+  fsm.currentGame = fsm.currentState[0]; // ROM was embedded in the save
+  fsm.dropQuote();
+  
+  
+  // https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png
+  
 })();
