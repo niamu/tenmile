@@ -11,8 +11,17 @@ async function loadGB() {
   console.log(buffer);
   let canvas = document.getElementById("screen")
   gb = GameBoyCore(canvas, rom, { drawEvents: true });
+  gb.stopEmulator = 1;
   gb.start();
-  gb.run();
+  
+  let dateObj = new Date();
+  gb.firstIteration = dateObj.getTime();
+  gb.iterations = 0;
+  let gbRunInterval = setInterval(function() {
+    gb.run();
+    // console.log('tick');
+  }, 8);
+  
   console.log(gb);
   
   
