@@ -38,13 +38,14 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onLeaveReset: function(lifecycle) {
-      console.log(
+    onTransition: function(lifecycle, ...args) {
+      console.info(
         "transition:",
         lifecycle.transition,
         lifecycle.from,
         "->",
-        lifecycle.to
+        lifecycle.to,
+        args
       );
 
       if (this.gameboy != null) {
@@ -52,8 +53,8 @@ const fsm = new StateMachine({
         this.runInterval = null;
         this.gameboy = null;
       }
-
-      if (this.currentROM != null) {
+      
+      if (this.gameboy == null && this.currentROM != null) {
         let canvas = document.getElementById("screen");
 
         this.gameboy = GameBoyCore(canvas, this.currentROM, {});
@@ -90,16 +91,16 @@ const fsm = new StateMachine({
       }
     },
 
-    onDropQuote: async function(lifecycle, quote) {
-      console.log("onDropQuote");
+    onDropQuote: function(lifecycle, quote) {
       fsm.currentQuote = quote;
       fsm.currentROM = fsm.currentQuote.rom;
-      fsm.currentState = fsm.currentQuote.state;
     },
 
     onEnterWatching: function() {
       console.log("onEnterWatching");
       fsm.button.value = "Take control";
+
+      fsm.gameboy.returnFromState(fsm.currentQuote.state);
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -109,11 +110,11 @@ const fsm = new StateMachine({
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // ignore event while watching
+        // ignore events while watching
       };
     },
 
-    onBeforeDropGame: function(lifecycle, rom) {
+    onDropGame: function(lifecycle, rom) {
       fsm.currentROM = rom;
       fsm.currentState = null;
     },
