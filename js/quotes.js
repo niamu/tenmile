@@ -141,10 +141,7 @@ async function compileQuote(trace) {
   zip.file("rom.bin", maskedROM);
   zip.file("romMask.bin", mask);
   zip.file("initialState.msgpack", msgpack.serialize(state));
-  if (trace.actions) {
-    console.log('trace.actions:', trace.actions);
-    zip.file("actions.msgpack", msgpack.serialize(trace.actions));
-  }
+  zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   
   zip.file("README.md", readme);
 

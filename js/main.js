@@ -74,12 +74,13 @@ const fsm = new StateMachine({
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
         
-        this.gameboy.unproxiedROM = this.gameboy.ROM;
-
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
+        
+        this.gameboy.unproxiedROM = this.gameboy.ROM;
+        this.gameboy.unproxiedJoyPadEvent = this.gameboy.JoyPadEvent;
 
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
@@ -113,13 +114,23 @@ const fsm = new StateMachine({
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
-        iteration++;
+        
+        // TODO: restart when actions are done
+        if(iteration >= fsm.currentQuote.actions.length) {
+          iteration = 0;
+        } else {
+          for(let action of fsm.currentQuote.actions[iteration]) {
+            fsm.gameboy.unproxiedJoyPadEvent(...action);
+          }
+          iteration++;
+        }
+        
         return Reflect.apply(...arguments);
-        // TODO: check for actions in the log to apply this frame.
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // ignore events while watching
+        // ignore events while watching, but count it as trying to grab control
+        fsm.tap();
       };
     },
 
@@ -180,11 +191,9 @@ const fsm = new StateMachine({
 
       let actionsSinceLastIteration = [];
       this.handleExecuteIteration.apply = function() {
-        
-        return Reflect.apply(...arguments);
-        console.log('tick');
         fsm.currentTrace.actions.push(actionsSinceLastIteration);
         actionsSinceLastIteration = [];
+        return Reflect.apply(...arguments);
       };
 
       this.handleJoyPadEvent.apply = function(target, thisArg, args) {
