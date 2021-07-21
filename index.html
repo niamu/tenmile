@@ -19,10 +19,16 @@
     <script src="js/quotes.js" defer></script>
   </head>
   <body>
-    <div id="container"></div>
-    <canvas id="screen" width="320" height="288"></canvas>
-    <br />
-    <input id="button" type="button" />
+    <div
+      id="container"
+      ondrop="dropHandler(event);"
+         style="background: #f5f5f5;"
+      ondragover="dragOverHandler(event);"
+    >
+      <canvas id="screen" width="320" height="288"></canvas>
+      <br />
+      <input id="button" type="button" />
+    </div>
 
     <footer class="footer"></footer>
   </body>

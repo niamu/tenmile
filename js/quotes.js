@@ -311,3 +311,63 @@ async function dropExampleQuote() {
   fsm.currentState = fsm.currentQuote.state;
   fsm.dropQuote();
 }
+
+// https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+function dropHandler(ev) {
+  console.log("File(s) dropped");
+
+  // Prevent default behavior (Prevent file from being opened)
+  ev.preventDefault();
+
+  if (ev.dataTransfer.items) {
+    // Use DataTransferItemList interface to access the file(s)
+    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+      // If dropped items aren't files, reject them
+      if (ev.dataTransfer.items[i].kind === "file") {
+        processFile(ev.dataTransfer.items[i].getAsFile());
+      }
+    }
+  } else {
+    // Use DataTransfer interface to access the file(s)
+    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+      processFile(ev.dataTransfer.files[i]);
+    }
+  }
+}
+
+function dragOverHandler(ev) {
+  console.log("File(s) in drop zone");
+
+  // Prevent default behavior (Prevent file from being opened)
+  ev.preventDefault();
+}
+
+async function processFile(file) {
+  /*
+  if (fsm.is("playingROM") || fsm.is("playingQuote")) {
+    fsm.quit();
+  }
+  */
+
+  let buffer = await file.arrayBuffer();
+  // FIXME: Look for the chunk name instead
+  let isPNG = new Uint32Array(buffer.slice(0, 4))[0] == 0x474e5089;
+  // https://github.com/file/file/blob/905ca555b0e2bdcf9d2985bcc7c1c22e2229b088/magic/Magdir/console#L114
+  let isGB =
+    new Uint32Array(buffer.slice(0x104, 0x10c))[0] == 0x6666edce &&
+    new Uint32Array(buffer.slice(0x104, 0x10c))[1] == 0x0b000dcc;
+
+  if (isPNG) {
+    //fsm.runQuote(buffer);
+    fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
+    fsm.currentState = fsm.currentQuote.state;
+    fsm.dropQuote();
+  } else if (isGB) {
+    let rom = new Uint8Array(buffer);
+    fsm.currentROM = rom;
+    fsm.currentState = null;
+    fsm.dropGame();
+  } else {
+    alert("Unsupported file");
+  }
+}
