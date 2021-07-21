@@ -32,11 +32,30 @@
       gameboy.stopEmulator = 1; // required for some reason
       gameboy.start();
       
+      for()
+      
+      const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
+      
+      for(let e of elements) {
+        let hitmap = new Set();
+        gameboy[e] = new Proxy(gameboy[e], {
+          get: function(target, prop) {
+            if(!hitmap.has(prop)) {
+              hitmap.add(prop);
+              console.count(e);
+            }
+            return target[prop];
+          }
+        });  
+      }
+      
       window.gameboy = gameboy;
 
       setInterval(function() {
         gameboy.run();
       }, 8);
+      
+      
     })();
   </script>
 </html>
