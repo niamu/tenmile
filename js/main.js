@@ -93,6 +93,12 @@ const fsm = new StateMachine({
         );
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+        
+        this.gameboy.resume = (state) => {
+          this.gameboy.returnFromState(state);
+          this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+        };
+        
       }
 
       if (this.gameboy) {
@@ -109,14 +115,13 @@ const fsm = new StateMachine({
     onEnterWatching: function() {
       this.button.value = "Take control";
 
-      this.gameboy.returnFromState(this.currentQuote.state);
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      this.gameboy.resume(this.currentQuote.state);
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         
-        // TODO: restart when actions are done
         if(iteration >= fsm.currentQuote.actions.length) {
+          fsm.gameboy.resume(fsm.currentQuote.state);
           iteration = 0;
         } else {
           for(let action of fsm.currentQuote.actions[iteration]) {
@@ -167,8 +172,7 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       if (this.lastState) {
-        this.gameboy.returnFromState(this.lastState);
-        this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+        this.gameboy.resume(this.lastState);
       }
       this.button.value = "Record new quote";
     },
@@ -179,8 +183,7 @@ const fsm = new StateMachine({
     },
 
     onEnterRecording: function() {
-      this.gameboy.returnFromState(this.lastState);
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      this.gameboy.resume(this.lastState);
 
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
@@ -246,7 +249,6 @@ const fsm = new StateMachine({
 
       this.handleROM.get = function(target, prop) {
         if (fsm.currentQuote.romMask[prop] == 0) {
-          //console.log("OOB access:", prop);
           oob = true;
         }
         return target[prop];
@@ -257,8 +259,7 @@ const fsm = new StateMachine({
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.gameboy.returnFromState(fsm.currentQuote.state);
-          fsm.gameboy.ROM = new Proxy(fsm.gameboy.ROM, fsm.handleROM);
+          fsm.gameboy.resume(fsm.currentQuote.state);
         }
       };
     },
