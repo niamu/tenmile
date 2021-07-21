@@ -9,21 +9,26 @@ const fsm = new StateMachine({
   init: "idle",
   transitions: [
     {
-      name: "dropQuote",
+      name: "restart",
       from: ["idle", "watching", "riffing", "playing", "recording"],
+      to: "reset"
+    },
+    {
+      name: "dropQuote",
+      //from: ["idle", "watching", "riffing", "playing", "recording"],
+      from: "reset",
       to: "watching"
     },
     {
       name: "dropGame",
-      from: ["idle", "watching", "riffing", "playing", "recording"],
+      //from: ["idle", "watching", "riffing", "playing", "recording"],
+      from: "reset",
       to: "playing"
     },
-
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
     { name: "tap", from: "recording", to: "compiling" },
-
     { name: "complete", from: "compiling", to: "playing" }
   ],
   data: {
@@ -39,7 +44,7 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    old_onTransition: function(lifecycle) {
+    onReset: function(lifecycle) {
       console.log(
         "transition:",
         lifecycle.transition,
@@ -73,10 +78,11 @@ const fsm = new StateMachine({
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
 
-        //FIXME
+        /*
         if (this.currentState != null) {
           this.gameboy.returnFromState(this.currentState);
         }
+        */
 
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
@@ -93,51 +99,15 @@ const fsm = new StateMachine({
     },
 
     onBeforeDropQuote: async function(lifecycle, buffer) {
+      console.log("onBeforeDropQuote");
       fsm.currentQuote = await loadQuote(buffer);
       fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
     },
 
     onEnterWatching: function() {
-      if (this.gameboy != null) {
-        this.gameboy = null;
-        clearInterval(this.runInterval);
-        this.runInterval = null;
-      }
-
-      if (this.currentROM != null) {
-        let canvas = document.getElementById("screen");
-
-        this.gameboy = GameBoyCore(canvas, this.currentROM, {});
-
-        this.gameboy.stopEmulator = 1; // required for some reason
-        this.gameboy.start();
-
-        if (this.currentState != null) {
-          this.gameboy.returnFromState(this.currentState);
-        }
-
-        const EMULATOR_LOOP_INTERVAL = 8;
-        this.runInterval = setInterval(function() {
-          fsm.gameboy.run();
-        }, EMULATOR_LOOP_INTERVAL);
-
-        this.gameboy.JoyPadEvent = new Proxy(
-          this.gameboy.JoyPadEvent,
-          this.handleJoyPadEvent
-        );
-
-        this.gameboy.executeIteration = new Proxy(
-          this.gameboy.executeIteration,
-          this.handleExecuteIteration
-        );
-      }
-    },
-    onAfterWatching: function() {
-      console.log("on_Watching");
+      console.log("onEnterWatching");
       fsm.button.value = "Take control";
-
-      fsm.gameboy.returnFromState(fsm.currentQuote.state);
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -159,36 +129,6 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
-
-      if (this.gameboy != null) {
-        this.gameboy = null;
-        clearInterval(this.runInterval);
-        this.runInterval = null;
-      }
-
-      let canvas = document.getElementById("screen");
-
-      this.gameboy = GameBoyCore(canvas, this.currentROM, {});
-
-      this.gameboy.stopEmulator = 1; // required for some reason
-      this.gameboy.start();
-
-      const EMULATOR_LOOP_INTERVAL = 8;
-      this.runInterval = setInterval(function() {
-        fsm.gameboy.run();
-      }, EMULATOR_LOOP_INTERVAL);
-
-      this.gameboy.JoyPadEvent = new Proxy(
-        this.gameboy.JoyPadEvent,
-        this.handleJoyPadEvent
-      );
-
-      this.gameboy.executeIteration = new Proxy(
-        this.gameboy.executeIteration,
-        this.handleExecuteIteration
-      );
-
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
     },
 
     onEnterRecording: function() {
@@ -412,26 +352,16 @@ function dropHandler(ev) {
   }
 }
 
-function dragOverHandler(ev) {
-  console.log("File(s) in drop zone");
-
-  // Prevent default behavior (Prevent file from being opened)
-  ev.preventDefault();
-}
-
 async function processFile(file) {
   console.log("processing file");
   let buffer = await file.arrayBuffer();
   let dataView = new DataView(buffer);
-  /*
-    dataView.getUint32(0,false) == 0x89504e47;
-  */
   // FIXME: Look for the chunk name instead
-  let isPNG = dataView.getUint32(0,false) == 0x89504e47;
+  let isPNG = dataView.getUint32(0) == 0x89504e47;
   // https://github.com/file/file/blob/905ca555b0e2bdcf9d2985bcc7c1c22e2229b088/magic/Magdir/console#L114
   let isGB =
-    new Uint32Array(buffer.slice(0x104, 0x10c))[0] == 0x6666edce &&
-    new Uint32Array(buffer.slice(0x104, 0x10c))[1] == 0x0b000dcc;
+    dataView.getUint32(0x104) == 0xCEED6666 &&
+    dataView.getUint32(0x108) == 0xCC0D000B;
 
   if (isPNG) {
     if (fsm.can("dropQuote")) {
