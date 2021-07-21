@@ -179,27 +179,23 @@ const fsm = new StateMachine({
         return target[prop];
       };
 
-      async function updateRecordingStatus() {
-        let percentage = "0.0";
-        if (fsm.currentTrace.romDependencies) {
-          percentage =
+      function updateRecordingStatus() {
+        let percentage =
             fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
-        }
-        document.getElementById("percentRecorded").innerHTML = Number(
+        document.getElementById("recordingStatus").innerText = Number(
           percentage
         ).toLocaleString(undefined, {
           style: "percent",
-          minimumFractionDigits: 3
-        });
+          minimumFractionDigits: 2
+        }) + " of ROM bytes accessed.";
       }
 
       this.button.value = "Stop recording";
-      document.getElementById("recordingStatus").style.display = "block";
       this.recordingStatusInterval = setInterval(updateRecordingStatus, 500);
     },
 
     onLeaveRecording: function() {
-      document.getElementById("recordingStatus").style.display = "none";
+      document.getElementById("recordingStatus").innerText = "";
       clearInterval(this.recordingStatusInterval);
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
