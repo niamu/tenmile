@@ -32,7 +32,10 @@
       gameboy.stopEmulator = 1; // required for some reason
       gameboy.start();
       
-      for()
+      // skip startup
+      for(let i = 0; i < 60*10; i++) {
+        gameboy.run();
+      }
       
       const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
       
