@@ -39,14 +39,12 @@ DETAILS_GO_HERE
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
-
 function generateMaskedROM(rom, dependencies) {
-  
   let maskedROM = new Uint8Array(rom.length);
   let mask = new Uint8Array(rom.length);
-  
+
   // include any byte of a memory page associated with an address in dependencies
-  const PAGE_SIZE = 64;  
+  const PAGE_SIZE = 64;
   let pages = new Set();
   for (let address of dependencies) {
     pages.add(Math.floor(address / PAGE_SIZE));
@@ -65,14 +63,14 @@ function generateMaskedROM(rom, dependencies) {
     maskedROM[i] = 0;
     mask[i] = 0;
   }
-  
+
   // always include header (title + ROM/RAM size + etc.)
   for (let i = 0x134; i < 0x14d; i++) {
     maskedROM[i] = rom[i];
     mask[i] = 1;
   }
-  
-  return {maskedROM, mask};
+
+  return { maskedROM, mask };
 }
 
 async function loadQuote(buffer) {
@@ -105,34 +103,45 @@ async function loadQuote(buffer) {
 }
 
 async function compileQuote(trace) {
+  let originalROM = trace.initialState[SAVESTATE_ROM];
 
-  let originalROM = trace.initialState[SAVESTATE_ROM]
-  
-  let {maskedROM, mask} = generateMaskedROM(
+  let { maskedROM, mask } = generateMaskedROM(
     originalROM,
-    trace.romDependencies);
+    trace.romDependencies
+  );
 
   let originalBytes = originalROM.length;
-  let includedBytes = originalROM.map((e) => e==1).reduce((a,b)=>a+b,0);
-  
+  let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
+
   let digest = "";
-  for(let byte of new Uint8Array(await crypto.subtle.digest('SHA-256', originalROM))) {
-    digest += byte.toString(16).padStart(2, '0');
+  for (let byte of new Uint8Array(
+    await crypto.subtle.digest("SHA-256", originalROM)
+  )) {
+    digest += byte.toString(16).padStart(2, "0");
   }
-  
+
   let details = "";
-  details += '- Included original ROM bytes: ' + includedBytes + ' of ' + originalBytes + ' (' +
-    Number(includedBytes/originalBytes).toLocaleString(undefined, {
-            style: "percent",
-            minimumFractionDigits: 2
-          }) + ").\n";
-  
-  details += '- Original ROM SHA-256 digest: ' + digest.toUpperCase() + '\n';
-  details += '- Reference gameplay recording: XXX emulator iterations (~YY.Y seconds)\n';
-  
-  let readme = ARCHIVE_README_TEMPLATE.slice().replace('DETAILS_GO_HERE', details);
+  details +=
+    "- Included original ROM bytes: " +
+    includedBytes +
+    " of " +
+    originalBytes +
+    " (" +
+    Number(includedBytes / originalBytes).toLocaleString(undefined, {
+      style: "percent",
+      minimumFractionDigits: 2
+    }) +
+    ").\n";
+
+  details += "- Original ROM SHA-256 digest: " + digest.toUpperCase() + "\n";
+  details += "- Reference gameplay recording: " + trace.actions.length + "\n";
+
+  let readme = ARCHIVE_README_TEMPLATE.slice().replace(
+    "DETAILS_GO_HERE",
+    details
+  );
   console.log(details);
-  
+
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
   state[SAVESTATE_FRAMEBUFFER] = null; // stored in outer PNG
@@ -142,13 +151,13 @@ async function compileQuote(trace) {
   zip.file("romMask.bin", mask);
   zip.file("initialState.msgpack", msgpack.serialize(state));
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
-  
+
   zip.file("README.md", readme);
 
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
     compression: "DEFLATE",
-    compressionOptions: { level: 9 },
+    compressionOptions: { level: 9 }
   });
 
   let rgba = [];
@@ -161,7 +170,7 @@ async function compileQuote(trace) {
 
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
 
-  let blob = new Blob([pngBuffer, zipBuffer], {type:'image/png'});  
+  let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
   document.getElementById("quotes").appendChild(img);

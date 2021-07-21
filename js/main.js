@@ -56,9 +56,10 @@ const fsm = new StateMachine({
 
       if (
         this.gameboy != null &&
-        this.gameboy.unproxiedROM != this.currentROM
+        !identicalArrays(this.gameboy.unproxiedROM, this.currentROM)
       ) {
         // need to rebuild for new ROM
+        console.log('rebuilding gameboy');
         clearInterval(this.runInterval);
         this.runInterval = null;
         this.gameboy = null;
@@ -295,6 +296,15 @@ const buttonToKeycode = {
   start: 7
 };
 
+function identicalArrays(a,b) {
+  for(let i in a) {
+    if(a[i] != b[i]) {
+      return false;
+    } 
+  }
+  return a.length == b.length;
+}
+
 (async function onPageLoad() {
   function handleKey(event) {
     if (fsm.gameboy) {
@@ -317,6 +327,12 @@ const buttonToKeycode = {
     }
   };
 
+  let buttonToKey = {}
+  Object.keys(keyToButton).forEach((key) => {buttonToKey[keyToButton[key]] = key})
+  
+  const controls = "A/B/Start/Select with " + [buttonToKey["a"],buttonToKey["b"],buttonToKey["start"],buttonToKey["select"]].join("/")
+  document.getElementById("controls").textContent = controls;
+  
   await dropExampleGame();
   //await dropExampleQuote();
 })();
