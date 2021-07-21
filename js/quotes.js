@@ -20,6 +20,39 @@ class Trace {
 const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
 
+function generateMaskedROM(rom, dependencies) {
+  const PAGE_SIZE = 64;
+  
+  let maskedROM = new Uint8Array(rom.length);
+  let mask = new Uint8Array(rom.length);
+  let pages = new Set();
+  for (let address of dependencies) {
+    pages.add(Math.floor(address / PAGE_SIZE));
+  }
+  for (let page of pages) {
+    let startAddress = page * PAGE_SIZE;
+    for (let i = 0; i < PAGE_SIZE; i++) {
+      let address = startAddress + i;
+      maskedROM[address] = rom[address];
+      mask[address] = 1;
+    }
+  }
+
+  // always remove entry point and logo (never needed for a quote of a specific moment)
+  for (let i = 0x100; i < 0x134; i++) {
+    maskedROM[i] = 0;
+    mask[i] = 0;
+  }
+  
+  // always include header (title + ROM/RAM size + etc.)
+  for (let i = 0x134; i < 0x14d; i++) {
+    maskedROM[i] = rom[i];
+    mask[i] = 1;
+  }
+  
+  return {maskedROM, mask};
+}
+
 async function loadQuoteV2(buffer) {
   let quote = new Quote();
 
@@ -50,45 +83,22 @@ async function loadQuoteV2(buffer) {
 }
 
 async function compileQuoteV2(trace) {
-  const PAGE_SIZE = 64;
 
-  let rom = trace.initialState[SAVESTATE_ROM];
-
-  let maskedROM = new Uint8Array(rom.length);
-  let mask = new Uint8Array(rom.length);
-  let pages = new Set();
-  for (let address of trace.romDependencies) {
-    pages.add(Math.floor(address / PAGE_SIZE));
-  }
-  for (let page of pages) {
-    let startAddress = page * PAGE_SIZE;
-    for (let i = 0; i < PAGE_SIZE; i++) {
-      let address = startAddress + i;
-      maskedROM[address] = rom[address];
-      mask[address] = 1;
-    }
-  }
-
-  for (let i = 0; i < 0x134; i++) {
-    maskedROM[i] = 0;
-    mask[i] = 0;
-  }
-  for (let i = 0x134; i < 0x14d; i++) {
-    maskedROM[i] = rom[i];
-    mask[i] = 1;
-  }
-
-  let state = trace.initialState.slice();
-  state[SAVESTATE_ROM] = null;
-  state[SAVESTATE_FRAMEBUFFER] = null;
+  let {maskedROM, mask} = generateMaskedROM(
+    trace.initialState[SAVESTATE_ROM],
+    trace.romDependencies);
 
   let zip = new JSZip();
   
-  zip.file("rom", maskedROM);
-  zip.file("rom_mask", mask);
-  zip.file("savestate", msgpack.serialize(state));
+  let state = trace.initialState.slice();
+  state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
+  state[SAVESTATE_FRAMEBUFFER] = null; // stored in outer PNG
+
+  zip.file("rom.bin", maskedROM);
+  zip.file("romMask.bin", mask);
+  zip.file("savestate.msgpack", msgpack.serialize(state));
   if (trace.actions) {
-    zip.file("action_log", msgpack.serialize(trace.actions));
+    zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   }
 
   let binary = await zip.generateAsync({
@@ -151,35 +161,11 @@ async function loadQuote(buffer) {
 }
 
 async function compileQuote(trace) {
-  // How many bytes to store per address observed
-  const PAGE_SIZE = 64;
-
+  
   let rom = trace.initialState[0];
 
   let zip = new JSZip();
-  let maskedROM = new Uint8Array(rom.length);
-  let mask = new Uint8Array(rom.length);
-  let pages = new Set();
-  for (let address of trace.romDependencies) {
-    pages.add(Math.floor(address / PAGE_SIZE));
-  }
-  for (let page of pages) {
-    let startAddress = page * PAGE_SIZE;
-    for (let i = 0; i < PAGE_SIZE; i++) {
-      let address = startAddress + i;
-      maskedROM[address] = rom[address];
-      mask[address] = 1;
-    }
-  }
-
-  for (let i = 0; i < 0x134; i++) {
-    maskedROM[i] = 0;
-    mask[i] = 0;
-  }
-  for (let i = 0x134; i < 0x14d; i++) {
-    maskedROM[i] = rom[i];
-    mask[i] = 1;
-  }
+  let {maskedROM, mask} = generateMaskedROM(rom, trace.romDependencies);
 
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null;
