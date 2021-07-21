@@ -1,7 +1,8 @@
 /* global GameBoyCore, StateMachine */
 
+// used by gameboy.js
 window.debug = function() {
-  console.log("debug:", ...arguments);
+  //console.log("debug:", ...arguments);
 };
 
 const fsm = new StateMachine({
@@ -91,15 +92,12 @@ const fsm = new StateMachine({
     },
 
     onBeforeDropQuote: async function(lifecycle, buffer) {
-      console.log("onDropQuote");
       fsm.currentQuote = await loadQuote(buffer);
-      console.log(fsm.currentQuote);
-      fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
+      fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
     },
     
     onBeforeDropGame: async function(lifecycle, buffer) {
-      console.log("onDropGame");
       let rom = new Uint8Array(buffer);
       fsm.currentROM = rom;
       fsm.currentState = null;
@@ -302,8 +300,10 @@ const buttonToKeycode = {
   }
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
-
   document.getElementById("button").onclick = () => fsm.tap();
+  
+  document.getElementById("container").ondragover = ev => ev.preventDefault();
+  document.getElementById("container").ondrop = dropHandler;
 
   //await dropExampleGame();
   await dropExampleQuote();

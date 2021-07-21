@@ -6,11 +6,16 @@
     <link rel="icon" href="https://glitch.com/favicon.ico" />
 
     <title>Playable Quotes for Game Boy</title>
-    
+
     <style>
+      #container {
+        background: #f5f5f5;
+      }
       #container canvas {
-        width:
-        border: thin dotted black;
+        width: 320px;
+        height: 288px;
+        display: block;
+        padding: 10px;
       }
     </style>
 
@@ -23,20 +28,14 @@
     <script src="js/emitter.js" defer></script>
     <script src="js/gameboy.js" defer></script>
     <script src="js/state-machine.js" defer></script>
+
     <script src="js/quotes.js" defer></script>
   </head>
+
   <body>
-    <div
-      id="container"
-      ondrop="dropHandler(event);"
-      style="background: #f5f5f5;"
-      ondragover="event.preventDefault();"
-    >
-      <canvas id="screen" width="320" height="288"></canvas>
-      <br />
+    <div id="container">
+      <canvas id="screen"></canvas>
       <input id="button" type="button" />
     </div>
-
-    <footer class="footer"></footer>
   </body>
 </html>

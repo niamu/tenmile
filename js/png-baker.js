@@ -26,7 +26,6 @@ function PNGBaker(thing, callback) {
     throw new Error("first chunk must be IHDR");
   if (this._chunks[this._chunks.length-1].type != "IEND")
     throw new Error("last chunk must be IEND");
-  console.log("Done with PNG")
 }
 
 PNGBaker.prototype = {
@@ -54,7 +53,6 @@ PNGBaker.prototype = {
     if (chunkCRC != ourCRC)
       throw new Error("CRC mismatch for chunk type " + chunkType);
 
-    console.log("Found chunk of type: " + chunkType);
     if (chunkType == this.chunkType) {
       this.chunk = chunkBytes;
       if(this.callback) {
