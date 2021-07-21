@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>...</title>
+    <script src="lib/pako.min.js" defer></script>
     <script src="lib/emitter.js"></script>
     <script src="lib/gameboy.js"></script>
   </head>
@@ -20,8 +21,18 @@
       let canvas = document.getElementById("screen");
       let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
 
+      /* Big saveState elements size (compressed size at main menu)
+        - gameboy.ROM: 64KB (17KB)
+        - gameboy.memory: 64KB (10KB)
+        - gameboy.MBCRam: 128KB (149bytes)
+        - gameboy.VRAM: 8KB (31bytes)
+        - gameboy.GBCMemory: 28KB (51bytes)
+      */
+      
       gameboy.stopEmulator = 1; // required for some reason
       gameboy.start();
+      
+      window.gameboy = gameboy;
 
       setInterval(function() {
         gameboy.run();
