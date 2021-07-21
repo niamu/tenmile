@@ -71,7 +71,7 @@ const fsm = new StateMachine({
       }
 
       if (this.gameboy == null && this.currentROM != null) {
-        this.gameboy = GameBoyCore(this.canvas, this.currentROM, {});
+        this.gameboy = GameBoyCore(this.canvas, this.currentROM, opts);
         this.gameboy.unproxiedROM = this.gameboy.ROM;
 
         this.gameboy.stopEmulator = 1; // required for some reason
