@@ -9,10 +9,12 @@ class Quote {
 
 class Trace {
   /*initialState;
-  initialFrameBuffer;
   actions;
   romDependencies;*/
 }
+
+const SAVESTATE_ROM = 0;
+const SAVESTATE_FRAMEBUFFER = 71;
 
 async function loadQuote(buffer) {
   let quote = new Quote();
@@ -41,9 +43,6 @@ async function loadQuote(buffer) {
   }
   let state = msgpack.deserialize(fileArrays.savestate);
 
-  const SAVESTATE_ROM = 0;
-  const SAVESTATE_FRAMEBUFFER = 71;
-
   state[SAVESTATE_ROM] = fileArrays.rom;
   state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
 
@@ -54,67 +53,66 @@ async function loadQuote(buffer) {
 
 async function compileQuote(trace) {
   // How many bytes to store per address observed
-    const PAGE_SIZE = 64;
-    const SAVESTATE_ROM = 0;
-    const SAVESTATE_FRAMEBUFFER = 71;
-  
-    let rom = trace.initialState[0];
+  const PAGE_SIZE = 64;
 
-    let zip = new JSZip();
-    let maskedROM = new Uint8Array(rom.length);
-    let mask = new Uint8Array(rom.length);
-    let pages = new Set();
-    for (let address of trace.romDependencies) {
-      pages.add(Math.floor(address / PAGE_SIZE));
+  let rom = trace.initialState[0];
+
+  let zip = new JSZip();
+  let maskedROM = new Uint8Array(rom.length);
+  let mask = new Uint8Array(rom.length);
+  let pages = new Set();
+  for (let address of trace.romDependencies) {
+    pages.add(Math.floor(address / PAGE_SIZE));
+  }
+  for (let page of pages) {
+    let startAddress = page * PAGE_SIZE;
+    for (let i = 0; i < PAGE_SIZE; i++) {
+      let address = startAddress + i;
+      maskedROM[address] = rom[address];
+      mask[address] = 1;
     }
-    for (let page of pages) {
-      let startAddress = page * PAGE_SIZE;
-      for (let i = 0; i < PAGE_SIZE; i++) {
-        let address = startAddress + i;
-        maskedROM[address] = rom[address];
-        mask[address] = 1;
-      }
-    }
+  }
 
-    for (let i = 0; i < 0x134; i++) {
-      maskedROM[i] = 0;
-      mask[i] = 0;
-    }
-    for (let i = 0x134; i < 0x14d; i++) {
-      maskedROM[i] = rom[i];
-      mask[i] = 1;
-    }
+  for (let i = 0; i < 0x134; i++) {
+    maskedROM[i] = 0;
+    mask[i] = 0;
+  }
+  for (let i = 0x134; i < 0x14d; i++) {
+    maskedROM[i] = rom[i];
+    mask[i] = 1;
+  }
 
-    let state = trace.initialState;
-    state[SAVESTATE_ROM] = null;
-    state[SAVESTATE_FRAMEBUFFER] = null;
+  let state = trace.initialState.slice();
+  state[SAVESTATE_ROM] = null;
+  state[SAVESTATE_FRAMEBUFFER] = null;
 
-    zip.file("rom", maskedROM);
-    zip.file("rom_mask", mask);
-    zip.file("savestate", msgpack.serialize(state));
-    if (trace.actions) {
-      zip.file("action_log", msgpack.serialize(trace.actions));
-    }
+  zip.file("rom", maskedROM);
+  zip.file("rom_mask", mask);
+  zip.file("savestate", msgpack.serialize(state));
+  if (trace.actions) {
+    zip.file("action_log", msgpack.serialize(trace.actions));
+  }
 
-    let binary = await zip.generateAsync({
-      type: "uint8array",
-      compression: "DEFLATE",
-      compressionOptions: { level: 9 }
-    });
+  let binary = await zip.generateAsync({
+    type: "uint8array",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 }
+  });
 
-    let rgba = [];
-    for (let pixel of trace.initialFrameBuffer) {
-      rgba.push((pixel & 0xff0000) >> 16);
-      rgba.push((pixel & 0x00ff00) >> 8);
-      rgba.push((pixel & 0x0000ff) >> 0);
-      rgba.push(0xff);
-    }
+  let fb = trace.initialState[SAVESTATE_FRAMEBUFFER];
+  let rgba = [];
+  for (let pixel of fb) {
+    rgba.push((pixel & 0xff0000) >> 16);
+    rgba.push((pixel & 0x00ff00) >> 8);
+    rgba.push((pixel & 0x0000ff) >> 0);
+    rgba.push(0xff);
+  }
 
-    let png = new PNGBaker(UPNG.encode([rgba], 160, 144, 0));
-    png.chunk = binary;
-    let img = document.createElement("img");
-    let blobUrl = URL.createObjectURL(png.toBlob());
-    img.src = blobUrl;
+  let png = new PNGBaker(UPNG.encode([rgba], 160, 144, 0));
+  png.chunk = binary;
+  let img = document.createElement("img");
+  let blobUrl = URL.createObjectURL(png.toBlob());
+  img.src = blobUrl;
 
-    document.getElementById("quotes").appendChild(img);
+  document.getElementById("quotes").appendChild(img);
 }

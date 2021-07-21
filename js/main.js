@@ -189,7 +189,12 @@ const fsm = new StateMachine({
 
     onLeaveCompiling: function() {
       this.button.disabled = false;
+      
       this.currentState = this.currentTrace.initialState;
+      
+      this.gameboy.returnFromState(this.currentState);
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      
       this.currentTrace = null;
     },
 
