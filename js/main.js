@@ -13,18 +13,8 @@ const fsm = new StateMachine({
       from: ["idle", "watching", "riffing", "playing", "recording"],
       to: "reset"
     },
-    {
-      name: "dropQuote",
-      //from: ["idle", "watching", "riffing", "playing", "recording"],
-      from: "reset",
-      to: "watching"
-    },
-    {
-      name: "dropGame",
-      //from: ["idle", "watching", "riffing", "playing", "recording"],
-      from: "reset",
-      to: "playing"
-    },
+    { name: "dropQuote", from: "reset", to: "watching" },
+    { name: "dropGame", from: "reset", to: "playing" },
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
@@ -44,7 +34,7 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onReset: function(lifecycle) {
+    onLeaveReset: function(lifecycle) {
       console.log(
         "transition:",
         lifecycle.transition,
@@ -54,8 +44,10 @@ const fsm = new StateMachine({
       );
 
       if (this.gameboy != null) {
-        this.currentState = this.gameboy.saveState();
-        this.currentState[0] = this.currentROM; // unproxied ROM
+        //[jf] I think that this was meant to facilitate going from watching to riffing
+        //     or from playing to recording, but I don't think we need to do that?
+        //this.currentState = this.gameboy.saveState();
+        //this.currentState[0] = this.currentROM; // unproxied ROM
         this.gameboy = null;
         clearInterval(this.runInterval);
         this.runInterval = null;
@@ -120,7 +112,7 @@ const fsm = new StateMachine({
         // ignore event while watching
       };
     },
-    
+
     onBeforeDropGame: async function(lifecycle, buffer) {
       let rom = new Uint8Array(buffer);
       fsm.currentROM = rom;
@@ -311,8 +303,9 @@ const buttonToKeycode = {
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = dropHandler;
 
-  //await dropExampleGame();
-  await dropExampleQuote();
+  fsm.restart();
+  await dropExampleGame();
+  //await dropExampleQuote();
 })();
 
 async function dropExampleGame() {
@@ -353,6 +346,11 @@ function dropHandler(ev) {
 }
 
 async function processFile(file) {
+  if (fsm.can("restart")) {
+    fsm.restart();
+  } else {
+    alert("In unexpected state");
+  }
   console.log("processing file");
   let buffer = await file.arrayBuffer();
   let dataView = new DataView(buffer);
@@ -360,20 +358,15 @@ async function processFile(file) {
   let isPNG = dataView.getUint32(0) == 0x89504e47;
   // https://github.com/file/file/blob/905ca555b0e2bdcf9d2985bcc7c1c22e2229b088/magic/Magdir/console#L114
   let isGB =
-    dataView.getUint32(0x104) == 0xCEED6666 &&
-    dataView.getUint32(0x108) == 0xCC0D000B;
+    dataView.getUint32(0x104) == 0xceed6666 &&
+    dataView.getUint32(0x108) == 0xcc0d000b;
 
   if (isPNG) {
-    if (fsm.can("dropQuote")) {
-      console.log("it's a PNG");
-      fsm.dropQuote(buffer);
-    }
+    console.log("it's a PNG");
+    fsm.dropQuote(buffer);
   } else if (isGB) {
-    if (fsm.can("dropGame")) {
-      console.log("it's a ROM")
-      //let rom = new Uint8Array(buffer);
-      fsm.dropGame(buffer);
-    }
+    console.log("it's a ROM");
+    fsm.dropGame(buffer);
   } else {
     alert("Unsupported file");
   }
