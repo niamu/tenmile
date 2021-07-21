@@ -35,6 +35,8 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 
 ## Credits
 
+By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
+
 - `gameboy.js`: [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
 - `state-machine.js`: [Jake Gordon's Javascript State Machine](https://github.com/jakesgordon/javascript-state-machine).
 - `png-baker.js`: A slightly modified version of [Atul Varma's png-baker.js](https://github.com/toolness/png-baker.js) to support binary chunks.

@@ -55,6 +55,11 @@
       #quotes img {
         padding: 5px;
       }
+      
+      #instructions {
+        font-size: smaller;
+        opacity: 0.25;
+      }
     </style>
 
     <script src="lib/jszip.min.js" defer></script>
@@ -76,6 +81,11 @@
       <canvas id="screen"></canvas>
       <input id="button" type="button" value="..." />
       <span id="status"></span>
+    </div>
+    <div id="instructions">
+      Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to play.<br>
+      Game Boy controls: A/B/Start/Select with z/x/enter/shift<br/>
+      For more information, see <a href="README.md">README.md</a>.
     </div>
     <div id="quotes"></div>
   </body>

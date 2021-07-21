@@ -131,7 +131,7 @@ async function compileQuote(trace) {
   details += '- Reference gameplay recording: XXX emulator iterations (~YY.Y seconds)\n';
   
   let readme = ARCHIVE_README_TEMPLATE.slice().replace('DETAILS_GO_HERE', details);
-  console.log(readme);
+  console.log(details);
   
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
