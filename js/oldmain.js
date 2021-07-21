@@ -9,15 +9,12 @@ const fsm = new StateMachine({
   init: "idle",
   transitions: [
     {
-      name: "dropGame",
+      name: "restart",
       from: ["idle", "watching", "riffing", "playing", "recording"],
-      to: "playing"
+      to: "reset"
     },
-    {
-      name: "dropQuote",
-      from: ["idle", "watching", "riffing", "playing", "recording"],
-      to: "Watching"
-    },
+    { name: "dropQuote", from: "reset", to: "watching" },
+    { name: "dropGame", from: "reset", to: "playing" },
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
@@ -90,8 +87,8 @@ const fsm = new StateMachine({
       }
     },
 
-    onDropQuote: async function(lifecycle, quote) {
-      console.log("onDropQuote");
+    onBeforeDropQuote: async function(lifecycle, quote) {
+      console.log("onBeforeDropQuote");
       fsm.currentQuote = quote;
       fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
@@ -388,8 +385,9 @@ const buttonToKeycode = {
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = dropHandler;
 
-  //await dropExampleGame();
-  await dropExampleQuote();
+  fsm.restart();
+  await dropExampleGame();
+  //await dropExampleQuote();
 })();
 
 async function dropExampleGame() {
@@ -430,6 +428,11 @@ function dropHandler(ev) {
 }
 
 async function processFile(file) {
+  if (fsm.can("restart")) {
+    fsm.restart();
+  } else {
+    alert("In unexpected state");
+  }
   console.log("processing file");
   let buffer = await file.arrayBuffer();
   let dataView = new DataView(buffer);
