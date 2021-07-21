@@ -30,7 +30,7 @@ const fsm = new StateMachine({
     currentROM: null,
     currentQuote: null,
     currentTrace: null,
-    currentState: null,
+    lastState: null,
     handleJoyPadEvent: {},
     handleExecuteIteration: {},
     handleROM: {},
@@ -49,7 +49,8 @@ const fsm = new StateMachine({
         args
       );
 
-      if (this.gameboy != null) {
+      if (this.gameboy != null && this.gameboy.unproxiedROM != this.currentROM) {
+        // need to rebuild for new ROM
         clearInterval(this.runInterval);
         this.runInterval = null;
         this.gameboy = null;
@@ -59,6 +60,7 @@ const fsm = new StateMachine({
         let canvas = document.getElementById("screen");
 
         this.gameboy = GameBoyCore(canvas, this.currentROM, {});
+        this.gameboy.unproxiedROM = this.gameboy.ROM;
 
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
@@ -85,7 +87,7 @@ const fsm = new StateMachine({
     onBeforeDropQuote: function(lifecycle, quote) {
       this.currentQuote = quote;
       this.currentROM = fsm.currentQuote.rom;
-      this.currentState = fsm.currentQuote.state;
+      this.lastState = fsm.currentQuote.state;
     },
 
     onEnterWatching: function() {
@@ -109,16 +111,21 @@ const fsm = new StateMachine({
     onLeaveWatching: function() {
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
-      this.currentState = this.gameboy.saveState();
-      this.currentState[0] = this.currentROM;
+      this.lastState = this.gameboy.saveState();
+      this.lastState[0] = this.currentROM;
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
       this.currentROM = rom;
       this.currentState = null;
+      // TODO: check if new rom is compatible with old one, and patch up for continuation
     },
 
     onEnterPlaying: function() {
+      if(this.currentState) {
+        this.gameboy.returnFromState(this.currentState);
+        this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      }
       this.button.value = "Record new quote";
     },
 
@@ -189,12 +196,6 @@ const fsm = new StateMachine({
 
     onLeaveCompiling: function() {
       this.button.disabled = false;
-      
-      this.currentState = this.currentTrace.initialState;
-      
-      this.gameboy.returnFromState(this.currentState);
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-      
       this.currentTrace = null;
     },
 
@@ -225,8 +226,8 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
-      this.currentState = this.gameboy.saveState();
-      this.currentState[0] = this.currentROM;
+      this.lastState = this.gameboy.saveState();
+      this.lastState[0] = this.currentROM;
     }
   }
 });
