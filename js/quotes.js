@@ -20,13 +20,12 @@ class Trace {
 const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
 
-const ARCHIVAL_README_TEMPLATE = `
+const ARCHIVE_README_TEMPLATE = `
 This archive represents a *playable quote* of a Game Boy game.
 
 Playable quotes are delimited references to specific moments in a game along with a reference recording of how that moment of interactivity can play out.
 
 * \`rom.bin\`: A Game Boy ROM image (comparable to many \`.gb\` files) with many bytes zeroed out. While the format of this file mostly matches that used by menu emulators, this ROM image *cannot* be used to boot the game.
-
 
 * \`romMask.bin\`: This file is the same size as \`rom.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses.
 
@@ -36,7 +35,7 @@ Playable quotes are delimited references to specific moments in a game along wit
 
 Details about this specific quote:
 DETAILS_GO_HERE
-
+---
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
@@ -122,14 +121,17 @@ async function compileQuote(trace) {
   }
   
   let details = "";
-  details += includedBytes + ' out of ' + originalBytes + ' ROM bytes included (' +
+  details += '- Included original ROM bytes: ' + includedBytes + ' of ' + originalBytes + ' (' +
     Number(includedBytes/originalBytes).toLocaleString(undefined, {
             style: "percent",
             minimumFractionDigits: 2
-          }) + ")\n";
+          }) + ").\n";
   
-  details += 'Original ROM SHA-256 digest:\n' + digest.toUpperCase() + '\n';
-  console.log(details);
+  details += '- Original ROM SHA-256 digest: ' + digest.toUpperCase() + '\n';
+  details += '- Reference gameplay recording: XXX emulator iterations (~YY.Y seconds)\n';
+  
+  let readme = ARCHIVE_README_TEMPLATE.slice().replace('DETAILS_GO_HERE', details);
+  console.log(readme);
   
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
@@ -142,6 +144,8 @@ async function compileQuote(trace) {
   if (trace.actions) {
     zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   }
+  
+  zip.file("README.md", readme);
 
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
