@@ -38,12 +38,13 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onBeforeTransition: function(lifecycle) {
+    onAfterTransition: function(lifecycle) {
       console.log(
         "transition:",
         lifecycle.transition,
-        lifecycle.to,
-        lifecycle.from
+        lifecycle.from,
+        "->",
+        lifecycle.to
       );
 
       if (this.gameboy != null) {
@@ -89,6 +90,21 @@ const fsm = new StateMachine({
       }
     },
 
+    onBeforeDropQuote: async function(lifecycle, buffer) {
+      console.log("onDropQuote");
+      fsm.currentQuote = await loadQuote(buffer);
+      console.log(fsm.currentQuote);
+      fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
+      fsm.currentState = fsm.currentQuote.state;
+    },
+    
+    onBeforeDropGame: async function(lifecycle, buffer) {
+      console.log("onDropGame");
+      let rom = new Uint8Array(buffer);
+      fsm.currentROM = rom;
+      fsm.currentState = null;
+    },
+    
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
     },
@@ -295,21 +311,15 @@ const buttonToKeycode = {
 async function dropExampleGame() {
   let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
   let buffer = await (await fetch(resource)).arrayBuffer();
-  let rom = new Uint8Array(buffer);
-  fsm.currentROM = rom;
-  fsm.currentState = null;
-  fsm.dropGame();
+  fsm.dropGame(buffer);
 }
 
 async function dropExampleQuote() {
   let resource =
     "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
   let buffer = await (await fetch(resource)).arrayBuffer();
-  fsm.currentQuote = await loadQuote(buffer);
-  console.log(fsm.currentQuote);
-  fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
-  fsm.currentState = fsm.currentQuote.state;
-  fsm.dropQuote();
+
+  fsm.dropQuote(buffer);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
