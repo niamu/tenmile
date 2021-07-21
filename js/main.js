@@ -119,6 +119,7 @@ const fsm = new StateMachine({
       this.currentROM = rom;
       this.currentState = null;
       // TODO: check if new rom is compatible with old one, and patch up for continuation
+      
     },
 
     onEnterPlaying: function() {
@@ -271,8 +272,9 @@ const buttonToKeycode = {
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = ev => {
     ev.preventDefault();
-    console.assert(ev.dataTransfer.files.length == 1);
-    processFile(ev.dataTransfer.files[0]);
+    for(let item of ev.dataTransfer.files){
+      processFile(item);
+    }
   };
 
   await dropExampleGame();
