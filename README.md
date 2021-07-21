@@ -6,7 +6,7 @@ This project offers the ability to create and share **playable quotes** of [Game
 
 ## Watching a Quote
 
-Drag a compatible `.png` file onto the player to get started. Once it loads, you'll see a looping animation of the reference recording of that moment of play.
+Drag a compatible `.png` file onto the player to get started. Once it loads, you'll see a looping animation of the reference recording from that moment of play.
 
 ## Riffing on a Quote
 
@@ -43,4 +43,4 @@ By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the 
 - `jszip.min.js`: [JSZip](https://stuk.github.io/jszip/)
 - `pako.min.js`: [pako](http://nodeca.github.io/pako/)
 - `msgpack.js`: [msgpack-javascript](https://github.com/msgpack/msgpack-javascript)
-- `emitter.js`: (where did we get this from?)
+- `emitter.js`: [emitter](https://github.com/component/emitter)
