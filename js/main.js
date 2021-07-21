@@ -1,4 +1,5 @@
 /* global GameBoyCore, StateMachine */
+/* global loadQuote, compileQuote, Quote, Trace */
 
 // used by gameboy.js
 window.debug = function() {
@@ -185,86 +186,15 @@ const fsm = new StateMachine({
       delete this.handleROM.get;
     },
 
-    onEnterCompiling: async function() {
+    onEnterCompiling: function() {
       console.log(fsm.currentTrace);
       this.button.value = "Compiling...";
       this.button.disabled = true;
-
-      // TODO[jf]: compile the trace using await as needed
-
-      // How many bytes to store per address observed
-      const PAGE_SIZE = 64;
-      const SAVESTATE_ROM = 0;
-      const SAVESTATE_FRAMEBUFFER = 71;
-
-      let zip = new JSZip();
-      let maskedROM = new Uint8Array(this.currentROM.length);
-      let mask = new Uint8Array(this.currentROM.length);
-      let pages = new Set();
-      for (let address of this.currentTrace.romDependencies) {
-        pages.add(Math.floor(address / PAGE_SIZE));
-      }
-      for (let page of pages) {
-        let startAddress = page * PAGE_SIZE;
-        for (let i = 0; i < PAGE_SIZE; i++) {
-          let address = startAddress + i;
-          maskedROM[address] = this.currentROM[address];
-          mask[address] = 1;
-        }
-      }
-
-      for (let i = 0; i < 0x134; i++) {
-        maskedROM[i] = 0;
-        mask[i] = 0;
-      }
-      for (let i = 0x134; i < 0x14d; i++) {
-        maskedROM[i] = this.currentROM[i];
-        mask[i] = 1;
-      }
-
-      let state = this.currentTrace.initialState;
-      state[SAVESTATE_ROM] = null;
-      state[SAVESTATE_FRAMEBUFFER] = null;
-
-      zip.file("rom", maskedROM);
-      zip.file("rom_mask", mask);
-      zip.file("savestate", msgpack.serialize(state));
-      if (this.currentTrace.actions) {
-        zip.file("action_log", msgpack.serialize(this.currentTrace.actions));
-      }
-
-      let binary = await zip.generateAsync({
-        type: "uint8array",
-        compression: "DEFLATE",
-        compressionOptions: { level: 9 }
-      });
-
-      let rgba = [];
-      for (let pixel of this.currentTrace.initialFrameBuffer) {
-        rgba.push((pixel & 0xff0000) >> 16);
-        rgba.push((pixel & 0x00ff00) >> 8);
-        rgba.push((pixel & 0x0000ff) >> 0);
-        rgba.push(0xff);
-      }
-
-      let png = new PNGBaker(UPNG.encode([rgba], 160, 144, 0));
-      png.chunk = binary;
-      let img = document.createElement("img");
-      let blobUrl = URL.createObjectURL(png.toBlob());
-      img.src = blobUrl;
-
-      document.getElementById("quotes").appendChild(img);
-      //[jf] END
-
-      setTimeout(function() {
-        fsm.complete();
-      }, 500);
+      compileQuote(this.currentTrace).then(() => fsm.complete());
     },
 
     onLeaveCompiling: function() {
       this.button.disabled = false;
-      // at the end of recording, take them back to where recording started so that it is easy to record another take
-      //[jf] commented out, for now, since I can't get this working
       this.currentState = this.currentTrace.initialState;
       this.currentTrace = null;
     },
@@ -301,62 +231,6 @@ const fsm = new StateMachine({
     }
   }
 });
-
-class Quote {
-  rom;
-  romMask;
-  state;
-  actions;
-}
-
-class Trace {
-  initialState;
-  initialFrameBuffer;
-  actions;
-  romDependencies;
-}
-
-async function loadQuote(buffer) {
-  let quote = new Quote();
-
-  let png = new PNGBaker(buffer);
-  let fileArrays = {};
-  let jszip = new JSZip();
-  let zip = await jszip.loadAsync(png.chunk);
-  for (let filename of Object.keys(zip.files)) {
-    fileArrays[filename] = await zip.file(filename).async("uint8array");
-  }
-
-  let frameBuffer = new Int32Array(160 * 144);
-  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
-  for (let i = 0; i < frameBuffer.length; i++) {
-    frameBuffer[i] += rgba[4 * i + 0] << 16;
-    frameBuffer[i] += rgba[4 * i + 1] << 8;
-    frameBuffer[i] += rgba[4 * i + 2] << 0;
-  }
-
-  quote.rom = fileArrays.rom;
-  quote.romMask = fileArrays.rom_mask;
-
-  if (fileArrays.action_log) {
-    quote.actions = msgpack.deserialize(fileArrays.action_log);
-  }
-  let state = msgpack.deserialize(fileArrays.savestate);
-
-  const SAVESTATE_ROM = 0;
-  const SAVESTATE_FRAMEBUFFER = 71;
-
-  state[SAVESTATE_ROM] = fileArrays.rom;
-  state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
-
-  quote.state = state;
-
-  return quote;
-}
-
-async function compileQuote(trace) {
-  // TODO
-}
 
 const keyToButton = {
   ArrowRight: "right",
@@ -415,27 +289,17 @@ async function dropExampleQuote() {
   fsm.dropQuote(quote);
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
-function dropHandler(ev) {
-  console.log("File(s) dropped");
 
-  // Prevent default behavior (Prevent file from being opened)
+function dropHandler(ev) {
+  
   ev.preventDefault();
 
-  if (ev.dataTransfer.items) {
-    // Use DataTransferItemList interface to access the file(s)
-    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (ev.dataTransfer.items[i].kind === "file") {
-        processFile(ev.dataTransfer.items[i].getAsFile());
-      }
-    }
-  } else {
-    // Use DataTransfer interface to access the file(s)
-    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-      processFile(ev.dataTransfer.files[i]);
-    }
+  console.assert(ev.dataTransfer.files)
+  processFile(ev.dataTransfer.files[0]);
+  for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+    processFile(ev.dataTransfer.files[i]);
   }
+
 }
 
 async function processFile(file) {
