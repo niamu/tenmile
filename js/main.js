@@ -16,7 +16,7 @@ const fsm = new StateMachine({
     {
       name: "dropQuote",
       from: ["idle", "watching", "riffing", "playing", "recording"],
-      to: "Watching"
+      to: "watching"
     },
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
@@ -63,6 +63,7 @@ const fsm = new StateMachine({
         this.gameboy.start();
 
         if (this.currentState != null) {
+          this.currentState[0] = this.currentROM;
           this.gameboy.returnFromState(this.currentState);
         }
 
@@ -71,12 +72,11 @@ const fsm = new StateMachine({
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
 
-        /*
+        
         if (this.currentState != null) {
           this.gameboy.returnFromState(this.currentState);
         }
-        */
-
+        
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
           this.handleJoyPadEvent
@@ -91,16 +91,15 @@ const fsm = new StateMachine({
       }
     },
 
-    onDropQuote: function(lifecycle, quote) {
-      fsm.currentQuote = quote;
-      fsm.currentROM = fsm.currentQuote.rom;
+    onBeforeDropQuote: function(lifecycle, quote) {
+      this.currentQuote = quote;
+      this.currentROM = fsm.currentQuote.rom;
+      this.currentState = fsm.currentQuote.state;
     },
 
     onEnterWatching: function() {
       console.log("onEnterWatching");
       fsm.button.value = "Take control";
-
-      fsm.gameboy.returnFromState(fsm.currentQuote.state);
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -110,13 +109,21 @@ const fsm = new StateMachine({
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // ignore events while watching
+        // TODO: ignore events while watching
+        Reflect.apply(...arguments);
       };
     },
+    
+    onLeaveWatching: function() {
+      console.log('onLeaveWatching');
+      delete this.handleExecuteIteration.apply;
+      delete this.handleJoyPadEvent.apply;
+      this.currentState = this.gameboy.saveState();
+    },
 
-    onDropGame: function(lifecycle, rom) {
-      fsm.currentROM = rom;
-      fsm.currentState = null;
+    onBeforeDropGame: function(lifecycle, rom) {
+      this.currentROM = rom;
+      this.currentState = null;
     },
 
     onEnterPlaying: function() {
@@ -258,12 +265,8 @@ const fsm = new StateMachine({
       this.currentTrace = null;
     },
 
-    onLeaveWatching: function() {
-      delete this.handleExecuteIteration.apply;
-      delete this.handleJoyPadEvent.apply;
-    },
-
     onEnterRiffing: function() {
+      console.log('onEnterRiffing');
       this.button.value = "Watch pre-recorded play";
 
       let oob = false;
@@ -290,6 +293,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
+      this.currentState = null;
     }
   }
 });
