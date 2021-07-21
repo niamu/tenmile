@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>...</title>
+    
   </head>
   <body>
+    <div id="bucket" style="width: 250px; height: 250px; outline: thin dashed black;"></div>
   </body>
+  <script>
+    
+    bucket.ondragover = e => false;
+    
+    bucket.ondrop = function (e) {
+      e.preventDefault();
+      console.log('ondrop', e.dataTransfer.files[0]);
+    }
+    
+  </script>
 </html>

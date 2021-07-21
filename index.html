@@ -17,6 +17,10 @@
         display: block;
         padding: 10px;
       }
+      #recordingStatus {
+        display: none;
+        background: orange;
+      }
     </style>
 
     <script src="lib/jszip.min.js" defer></script>
@@ -36,5 +40,9 @@
       <canvas id="screen"></canvas>
       <input id="button" type="button" />
     </div>
+    <div id="recordingStatus">
+      <span id="percentRecorded"></span> of the ROM has been accessed.
+    </div>
+    <div id="quotes"></div>
   </body>
 </html>

@@ -31,6 +31,7 @@ const fsm = new StateMachine({
     handleExecuteIteration: {},
     handleROM: {},
     runInterval: null,
+    recordingStatusInterval: null,
     gameboy: null
   },
   methods: {
@@ -146,10 +147,27 @@ const fsm = new StateMachine({
         return target[prop];
       };
 
+      async function updateRecordingStatus() {
+        let percentage = "0.0";
+        if (fsm.currentTrace.romDependencies) {
+          percentage = fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
+        }
+        document.getElementById("percentRecorded").innerHTML = Number(
+          percentage
+        ).toLocaleString(undefined, {
+          style: "percent",
+          minimumFractionDigits: 3
+        });
+      }
+
       this.button.value = "Stop recording";
+      document.getElementById("recordingStatus").style.display = "block";
+      this.recordingStatusInterval = setInterval(updateRecordingStatus, 500);
     },
 
     onLeaveRecording: function() {
+      document.getElementById("recordingStatus").style.display = "none";
+      clearInterval(this.recordingStatusInterval);
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
