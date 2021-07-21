@@ -1,4 +1,4 @@
-# Playable Quotes for Game Boy
+ Playable Quotes for Game Boy
 
 This project offers the ability to create and share **playable quotes** of [GameBoy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *delimited* reference to a 
 *specific* moment in a game along with a reference recording of how that moment plays out.
@@ -33,14 +33,12 @@ While playing a game (after you've provided the ROM), you can use the button rec
 We aren't intellectual property laywers, but by the same reasoning that [Google can distribute delimited "snippets" of the books that they've scanned](https://www.theatlantic.com/technology/archive/2015/10/fair-use-transformative-leval-google-books/411058/), we think that sharing these playable quotes should be safe.
 
 
-
-
 ## Credits
 
 - `gameboy.js`: [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
 - `state-machine.js`: [Jake Gordon's Javascript State Machine](https://github.com/jakesgordon/javascript-state-machine).
-- `png-baker.js`: A slightly modified version of [Atul Varma's png-baker.js] to support binary chunks.
+- `png-baker.js`: A slightly modified version of [Atul Varma's png-baker.js](https://github.com/toolness/png-baker.js) to support binary chunks.
 - `jszip.min.js`: [JSZip](https://stuk.github.io/jszip/)
 - `pako.min.js`: [pako](http://nodeca.github.io/pako/)
-- `msgpack.js`: ...
-- `emitter.js`: ...
+- `msgpack.js`: [msgpack-javascript](https://github.com/msgpack/msgpack-javascript)
+- `emitter.js`: (don't recall atm)

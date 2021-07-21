@@ -73,6 +73,7 @@ const fsm = new StateMachine({
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
 
+        //FIXME
         if (this.currentState != null) {
           this.gameboy.returnFromState(this.currentState);
         }
@@ -96,9 +97,58 @@ const fsm = new StateMachine({
       fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
     },
-    
-    onPlaying: function() {
-      
+
+    onEnterWatching: function() {
+      if (this.gameboy != null) {
+        this.gameboy = null;
+        clearInterval(this.runInterval);
+        this.runInterval = null;
+      }
+
+      if (this.currentROM != null) {
+        let canvas = document.getElementById("screen");
+
+        this.gameboy = GameBoyCore(canvas, this.currentROM, {});
+
+        this.gameboy.stopEmulator = 1; // required for some reason
+        this.gameboy.start();
+
+        if (this.currentState != null) {
+          this.gameboy.returnFromState(this.currentState);
+        }
+
+        const EMULATOR_LOOP_INTERVAL = 8;
+        this.runInterval = setInterval(function() {
+          fsm.gameboy.run();
+        }, EMULATOR_LOOP_INTERVAL);
+
+        this.gameboy.JoyPadEvent = new Proxy(
+          this.gameboy.JoyPadEvent,
+          this.handleJoyPadEvent
+        );
+
+        this.gameboy.executeIteration = new Proxy(
+          this.gameboy.executeIteration,
+          this.handleExecuteIteration
+        );
+      }
+    },
+    onAfterWatching: function() {
+      console.log("on_Watching");
+      fsm.button.value = "Take control";
+
+      fsm.gameboy.returnFromState(fsm.currentQuote.state);
+
+      let iteration = 0;
+      this.handleExecuteIteration.apply = function() {
+        iteration++;
+        return Reflect.apply(...arguments);
+        // TODO: check for actions in the log to apply this frame.
+      };
+
+      this.handleJoyPadEvent.apply = function() {
+        // ignore event while watching
+      };
     },
     
     onBeforeDropGame: async function(lifecycle, buffer) {
@@ -106,9 +156,39 @@ const fsm = new StateMachine({
       fsm.currentROM = rom;
       fsm.currentState = null;
     },
-    
+
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
+
+      if (this.gameboy != null) {
+        this.gameboy = null;
+        clearInterval(this.runInterval);
+        this.runInterval = null;
+      }
+
+      let canvas = document.getElementById("screen");
+
+      this.gameboy = GameBoyCore(canvas, this.currentROM, {});
+
+      this.gameboy.stopEmulator = 1; // required for some reason
+      this.gameboy.start();
+
+      const EMULATOR_LOOP_INTERVAL = 8;
+      this.runInterval = setInterval(function() {
+        fsm.gameboy.run();
+      }, EMULATOR_LOOP_INTERVAL);
+
+      this.gameboy.JoyPadEvent = new Proxy(
+        this.gameboy.JoyPadEvent,
+        this.handleJoyPadEvent
+      );
+
+      this.gameboy.executeIteration = new Proxy(
+        this.gameboy.executeIteration,
+        this.handleExecuteIteration
+      );
+
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
     },
 
     onEnterRecording: function() {
@@ -161,24 +241,6 @@ const fsm = new StateMachine({
       this.button.disabled = false;
     },
 
-    onAfterWatching: function() {
-      console.log("on_Watching");
-      fsm.button.value = "Take control";
-
-      fsm.gameboy.returnFromState(fsm.currentQuote.state);
-
-      let iteration = 0;
-      this.handleExecuteIteration.apply = function() {
-        iteration++;
-        return Reflect.apply(...arguments);
-        // TODO: check for actions in the log to apply this frame.
-      };
-
-      this.handleJoyPadEvent.apply = function() {
-        // ignore event while watching
-      };
-    },
-
     onLeaveWatching: function() {
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
@@ -229,42 +291,42 @@ class Trace {
 }
 
 async function loadQuote(buffer) {
-    let quote = new Quote();
+  let quote = new Quote();
 
-    let png = new PNGBaker(buffer);
-    let fileArrays = {};
-    let jszip = new JSZip();
-    let zip = await jszip.loadAsync(png.chunk);
-    for (let filename of Object.keys(zip.files)) {
-      fileArrays[filename] = await zip.file(filename).async("uint8array");
-    }
-
-    let frameBuffer = new Int32Array(160 * 144);
-    let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
-    for (let i = 0; i < frameBuffer.length; i++) {
-      frameBuffer[i] += rgba[4 * i + 0] << 16;
-      frameBuffer[i] += rgba[4 * i + 1] << 8;
-      frameBuffer[i] += rgba[4 * i + 2] << 0;
-    }
-
-    quote.rom = fileArrays.rom;
-    quote.romMask = fileArrays.rom_mask;
-
-    if (fileArrays.action_log) {
-      quote.actions = msgpack.deserialize(fileArrays.action_log);
-    }
-    let state = msgpack.deserialize(fileArrays.savestate);
-
-    const SAVESTATE_ROM = 0;
-    const SAVESTATE_FRAMEBUFFER = 71;
-
-    state[SAVESTATE_ROM] = fileArrays.rom;
-    state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
-
-    quote.state = state;
-
-    return quote;
+  let png = new PNGBaker(buffer);
+  let fileArrays = {};
+  let jszip = new JSZip();
+  let zip = await jszip.loadAsync(png.chunk);
+  for (let filename of Object.keys(zip.files)) {
+    fileArrays[filename] = await zip.file(filename).async("uint8array");
   }
+
+  let frameBuffer = new Int32Array(160 * 144);
+  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
+  for (let i = 0; i < frameBuffer.length; i++) {
+    frameBuffer[i] += rgba[4 * i + 0] << 16;
+    frameBuffer[i] += rgba[4 * i + 1] << 8;
+    frameBuffer[i] += rgba[4 * i + 2] << 0;
+  }
+
+  quote.rom = fileArrays.rom;
+  quote.romMask = fileArrays.rom_mask;
+
+  if (fileArrays.action_log) {
+    quote.actions = msgpack.deserialize(fileArrays.action_log);
+  }
+  let state = msgpack.deserialize(fileArrays.savestate);
+
+  const SAVESTATE_ROM = 0;
+  const SAVESTATE_FRAMEBUFFER = 71;
+
+  state[SAVESTATE_ROM] = fileArrays.rom;
+  state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
+
+  quote.state = state;
+
+  return quote;
+}
 
 async function compileQuote(trace) {
   // TODO
@@ -305,7 +367,7 @@ const buttonToKeycode = {
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
   document.getElementById("button").onclick = () => fsm.tap();
-  
+
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = dropHandler;
 
@@ -358,22 +420,28 @@ function dragOverHandler(ev) {
 }
 
 async function processFile(file) {
-  
+  console.log("processing file");
   let buffer = await file.arrayBuffer();
+  let dataView = new DataView(buffer);
+  /*
+    dataView.getUint32(0,false) == 0x89504e47;
+  */
   // FIXME: Look for the chunk name instead
-  let isPNG = new Uint32Array(buffer.slice(0, 4))[0] == 0x474e5089;
+  let isPNG = dataView.getUint32(0,false) == 0x89504e47;
   // https://github.com/file/file/blob/905ca555b0e2bdcf9d2985bcc7c1c22e2229b088/magic/Magdir/console#L114
   let isGB =
     new Uint32Array(buffer.slice(0x104, 0x10c))[0] == 0x6666edce &&
     new Uint32Array(buffer.slice(0x104, 0x10c))[1] == 0x0b000dcc;
 
   if (isPNG) {
-    if(fsm.can('dropQuote')) {
+    if (fsm.can("dropQuote")) {
+      console.log("it's a PNG");
       fsm.dropQuote(buffer);
     }
   } else if (isGB) {
-    if(fsm.can('dropGame')) {
-      let rom = new Uint8Array(buffer);
+    if (fsm.can("dropGame")) {
+      console.log("it's a ROM")
+      //let rom = new Uint8Array(buffer);
       fsm.dropGame(buffer);
     }
   } else {
