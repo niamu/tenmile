@@ -7,15 +7,25 @@
     <script src="lib/gameboy.js"></script>
   </head>
   <body>
-    <canvas id="screen"></canvas>
+    <canvas id="screen" width="160" height="144"></canvas>
   </body>
   <script>
     (async function() {
-      let buffer = await (await fetch("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png?v=1626818993428")).arrayBuffer();
+      let buffer = await (await fetch(
+        "https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
+      )).arrayBuffer();
+
+      window.debug = () => {};
       
       let canvas = document.getElementById("screen");
       let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
-      
+
+      gameboy.stopEmulator = 1; // required for some reason
+      gameboy.start();
+
+      setInterval(function() {
+        gameboy.run();
+      }, 8);
     })();
   </script>
 </html>
