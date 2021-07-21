@@ -54,7 +54,7 @@ const fsm = new StateMachine({
         this.runInterval = null;
         this.gameboy = null;
       }
-      
+
       if (this.gameboy == null && this.currentROM != null) {
         let canvas = document.getElementById("screen");
 
@@ -68,7 +68,6 @@ const fsm = new StateMachine({
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
 
-        
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
           this.handleJoyPadEvent
@@ -90,12 +89,10 @@ const fsm = new StateMachine({
     },
 
     onEnterWatching: function() {
-      console.log("onEnterWatching");
       this.button.value = "Take control";
-      
+
       this.gameboy.returnFromState(this.currentQuote.state);
       this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-      
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -108,9 +105,8 @@ const fsm = new StateMachine({
         // ignore events while watching
       };
     },
-    
+
     onLeaveWatching: function() {
-      console.log('onLeaveWatching');
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       this.currentState = this.gameboy.saveState();
@@ -125,17 +121,16 @@ const fsm = new StateMachine({
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
     },
-    
+
     onLeavePlaying: function() {
       this.currentState = this.gameboy.saveState();
       this.currentState[0] = this.currentROM;
     },
 
     onEnterRecording: function() {
-  
       this.gameboy.returnFromState(this.currentState);
       this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-  
+
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
       this.currentTrace.initialState[0] = this.currentROM;
@@ -187,7 +182,6 @@ const fsm = new StateMachine({
     },
 
     onEnterCompiling: function() {
-      console.log(fsm.currentTrace);
       this.button.value = "Compiling...";
       this.button.disabled = true;
       compileQuote(this.currentTrace).then(() => fsm.complete());
@@ -200,7 +194,6 @@ const fsm = new StateMachine({
     },
 
     onEnterRiffing: function() {
-      console.log('onEnterRiffing');
       this.button.value = "Watch pre-recorded play";
 
       let oob = false;
@@ -228,6 +221,7 @@ const fsm = new StateMachine({
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
       this.currentState = this.gameboy.saveState();
+      this.currentState[0] = this.currentROM;
     }
   }
 });
@@ -269,7 +263,11 @@ const buttonToKeycode = {
   document.getElementById("button").onclick = () => fsm.tap();
 
   document.getElementById("container").ondragover = ev => ev.preventDefault();
-  document.getElementById("container").ondrop = dropHandler;
+  document.getElementById("container").ondrop = ev => {
+    ev.preventDefault();
+    console.assert(ev.dataTransfer.files.length == 1);
+    processFile(ev.dataTransfer.files[0]);
+  };
 
   await dropExampleGame();
   //await dropExampleQuote();
@@ -289,35 +287,17 @@ async function dropExampleQuote() {
   fsm.dropQuote(quote);
 }
 
-
-function dropHandler(ev) {
-  
-  ev.preventDefault();
-
-  console.assert(ev.dataTransfer.files)
-  processFile(ev.dataTransfer.files[0]);
-  for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-    processFile(ev.dataTransfer.files[i]);
-  }
-
-}
-
 async function processFile(file) {
-  console.log("processing file");
   let buffer = await file.arrayBuffer();
   let dataView = new DataView(buffer);
-  // FIXME: Look for the chunk name instead
   let isPNG = dataView.getUint32(0) == 0x89504e47;
-  // https://github.com/file/file/blob/905ca555b0e2bdcf9d2985bcc7c1c22e2229b088/magic/Magdir/console#L114
   let isGB =
     dataView.getUint32(0x104) == 0xceed6666 &&
     dataView.getUint32(0x108) == 0xcc0d000b;
 
   if (isPNG) {
-    console.log("it's a PNG");
     fsm.dropQuote(await loadQuote(buffer));
   } else if (isGB) {
-    console.log("it's a ROM");
     fsm.dropGame(new Uint8Array(buffer));
   } else {
     alert("Unsupported file");
