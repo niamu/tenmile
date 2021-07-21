@@ -62,10 +62,10 @@ const fsm = new StateMachine({
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
 
-        if (this.currentState != null) {
+        /*if (this.currentState != null) {
           this.currentState[0] = this.currentROM;
           this.gameboy.returnFromState(this.currentState);
-        }
+        }*/
 
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
@@ -73,9 +73,6 @@ const fsm = new StateMachine({
         }, EMULATOR_LOOP_INTERVAL);
 
         
-        if (this.currentState != null) {
-          this.gameboy.returnFromState(this.currentState);
-        }
         
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
@@ -261,7 +258,7 @@ const fsm = new StateMachine({
       this.button.disabled = false;
       // at the end of recording, take them back to where recording started so that it is easy to record another take
       //[jf] commented out, for now, since I can't get this working
-      // this.gameboy.returnFromState(this.currentTrace.initialState);
+      this.currentState = this.currentTrace.initialState;
       this.currentTrace = null;
     },
 
