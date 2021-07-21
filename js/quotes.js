@@ -20,11 +20,17 @@ class Trace {
 const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
 
+const ARCHIVAL_README = `
+TODO
+`;
+
 function generateMaskedROM(rom, dependencies) {
-  const PAGE_SIZE = 64;
   
   let maskedROM = new Uint8Array(rom.length);
   let mask = new Uint8Array(rom.length);
+  
+  // include any byte of a memory page associated with an address in dependencies
+  const PAGE_SIZE = 64;  
   let pages = new Set();
   for (let address of dependencies) {
     pages.add(Math.floor(address / PAGE_SIZE));
@@ -116,10 +122,9 @@ async function compileQuote(trace) {
   }
 
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
-  
-  let file = new File([pngBuffer, zipBuffer], "quote.zip.png", {type:'image/png'});
-  
+
+  let blob = new Blob([pngBuffer, zipBuffer], {type:'image/png'});  
   let img = document.createElement("img");
-  img.src = URL.createObjectURL(file);
+  img.src = URL.createObjectURL(blob);
   document.getElementById("quotes").appendChild(img);
 }
