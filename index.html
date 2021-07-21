@@ -24,8 +24,9 @@
         margin: 5px;
       }
 
-      #recordingStatus {
+      #status {
         font-size: smaller;
+        color: gray;
       }
 
       .idle {
@@ -46,6 +47,13 @@
       .compiling {
         border: thick solid yellow;
       }
+      
+      #quotes {
+        margin: 5px;
+      }
+      #quotes img {
+        padding: 5px;
+      }
     </style>
 
     <script src="lib/jszip.min.js" defer></script>
@@ -65,7 +73,7 @@
     <div id="container">
       <canvas id="screen"></canvas>
       <input id="button" type="button" value="..." />
-      <span id="recordingStatus"></span>
+      <span id="status"></span>
     </div>
     <div id="quotes"></div>
   </body>

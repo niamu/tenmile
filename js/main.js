@@ -28,6 +28,7 @@ const fsm = new StateMachine({
   data: {
     canvas: document.getElementById("screen"),
     button: document.getElementById("button"),
+    status: document.getElementById("status"),
     currentROM: null,
     currentQuote: null,
     currentTrace: null,
@@ -49,11 +50,16 @@ const fsm = new StateMachine({
         lifecycle.to,
         args
       );
-      
+
+      this.status.innerText = "(" + lifecycle.to + ' ' + (this.gameboy?this.gameboy.name|'') + ")";
+
       this.canvas.classList.remove(lifecycle.from);
       this.canvas.classList.add(lifecycle.to);
 
-      if (this.gameboy != null && this.gameboy.unproxiedROM != this.currentROM) {
+      if (
+        this.gameboy != null &&
+        this.gameboy.unproxiedROM != this.currentROM
+      ) {
         // need to rebuild for new ROM
         clearInterval(this.runInterval);
         this.runInterval = null;
@@ -61,7 +67,6 @@ const fsm = new StateMachine({
       }
 
       if (this.gameboy == null && this.currentROM != null) {
-
         this.gameboy = GameBoyCore(this.canvas, this.currentROM, {});
         this.gameboy.unproxiedROM = this.gameboy.ROM;
 
@@ -119,11 +124,14 @@ const fsm = new StateMachine({
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
-      if(this.currentQuote) {
+      if (this.currentQuote) {
         // Trying to insert ROM to continue?
         let match = true;
-        for(let i = 0; i < rom.length; i++) {
-          if(this.currentQuote.romMask[i] == 1 && this.currentROM[i] != rom[i] ) {
+        for (let i = 0; i < rom.length; i++) {
+          if (
+            this.currentQuote.romMask[i] == 1 &&
+            this.currentROM[i] != rom[i]
+          ) {
             match = false;
           }
         }
@@ -140,7 +148,7 @@ const fsm = new StateMachine({
     },
 
     onEnterPlaying: function() {
-      if(this.lastState) {
+      if (this.lastState) {
         this.gameboy.returnFromState(this.lastState);
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
       }
@@ -181,13 +189,12 @@ const fsm = new StateMachine({
 
       function updateRecordingStatus() {
         let percentage =
-            fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
-        document.getElementById("recordingStatus").innerText = Number(
-          percentage
-        ).toLocaleString(undefined, {
-          style: "percent",
-          minimumFractionDigits: 2
-        }) + " of ROM bytes accessed.";
+          fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
+        fsm.status.innerText =
+          Number(percentage).toLocaleString(undefined, {
+            style: "percent",
+            minimumFractionDigits: 2
+          }) + " of ROM bytes accessed.";
       }
 
       this.button.value = "Stop recording";
@@ -195,7 +202,7 @@ const fsm = new StateMachine({
     },
 
     onLeaveRecording: function() {
-      document.getElementById("recordingStatus").innerText = "";
+      this.status.innerText = "";
       clearInterval(this.recordingStatusInterval);
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
@@ -285,7 +292,7 @@ const buttonToKeycode = {
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = ev => {
     ev.preventDefault();
-    for(let item of ev.dataTransfer.files){
+    for (let item of ev.dataTransfer.files) {
       processFile(item);
     }
   };
