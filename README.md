@@ -1,4 +1,4 @@
- Playable Quotes for Game Boy
+# Playable Quotes for Game Boy
 
 This project offers the ability to create and share **playable quotes** of [GameBoy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *delimited* reference to a 
 *specific* moment in a game along with a reference recording of how that moment plays out.
