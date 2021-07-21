@@ -20,9 +20,6 @@ class Trace {
 const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
 
-const ARCHIVAL_README = `
-TODO
-`;
 
 function generateMaskedROM(rom, dependencies) {
   

@@ -1,4 +1,4 @@
-/* global GameBoyCore, StateMachine */
+/* global GameBoyCore, XAudioServer, StateMachine */
 /* global loadQuote, compileQuote, Quote, Trace */
 
 // used by gameboy.js
@@ -64,6 +64,10 @@ const fsm = new StateMachine({
         clearInterval(this.runInterval);
         this.runInterval = null;
         this.gameboy = null;
+      }
+      
+      const opts = {
+        sound: XAudioServer
       }
 
       if (this.gameboy == null && this.currentROM != null) {
