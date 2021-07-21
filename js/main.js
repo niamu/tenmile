@@ -19,7 +19,8 @@ const fsm = new StateMachine({
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
     { name: "tap", from: "recording", to: "compiling" },
-    { name: "complete", from: "compiling", to: "playing" }
+    { name: "complete", from: "compiling", to: "reset" },
+    { name: "rewind", from: "reset", to: "playing" }
   ],
   data: {
     button: document.getElementById("button"),
@@ -181,12 +182,12 @@ const fsm = new StateMachine({
       this.button.disabled = true;
 
       // TODO[jf]: compile the trace using await as needed
-      
+
       // How many bytes to store per address observed
       const PAGE_SIZE = 64;
       const SAVESTATE_ROM = 0;
       const SAVESTATE_FRAMEBUFFER = 71;
-      
+
       let zip = new JSZip();
       let maskedROM = new Uint8Array(this.currentROM.length);
       let mask = new Uint8Array(this.currentROM.length);
@@ -245,19 +246,23 @@ const fsm = new StateMachine({
 
       document.getElementById("quotes").appendChild(img);
       //[jf] END
-
-      setTimeout(() => {
-        // at the end of recording, take them back to where recording started so that it is easy to record another take
-        fsm.gameboy.returnFromState(fsm.currentTrace.initialState);
-        fsm.complete();
-      }, 500);
+      
+debugger
     },
 
     onLeaveCompiling: function() {
-      fsm.currentTrace = null;
       this.button.disabled = false;
+
+      // at the end of recording, take them back to where recording started so that it is easy to record another take
+      this.gameboy.returnFromState(this.currentTrace.initialState);
+      this.currentTrace = null;
+      this.complete();
     },
 
+    onComplete: function() {
+      this.rewind();
+    },
+    
     onLeaveWatching: function() {
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;

@@ -3,40 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <title>...</title>
-    
   </head>
   <body>
-    <div id="bucket" style="width: 250px; height: 250px; outline: thin dashed black;"></div>
+    <div
+      id="bucket"
+      style="width: 250px; height: 250px; outline: thin dashed black;"
+    ></div>
   </body>
   <script>
-    
     bucket.ondragover = e => false;
-    
-    bucket.ondrop = async function (e) {
+
+    bucket.ondrop = async function(e) {
       e.preventDefault();
       let file = e.dataTransfer.files[0];
-      
-      const endpoint = 'https://api.imgur.com/3/image';
-      const clientId = '255a40d60ace381';
-      
+
+      const endpoint = "https://api.imgur.com/3/image";
+      const clientId = "255a40d60ace381";
+
       let formData = new FormData();
-      formData.append('image', file);
-      
-      let response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          Authorization: 'Client-ID ' + clientId,
-          Accept: 'application/json'
-        },
-        body: formData
-      });
-      
-      console.log(response);
-      let json = await response.json();
-      console.log(json);
-      
-      
-    }
-    
+      formData.append("image", file);
+
+      if (false) {
+        // This stuff works, but it produces an image that can't be deleted
+        // from JS here on Glitch because DELETE is
+        let response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            Authorization: "Client-ID " + clientId,
+            Accept: "application/json"
+          },
+          body: formData
+        });
+
+        let json = await response.json();
+        console.log(json);
+      }
+    };
   </script>
 </html>
