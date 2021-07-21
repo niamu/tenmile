@@ -107,13 +107,29 @@ async function loadQuote(buffer) {
 
 async function compileQuote(trace) {
 
+  let originalROM = trace.initialState[SAVESTATE_ROM]
   
   let {maskedROM, mask} = generateMaskedROM(
-    trace.initialState[SAVESTATE_ROM],
+    originalROM,
     trace.romDependencies);
 
-  let originalBytes = trace.initialState[SAVESTATE_ROM].length;
-  let includedBytes = trace.initialState[SAVESTATE_ROM].map((e) => e==1).reduce((a,b)=>a+b,0);
+  let originalBytes = originalROM.length;
+  let includedBytes = originalROM.map((e) => e==1).reduce((a,b)=>a+b,0);
+  
+  let digest = "";
+  for(let byte of new Uint8Array(await crypto.subtle.digest('SHA-256', originalROM))) {
+    digest += byte.toString(16).padStart(2, '0');
+  }
+  
+  let details = "";
+  details += includedBytes + ' out of ' + originalBytes + ' ROM bytes included (' +
+    Number(includedBytes/originalBytes).toLocaleString(undefined, {
+            style: "percent",
+            minimumFractionDigits: 2
+          }) + ")\n";
+  
+  details += 'Original ROM SHA-256 digest:\n' + digest.toUpperCase() + '\n';
+  console.log(details);
   
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
