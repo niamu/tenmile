@@ -73,7 +73,7 @@ async function loadQuote(buffer) {
   quote.rom = fileArrays["rom.bin"];
   quote.romMask = fileArrays["romMask.bin"];
 
-  quote.state = msgpack.deserialize(fileArrays["state.msgpack"]);
+  quote.state = msgpack.deserialize(fileArrays["initialState.msgpack"]);
   quote.state[SAVESTATE_ROM] = quote.rom;
   quote.state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
 
@@ -96,20 +96,19 @@ async function compileQuote(trace) {
 
   zip.file("rom.bin", maskedROM);
   zip.file("romMask.bin", mask);
-  zip.file("savestate.msgpack", msgpack.serialize(state));
+  zip.file("initialState.msgpack", msgpack.serialize(state));
   if (trace.actions) {
     zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   }
 
   let zipBuffer = await zip.generateAsync({
-    type: "uint8array",
+    type: "arraybuffer",
     compression: "DEFLATE",
-    compressionOptions: { level: 9 }
+    compressionOptions: { level: 9 },
   });
 
-  let frameBuffer = trace.initialState[SAVESTATE_FRAMEBUFFER];
   let rgba = [];
-  for (let pixel of frameBuffer) {
+  for (let pixel of trace.initialState[SAVESTATE_FRAMEBUFFER]) {
     rgba.push((pixel & 0xff0000) >> 16);
     rgba.push((pixel & 0x00ff00) >> 8);
     rgba.push((pixel & 0x0000ff) >> 0);
@@ -118,86 +117,9 @@ async function compileQuote(trace) {
 
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
   
-  let blob = new Blob([pngBuffer, zipBuffer], {type:'image/png'});
-  let img = document.createElement("img");
-  img.src = URL.createObjectURL(blob);
-
-  document.getElementById("quotes").appendChild(img);
-}
-
-async function _loadQuote(buffer) {
-  let quote = new Quote();
-
-  let png = new PNGBaker(buffer);
-  let fileArrays = {};
-  let jszip = new JSZip();
-  let zip = await jszip.loadAsync(png.chunk);
-  for (let filename of Object.keys(zip.files)) {
-    fileArrays[filename] = await zip.file(filename).async("uint8array");
-  }
-
-  let frameBuffer = new Int32Array(160 * 144);
-  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
-  for (let i = 0; i < frameBuffer.length; i++) {
-    frameBuffer[i] += rgba[4 * i + 0] << 16;
-    frameBuffer[i] += rgba[4 * i + 1] << 8;
-    frameBuffer[i] += rgba[4 * i + 2] << 0;
-  }
-
-  quote.rom = fileArrays.rom;
-  quote.romMask = fileArrays.rom_mask;
-
-  if (fileArrays.action_log) {
-    quote.actions = msgpack.deserialize(fileArrays.action_log);
-  }
-  let state = msgpack.deserialize(fileArrays.savestate);
-
-  state[SAVESTATE_ROM] = fileArrays.rom;
-  state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
-
-  quote.state = state;
-
-  return quote;
-}
-
-async function _compileQuote(trace) {
+  let file = new File([pngBuffer, zipBuffer], "quote.zip.png", {type:'image/png'});
   
-  let rom = trace.initialState[0];
-
-  let zip = new JSZip();
-  let {maskedROM, mask} = generateMaskedROM(rom, trace.romDependencies);
-
-  let state = trace.initialState.slice();
-  state[SAVESTATE_ROM] = null;
-  state[SAVESTATE_FRAMEBUFFER] = null;
-
-  zip.file("rom", maskedROM);
-  zip.file("rom_mask", mask);
-  zip.file("savestate", msgpack.serialize(state));
-  if (trace.actions) {
-    zip.file("action_log", msgpack.serialize(trace.actions));
-  }
-
-  let binary = await zip.generateAsync({
-    type: "uint8array",
-    compression: "DEFLATE",
-    compressionOptions: { level: 9 }
-  });
-
-  let fb = trace.initialState[SAVESTATE_FRAMEBUFFER];
-  let rgba = [];
-  for (let pixel of fb) {
-    rgba.push((pixel & 0xff0000) >> 16);
-    rgba.push((pixel & 0x00ff00) >> 8);
-    rgba.push((pixel & 0x0000ff) >> 0);
-    rgba.push(0xff);
-  }
-
-  let png = new PNGBaker(UPNG.encode([rgba], 160, 144, 0));
-  png.chunk = binary;
   let img = document.createElement("img");
-  let blobUrl = URL.createObjectURL(png.toBlob());
-  img.src = blobUrl;
-
+  img.src = URL.createObjectURL(file);
   document.getElementById("quotes").appendChild(img);
 }
