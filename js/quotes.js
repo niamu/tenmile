@@ -134,7 +134,7 @@ async function compileQuote(trace) {
     ").\n";
 
   details += "- Original ROM SHA-256 digest: " + digest.toUpperCase() + "\n";
-  details += "- Reference gameplay recording: " + trace.actions.length + "\n";
+  details += "- Reference gameplay recording: " + trace.actions.length + " emulator iterations\n";
 
   let readme = ARCHIVE_README_TEMPLATE.slice().replace(
     "DETAILS_GO_HERE",
