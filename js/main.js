@@ -47,12 +47,10 @@ const fsm = new StateMachine({
         lifecycle.transition,
         lifecycle.from,
         "->",
-        lifecycle.to,
-        ...args
+        lifecycle.to
+        //...args
       );
-
-      //this.status.innerText = "(" + lifecycle.to + ")";
-
+      
       this.canvas.classList.remove(lifecycle.from);
       this.canvas.classList.add(lifecycle.to);
 
@@ -65,17 +63,18 @@ const fsm = new StateMachine({
         this.runInterval = null;
         this.gameboy = null;
       }
-      
+
       const opts = {
         sound: XAudioServer
-      }
+      };
 
       if (this.gameboy == null && this.currentROM != null) {
         this.gameboy = GameBoyCore(this.canvas, this.currentROM, opts);
-        this.gameboy.unproxiedROM = this.gameboy.ROM;
-
+        
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
+        
+        this.gameboy.unproxiedROM = this.gameboy.ROM;
 
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
@@ -179,14 +178,17 @@ const fsm = new StateMachine({
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
 
-      let iteration = 0;
+      let actionsSinceLastIteration = [];
       this.handleExecuteIteration.apply = function() {
-        iteration++;
+        
         return Reflect.apply(...arguments);
+        console.log('tick');
+        fsm.currentTrace.actions.push(actionsSinceLastIteration);
+        actionsSinceLastIteration = [];
       };
 
       this.handleJoyPadEvent.apply = function(target, thisArg, args) {
-        fsm.currentTrace.actions.push({ on: iteration, do: args });
+        actionsSinceLastIteration.push(args);
         return Reflect.apply(...arguments);
       };
 

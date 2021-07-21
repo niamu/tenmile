@@ -142,6 +142,7 @@ async function compileQuote(trace) {
   zip.file("romMask.bin", mask);
   zip.file("initialState.msgpack", msgpack.serialize(state));
   if (trace.actions) {
+    console.log('trace.actions:', trace.actions);
     zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   }
   
