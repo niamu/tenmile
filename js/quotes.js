@@ -159,8 +159,9 @@ const fsm = new StateMachine({
       this.button.disabled = false;
     },
 
-    onEnterWatching: function() {
-      this.button.value = "Take control";
+    onAfterWatching: function() {
+      console.log("on_Watching");
+      fsm.button.value = "Take control";
 
       fsm.gameboy.returnFromState(fsm.currentQuote.state);
 
@@ -369,14 +370,10 @@ async function processFile(file) {
 
   if (isPNG) {
     //fsm.runQuote(buffer);
-    fsm.currentROM = fsm.currentQuote.rom; // ROM was embedded in the save
-    fsm.currentState = fsm.currentQuote.state;
-    fsm.dropQuote();
+    fsm.dropQuote(buffer);
   } else if (isGB) {
     let rom = new Uint8Array(buffer);
-    fsm.currentROM = rom;
-    fsm.currentState = null;
-    fsm.dropGame();
+    fsm.dropGame(buffer);
   } else {
     alert("Unsupported file");
   }
