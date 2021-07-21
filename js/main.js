@@ -62,17 +62,11 @@ const fsm = new StateMachine({
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
 
-        /*if (this.currentState != null) {
-          this.currentState[0] = this.currentROM;
-          this.gameboy.returnFromState(this.currentState);
-        }*/
-
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
 
-        
         
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
@@ -96,7 +90,11 @@ const fsm = new StateMachine({
 
     onEnterWatching: function() {
       console.log("onEnterWatching");
-      fsm.button.value = "Take control";
+      this.button.value = "Take control";
+      
+      this.gameboy.returnFromState(this.currentQuote.state);
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -106,8 +104,7 @@ const fsm = new StateMachine({
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // TODO: ignore events while watching
-        Reflect.apply(...arguments);
+        // ignore events while watching
       };
     },
     
@@ -116,6 +113,7 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       this.currentState = this.gameboy.saveState();
+      this.currentState[0] = this.currentROM;
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -126,8 +124,17 @@ const fsm = new StateMachine({
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
     },
+    
+    onLeavePlaying: function() {
+      this.currentState = this.gameboy.saveState();
+      this.currentState[0] = this.currentROM;
+    },
 
     onEnterRecording: function() {
+  
+      this.gameboy.returnFromState(this.currentState);
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+  
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
       this.currentTrace.initialState[0] = this.currentROM;
@@ -290,7 +297,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
-      this.currentState = null;
+      this.currentState = this.gameboy.saveState();
     }
   }
 });
@@ -390,8 +397,8 @@ const buttonToKeycode = {
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = dropHandler;
 
-  //await dropExampleGame();
-  await dropExampleQuote();
+  await dropExampleGame();
+  //await dropExampleQuote();
 })();
 
 async function dropExampleGame() {
