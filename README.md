@@ -18,7 +18,8 @@ If you have access to the ROM for the quoted game (or any other GameBoy game), y
 
 ## Recording a Quote
 
-While playing a game (after you've provided the ROM), you can use the button record your own quote. As you play, we'll estimate how much of the ROM will be included in your quote. When you are done recording, use the button to compile the quote to a shareable `.png` file.
+While playing a game (after you've provided the ROM), you can use the 
+"Record a quote" button to record your own quote. As you play, we'll estimate how much of the ROM will be included in your quote. When you are done recording, use the button to compile the quote to a shareable `.png` file.
 
 ### Recording Tips
 
