@@ -91,9 +91,9 @@ const fsm = new StateMachine({
       }
     },
 
-    onBeforeDropQuote: async function(lifecycle, buffer) {
+    onBeforeDropQuote: async function(lifecycle, quote) {
       console.log("onBeforeDropQuote");
-      fsm.currentQuote = await loadQuote(buffer);
+      fsm.currentQuote = quote;
       fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
     },
@@ -114,7 +114,7 @@ const fsm = new StateMachine({
       };
     },
 
-    onBeforeDropGame: async function(lifecycle, buffer) {
+    onBeforeDropGame: function(lifecycle, buffer) {
       let rom = new Uint8Array(buffer);
       fsm.currentROM = rom;
       fsm.currentState = null;
@@ -405,8 +405,8 @@ async function dropExampleQuote() {
   let resource =
     "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
   let buffer = await (await fetch(resource)).arrayBuffer();
-
-  fsm.dropQuote(buffer);
+  let quote = await loadQuote(buffer);
+  fsm.dropQuote(quote);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
