@@ -301,7 +301,7 @@ const buttonToKeycode = {
     }
   };
 
-  await dropExampleGame();
+  //await dropExampleGame();
   //await dropExampleQuote();
 })();
 
