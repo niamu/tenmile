@@ -12,9 +12,30 @@
     
     bucket.ondragover = e => false;
     
-    bucket.ondrop = function (e) {
+    bucket.ondrop = async function (e) {
       e.preventDefault();
-      console.log('ondrop', e.dataTransfer.files[0]);
+      let file = e.dataTransfer.files[0];
+      
+      const endpoint = 'https://api.imgur.com/3/image';
+      const clientId = '255a40d60ace381';
+      
+      let formData = new FormData();
+      formData.append('image', file);
+      
+      let response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: 'Client-ID ' + clientId,
+          Accept: 'application/json'
+        },
+        body: formData
+      });
+      
+      console.log(response);
+      let json = await response.json();
+      console.log(json);
+      
+      
     }
     
   </script>

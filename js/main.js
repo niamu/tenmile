@@ -128,6 +128,7 @@ const fsm = new StateMachine({
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
       this.currentTrace.initialState[0] = this.currentROM;
+      this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
 
@@ -150,7 +151,8 @@ const fsm = new StateMachine({
       async function updateRecordingStatus() {
         let percentage = "0.0";
         if (fsm.currentTrace.romDependencies) {
-          percentage = fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
+          percentage =
+            fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
         }
         document.getElementById("percentRecorded").innerHTML = Number(
           percentage
@@ -179,6 +181,71 @@ const fsm = new StateMachine({
       this.button.disabled = true;
 
       // TODO[jf]: compile the trace using await as needed
+      
+      // How many bytes to store per address observed
+      const PAGE_SIZE = 64;
+      const SAVESTATE_ROM = 0;
+      const SAVESTATE_FRAMEBUFFER = 71;
+      
+      let zip = new JSZip();
+      let maskedROM = new Uint8Array(this.currentROM.length);
+      let mask = new Uint8Array(this.currentROM.length);
+      let pages = new Set();
+      for (let address of this.currentTrace.romDependencies) {
+        pages.add(Math.floor(address / PAGE_SIZE));
+      }
+      for (let page of pages) {
+        let startAddress = page * PAGE_SIZE;
+        for (let i = 0; i < PAGE_SIZE; i++) {
+          let address = startAddress + i;
+          maskedROM[address] = this.currentROM[address];
+          mask[address] = 1;
+        }
+      }
+
+      for (let i = 0; i < 0x134; i++) {
+        maskedROM[i] = 0;
+        mask[i] = 0;
+      }
+      for (let i = 0x134; i < 0x14d; i++) {
+        maskedROM[i] = this.currentROM[i];
+        mask[i] = 1;
+      }
+
+      let state = this.currentTrace.initialState;
+      state[SAVESTATE_ROM] = null;
+      state[SAVESTATE_FRAMEBUFFER] = null;
+
+      zip.file("rom", maskedROM);
+      zip.file("rom_mask", mask);
+      zip.file("savestate", msgpack.serialize(state));
+      if (this.currentTrace.actions) {
+        zip.file("action_log", msgpack.serialize(this.currentTrace.actions));
+      }
+
+      let binary = await zip.generateAsync({
+        type: "uint8array",
+        compression: "DEFLATE",
+        compressionOptions: { level: 9 }
+      });
+
+      let rgba = [];
+      for (let pixel of this.currentTrace.initialFrameBuffer) {
+        rgba.push((pixel & 0xff0000) >> 16);
+        rgba.push((pixel & 0x00ff00) >> 8);
+        rgba.push((pixel & 0x0000ff) >> 0);
+        rgba.push(0xff);
+      }
+
+      let png = new PNGBaker(UPNG.encode([rgba], 160, 144, 0));
+      png.chunk = binary;
+      let img = document.createElement("img");
+      let blobUrl = URL.createObjectURL(png.toBlob());
+      img.src = blobUrl;
+
+      document.getElementById("quotes").appendChild(img);
+      //[jf] END
+
       setTimeout(() => {
         // at the end of recording, take them back to where recording started so that it is easy to record another take
         fsm.gameboy.returnFromState(fsm.currentTrace.initialState);
@@ -236,6 +303,7 @@ class Quote {
 
 class Trace {
   initialState;
+  initialFrameBuffer;
   actions;
   romDependencies;
 }
