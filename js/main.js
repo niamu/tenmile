@@ -48,10 +48,10 @@ const fsm = new StateMachine({
         lifecycle.from,
         "->",
         lifecycle.to,
-        args
+        ...args
       );
 
-      this.status.innerText = "(" + lifecycle.to + ' ' + (this.gameboy?this.gameboy.name|'') + ")";
+      //this.status.innerText = "(" + lifecycle.to + ")";
 
       this.canvas.classList.remove(lifecycle.from);
       this.canvas.classList.add(lifecycle.to);
@@ -89,6 +89,10 @@ const fsm = new StateMachine({
         );
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      }
+
+      if (this.gameboy) {
+        document.title = lifecycle.to + " " + this.gameboy.name;
       }
     },
 
