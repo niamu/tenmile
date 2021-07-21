@@ -26,6 +26,7 @@ const fsm = new StateMachine({
     { name: "complete", from: "compiling", to: "playing" }
   ],
   data: {
+    canvas: document.getElementById("screen"),
     button: document.getElementById("button"),
     currentROM: null,
     currentQuote: null,
@@ -48,6 +49,9 @@ const fsm = new StateMachine({
         lifecycle.to,
         args
       );
+      
+      this.canvas.classList.remove(lifecycle.from);
+      this.canvas.classList.add(lifecycle.to);
 
       if (this.gameboy != null && this.gameboy.unproxiedROM != this.currentROM) {
         // need to rebuild for new ROM
@@ -57,9 +61,8 @@ const fsm = new StateMachine({
       }
 
       if (this.gameboy == null && this.currentROM != null) {
-        let canvas = document.getElementById("screen");
 
-        this.gameboy = GameBoyCore(canvas, this.currentROM, {});
+        this.gameboy = GameBoyCore(this.canvas, this.currentROM, {});
         this.gameboy.unproxiedROM = this.gameboy.ROM;
 
         this.gameboy.stopEmulator = 1; // required for some reason
@@ -118,7 +121,6 @@ const fsm = new StateMachine({
     onBeforeDropGame: function(lifecycle, rom) {
       if(this.currentQuote) {
         // Trying to insert ROM to continue?
-        
         let match = true;
         for(let i = 0; i < rom.length; i++) {
           if(this.currentQuote.romMask[i] == 1 && this.currentROM[i] != rom[i] ) {
@@ -130,7 +132,7 @@ const fsm = new StateMachine({
           this.currentQuote = null;
           this.currentROM = rom;
           this.lastState[0] = rom; // patch last state for continued play
-          return
+          return;
         }
       }
       this.currentROM = rom;
