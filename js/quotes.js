@@ -38,7 +38,7 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onAfterTransition: function(lifecycle) {
+    onTransition: function(lifecycle) {
       console.log(
         "transition:",
         lifecycle.transition,
@@ -354,12 +354,7 @@ function dragOverHandler(ev) {
 }
 
 async function processFile(file) {
-  /*
-  if (fsm.is("playingROM") || fsm.is("playingQuote")) {
-    fsm.quit();
-  }
-  */
-
+  
   let buffer = await file.arrayBuffer();
   // FIXME: Look for the chunk name instead
   let isPNG = new Uint32Array(buffer.slice(0, 4))[0] == 0x474e5089;
@@ -369,11 +364,14 @@ async function processFile(file) {
     new Uint32Array(buffer.slice(0x104, 0x10c))[1] == 0x0b000dcc;
 
   if (isPNG) {
-    //fsm.runQuote(buffer);
-    fsm.dropQuote(buffer);
+    if(fsm.can('dropQuote')) {
+      fsm.dropQuote(buffer);
+    }
   } else if (isGB) {
-    let rom = new Uint8Array(buffer);
-    fsm.dropGame(buffer);
+    if(fsm.can('dropGame')) {
+      let rom = new Uint8Array(buffer);
+      fsm.dropGame(buffer);
+    }
   } else {
     alert("Unsupported file");
   }

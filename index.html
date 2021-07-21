@@ -6,6 +6,13 @@
     <link rel="icon" href="https://glitch.com/favicon.ico" />
 
     <title>Playable Quotes for Game Boy</title>
+    
+    <style>
+      #container canvas {
+        width:
+        border: thin dotted black;
+      }
+    </style>
 
     <script src="js/jszip.min.js" defer></script>
     <script src="js/pako.min.js" defer></script>
@@ -22,8 +29,8 @@
     <div
       id="container"
       ondrop="dropHandler(event);"
-         style="background: #f5f5f5;"
-      ondragover="dragOverHandler(event);"
+      style="background: #f5f5f5;"
+      ondragover="event.preventDefault();"
     >
       <canvas id="screen" width="320" height="288"></canvas>
       <br />
