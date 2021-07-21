@@ -116,27 +116,42 @@ const fsm = new StateMachine({
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
+      if(this.currentQuote) {
+        // Trying to insert ROM to continue?
+        
+        let match = true;
+        for(let i = 0; i < rom.length; i++) {
+          if(this.currentQuote.romMask[i] == 1 && this.currentROM[i] != rom[i] ) {
+            match = false;
+          }
+        }
+        if (match) {
+          // Continuing unbounded play!
+          this.currentQuote = null;
+          this.currentROM = rom;
+          this.lastState[0] = rom; // patch last state for continued play
+          return
+        }
+      }
       this.currentROM = rom;
-      this.currentState = null;
-      // TODO: check if new rom is compatible with old one, and patch up for continuation
-      
+      this.lastState = null;
     },
 
     onEnterPlaying: function() {
-      if(this.currentState) {
-        this.gameboy.returnFromState(this.currentState);
+      if(this.lastState) {
+        this.gameboy.returnFromState(this.lastState);
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
       }
       this.button.value = "Record new quote";
     },
 
     onLeavePlaying: function() {
-      this.currentState = this.gameboy.saveState();
-      this.currentState[0] = this.currentROM;
+      this.lastState = this.gameboy.saveState();
+      this.lastState[0] = this.currentROM;
     },
 
     onEnterRecording: function() {
-      this.gameboy.returnFromState(this.currentState);
+      this.gameboy.returnFromState(this.lastState);
       this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
 
       this.currentTrace = new Trace();
