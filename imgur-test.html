@@ -8,7 +8,9 @@
     <div
       id="bucket"
       style="width: 250px; height: 250px; outline: thin dashed black;"
-    >drop file to upload to imgur</div>
+    >
+      drop file to upload to imgur
+    </div>
   </body>
   <script>
     bucket.ondragover = e => false;
@@ -21,7 +23,7 @@
         // from JS here on Glitch because the DELETE request method is
         // "violates the document's Content Security Policy."
         //
-        // If running this in the future, not the image's deletehash so that
+        // If running this in the future, note the image's deletehash so that
         // you can delete it with curl manually.
 
         let file = e.dataTransfer.files[0];

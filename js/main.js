@@ -253,11 +253,9 @@ const fsm = new StateMachine({
 
     onLeaveCompiling: function() {      
       this.button.disabled = false;
-
       // at the end of recording, take them back to where recording started so that it is easy to record another take
-      this.gameboy.returnFromState(this.currentTrace.initialState);
-              this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-
+      //[jf] commented out, for now, since I can't get this working
+      // this.gameboy.returnFromState(this.currentTrace.initialState);
       this.currentTrace = null;
     },
     

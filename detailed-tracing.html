@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>...</title>
+    <script src="lib/emitter.js"></script>
+    <script src="lib/gameboy.js"></script>
+  </head>
+  <body>
+    <canvas id="screen"></canvas>
+  </body>
+  <script>
+    (async function() {
+      let buffer = await (await fetch("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png?v=1626818993428")).arrayBuffer();
+      
+      let canvas = document.getElementById("screen");
+      let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
+      
+    })();
+  </script>
+</html>
