@@ -19,8 +19,7 @@ const fsm = new StateMachine({
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
     { name: "tap", from: "recording", to: "compiling" },
-    { name: "complete", from: "compiling", to: "reset" },
-    { name: "rewind", from: "reset", to: "playing" }
+    { name: "complete", from: "compiling", to: "playing" }
   ],
   data: {
     button: document.getElementById("button"),
@@ -247,20 +246,19 @@ const fsm = new StateMachine({
       document.getElementById("quotes").appendChild(img);
       //[jf] END
       
-debugger
+      setTimeout(function(){
+        fsm.complete();
+      }, 500);
     },
 
-    onLeaveCompiling: function() {
+    onLeaveCompiling: function() {      
       this.button.disabled = false;
 
       // at the end of recording, take them back to where recording started so that it is easy to record another take
       this.gameboy.returnFromState(this.currentTrace.initialState);
-      this.currentTrace = null;
-      this.complete();
-    },
+              this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
 
-    onComplete: function() {
-      this.rewind();
+      this.currentTrace = null;
     },
     
     onLeaveWatching: function() {
