@@ -39,7 +39,7 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
-    onTransition: function(lifecycle) {
+    old_onTransition: function(lifecycle) {
       console.log(
         "transition:",
         lifecycle.transition,
@@ -95,6 +95,10 @@ const fsm = new StateMachine({
       fsm.currentQuote = await loadQuote(buffer);
       fsm.currentROM = fsm.currentQuote.rom;
       fsm.currentState = fsm.currentQuote.state;
+    },
+    
+    onPlaying: function() {
+      
     },
     
     onBeforeDropGame: async function(lifecycle, buffer) {
