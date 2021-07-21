@@ -41,4 +41,4 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 - `jszip.min.js`: [JSZip](https://stuk.github.io/jszip/)
 - `pako.min.js`: [pako](http://nodeca.github.io/pako/)
 - `msgpack.js`: [msgpack-javascript](https://github.com/msgpack/msgpack-javascript)
-- `emitter.js`: (don't recall atm)
+- `emitter.js`: (where did we get this from?)
