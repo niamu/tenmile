@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>deterministic playbac test</title>
+    <script src="lib/pako.min.js" defer></script>
+    <script src="lib/emitter.js"></script>
+    <script src="lib/gameboy.js"></script>
+    <script src="lib/UPNG.js"></script>
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/msgpack.js"></script>
+    <script src="js/quotes.js"></script>
+  </head>
+  <body>
+    <div id="screens">
+      <canvas width="160" height="144"></canvas>
+      <canvas width="160" height="144"></canvas>
+    </div>
+  </body>
+  <script>
+    (async function() {
+      let buffer = await (await fetch(
+        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-example.zip.png?v=1626913912224"
+      )).arrayBuffer();
+
+      let quote = await loadQuote(buffer);
+      
+      window.debug = () => {};
+
+      
+      let gameboys = [];
+      for(let canvas of document.getElementById("screens").children) {
+        let gameboy = new GameBoyCore(canvas, quote.ROM, {});
+        gameboy.stopEmulator = 1;
+        gameboy.start();
+        gameboys.push(gameboy);
+      }
+  
+      setInterval(function() {
+        gameboys.forEach(gb => gb.run());
+      }, 8);
+      
+      window.gameboys = gameboys;
+    })();
+  </script>
+</html>
