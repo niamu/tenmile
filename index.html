@@ -29,6 +29,14 @@
         color: gray;
       }
 
+      button#example-game {
+        background: #adeaad;
+      }
+      
+      button#example-quote {
+        background: #b5e0ff;
+      }
+
       .idle {
         border: thick dashed gray;
       }
@@ -68,7 +76,8 @@
     <script src="lib/png-baker.js" defer></script>
     <script src="lib/msgpack.js" defer></script>
     <script src="lib/emitter.js" defer></script>
-    <script src="lib/resampler.js" defer></script><!-- Dependency of XAudioServer.js -->
+    <script src="lib/resampler.js" defer></script>
+    <!-- Dependency of XAudioServer.js -->
     <script src="lib/XAudioServer.js" defer></script>
     <script src="lib/gameboy.js" defer></script>
     <script src="lib/state-machine.js" defer></script>
@@ -83,7 +92,7 @@
       <input id="button" type="button" value="..." />
       <span id="status"></span>
       <br />
-      Sound: <input type="checkbox" id="sound"/>
+      Sound: <input type="checkbox" id="sound" />
     </div>
     <div id="instructions">
       Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
@@ -92,17 +101,19 @@
       <!-- A/B/Start/Select with z/x/enter/shift--><br />
       For more information, see <a href="README.md">README.md</a>.
       <br />
-      <button id
-        onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
-      >
-        Example game
-      </button>
-      <button
-        onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-example.zip.png?v=1626913912224');"
-      >
-        Example quote
-      </button>
     </div>
+    <button
+      id="example-game"
+      onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
+    >
+      Example game
+    </button>
+    <button
+      id="example-quote"
+      onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-example.zip.png?v=1626913912224');"
+    >
+      Example quote
+    </button>
     <div id="quotes"></div>
   </body>
 </html>
