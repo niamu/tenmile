@@ -42,8 +42,8 @@
                 iteration = 0;
               } else {
                 for (let action of quote.actions[iteration]) {
-                  if (iteration < 100) {
-                    console.log(iteration, action);
+                  if (iteration < 100 && action[0]==0) {
+                    console.log(iteration, gameboy.saveState().toString().length%1000);
                   }
                   gameboy.JoyPadEvent(...action);
                 }
