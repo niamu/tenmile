@@ -53,18 +53,6 @@
                     } else {
                       let state = gameboy.saveState();
                       console.log(specialState.toString().length, state.toString().length);
-                      console.group('entrywise differences');
-                      /*for(let i in state) {
-                        if(state[i].toString() != specialState[i].toString()) {
-                          console.log('unmatched ', i);
-                        }
-                      }*/
-                      for(let i in state[19]) {
-                        if(state[19][i] != specialState[19][i]) {
-                          console.log(i, state[19][i], specialState[19][i]);
-                        }
-                      }
-                      console.groupEnd();
                       specialState = state;
                     }
                   }
