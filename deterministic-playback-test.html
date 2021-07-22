@@ -30,8 +30,7 @@
       window.debug = () => {};
       
       
-      let specialState = null;
-
+    
       let gameboys = [];
       for (let canvas of document.getElementById("screens").children) {
         setTimeout(function() {
@@ -39,6 +38,7 @@
           gameboy.stopEmulator = 1;
           gameboy.start();
 
+          let specialState = null;
           let iteration = 0;
           gameboy.executeIteration = new Proxy(gameboy.executeIteration, {
             apply: function() {
