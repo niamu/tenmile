@@ -72,6 +72,8 @@ const fsm = new StateMachine({
       if (this.gameboy == null && this.currentROM != null) {
         this.gameboy = GameBoyCore(this.canvas, this.currentROM, opts);
         
+        this.gameboy.opts.volume = document.getElementById("sound").checked ? 1 : 0;
+
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
         
@@ -330,6 +332,11 @@ function identicalArrays(a,b) {
     for (let item of ev.dataTransfer.files) {
       processFile(item);
     }
+  };
+  
+  document.getElementById("sound").onchange = (checkbox) => {
+    fsm.gameboy.opts.volume = checkbox.srcElement.checked ? 1 : 0;
+    fsm.gameboy.changeVolume()
   };
 
   let buttonToKey = {}
