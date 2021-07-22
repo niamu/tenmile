@@ -317,7 +317,7 @@ function identicalArrays(a,b) {
   }
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
-  document.getElementById("button").onclick = () => fsm.tap();
+  document.getElementById("button").onclick = () => fsm.can('tap') && fsm.tap();
 
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = ev => {
@@ -332,21 +332,15 @@ function identicalArrays(a,b) {
   
   const controls = "A/B/Start/Select with " + [buttonToKey["a"],buttonToKey["b"],buttonToKey["start"],buttonToKey["select"]].join("/")
   document.getElementById("controls").textContent = controls;
-  
-  await dropExampleGame();
-  //await dropExampleQuote();
 })();
 
-async function dropExampleGame() {
-  let resource = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
-  let buffer = await (await fetch(resource)).arrayBuffer();
+async function dropGameByUrl(url) {
+  let buffer = await (await fetch(url)).arrayBuffer();
   fsm.dropGame(new Uint8Array(buffer));
 }
 
-async function dropExampleQuote() {
-  let resource =
-    "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fjeff.png";
-  let buffer = await (await fetch(resource)).arrayBuffer();
+async function dropQuoteByUrl(url) {
+  let buffer = await (await fetch(url)).arrayBuffer();
   let quote = await loadQuote(buffer);
   fsm.dropQuote(quote);
 }
