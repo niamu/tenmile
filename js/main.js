@@ -146,7 +146,7 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.currentROM;
+      this.lastState[0] = this.gameboy.unproxiedROM;
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -182,7 +182,7 @@ const fsm = new StateMachine({
 
     onLeavePlaying: function() {
       this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.currentROM;
+      this.lastState[0] = this.gameboy.unproxiedROM;
     },
 
     onEnterRecording: function() {
@@ -190,7 +190,7 @@ const fsm = new StateMachine({
 
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.gameboy.saveState();
-      this.currentTrace.initialState[0] = this.currentROM;
+      this.currentTrace.initialState[0] = this.gameboy.unproxiedROM;
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
@@ -271,7 +271,7 @@ const fsm = new StateMachine({
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
       this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.currentROM;
+      this.lastState[0] = this.gameboy.unproxiedROM;
     }
   }
 });

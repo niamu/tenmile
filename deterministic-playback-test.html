@@ -29,31 +29,34 @@
 
       let gameboys = [];
       for (let canvas of document.getElementById("screens").children) {
-        setTimeout((function(){
-        let gameboy = new GameBoyCore(canvas, quote.rom, {});
-        gameboy.stopEmulator = 1;
-        gameboy.start();
+        setTimeout(function() {
+          let gameboy = new GameBoyCore(canvas, quote.rom, {});
+          gameboy.stopEmulator = 1;
+          gameboy.start();
 
-        let iteration = 0;
-        gameboy.executeIteration = new Proxy(gameboy.executeIteration, {
-          apply: function() {
-            if (iteration >= quote.actions.length) {
-              gameboy.returnFromState(quote.state);
-              iteration = 0;
-            } else {
-              for (let action of quote.actions[iteration]) {
-                gameboy.JoyPadEvent(...action);
+          let iteration = 0;
+          gameboy.executeIteration = new Proxy(gameboy.executeIteration, {
+            apply: function() {
+              if (iteration >= quote.actions.length) {
+                gameboy.returnFromState(quote.state);
+                iteration = 0;
+              } else {
+                for (let action of quote.actions[iteration]) {
+                  if (iteration < 100) {
+                    console.log(iteration, action);
+                  }
+                  gameboy.JoyPadEvent(...action);
+                }
+                iteration++;
               }
-              iteration++;
+              Reflect.apply(...arguments);
             }
-            Reflect.apply(...arguments);
-          }
-        });
+          });
 
-        gameboy.returnFromState(quote.state);
+          gameboy.returnFromState(quote.state);
 
-        gameboys.push(gameboy);
-        }),canvas.dataset.delay);
+          gameboys.push(gameboy);
+        }, canvas.dataset.delay);
       }
 
       setInterval(function() {
