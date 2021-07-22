@@ -45,3 +45,5 @@ By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the 
 - `pako.min.js`: [pako](http://nodeca.github.io/pako/)
 - `msgpack.js`: [msgpack-javascript](https://github.com/msgpack/msgpack-javascript)
 - `emitter.js`: [emitter](https://github.com/component/emitter)
+- `XAudioServer.js`: (???)
+- `resampler.js`: (???)
