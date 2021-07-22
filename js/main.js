@@ -56,7 +56,7 @@ const fsm = new StateMachine({
 
       if (
         this.gameboy != null &&
-        !identicalArrays(this.gameboy._unproxiedROM, this.currentROM)
+        this.gameboy._unproxiedROM == this.currentROM
       ) {
         // need to rebuild for new ROM
         console.log("rebuilding gameboy");
