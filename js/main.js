@@ -161,9 +161,8 @@ const fsm = new StateMachine({
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // Interpret inputs as trying to grab control
+        // Don't apply event but instead interpret input as trying to grab control
         fsm.tap();
-        Reflect.apply(...arguments);
       };
     },
 
@@ -270,6 +269,7 @@ const fsm = new StateMachine({
 
     onEnterRiffing: function() {
       this.button.value = "Watch pre-recorded play";
+      
 
       let oob = false;
 
