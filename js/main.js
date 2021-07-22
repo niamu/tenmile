@@ -103,16 +103,18 @@ const fsm = new StateMachine({
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
 
-        this.gameboy._restore = state => {
-          this.gameboy.returnFromState(state);
-          this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-        };
-
         this.gameboy._save = () => {
           let state = this.gameboy.saveState();
           state[0] = this.gameboy._unproxiedROM;
           return state;
         };
+        
+        this.gameboy._restore = state => {
+          this.gameboy.returnFromState(state);
+          this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+        };
+
+
       }
 
       if (this.gameboy) {
