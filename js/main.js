@@ -119,6 +119,15 @@ const fsm = new StateMachine({
       this.button.value = "Take control";
 
       this.gameboy.resume(this.currentQuote.state);
+      
+      let oob = false;
+
+      this.handleROM.get = function(target, prop) {
+        if (fsm.currentQuote.romMask[prop] == 0) {
+          oob = true;
+        }
+        return target[prop];
+      };
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
@@ -134,6 +143,11 @@ const fsm = new StateMachine({
         }
         
         return Reflect.apply(...arguments);
+        if (oob) {
+          console.log("Resetting after OOB (shouldn't really be happening during watching).");
+          oob = false;
+          fsm.gameboy.resume(fsm.currentQuote.state);
+        }
       };
 
       this.handleJoyPadEvent.apply = function() {
@@ -145,6 +159,7 @@ const fsm = new StateMachine({
     onLeaveWatching: function() {
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
+      delete this.handleROM.get;
       this.lastState = this.gameboy.saveState();
       this.lastState[0] = this.gameboy.unproxiedROM;
     },
