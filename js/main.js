@@ -312,6 +312,11 @@ function identicalArrays(a,b) {
       if (key in keyToButton) {
         let keycode = buttonToKeycode[keyToButton[key]];
         fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
+        try {
+          event.preventDefault();
+        } catch(error) {
+          console.log("handleKey", error);
+        }
       }
     }
   }
