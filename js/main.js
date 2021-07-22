@@ -81,7 +81,11 @@ const fsm = new StateMachine({
 
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
-          fsm.gameboy.run();
+          try{
+            fsm.gameboy.run();
+          } catch(exception) {
+            console.warn('Exception during gameboy.run():', exception);
+          }
         }, EMULATOR_LOOP_INTERVAL);
 
         this.gameboy._unproxiedROM = this.gameboy.ROM;
@@ -157,8 +161,9 @@ const fsm = new StateMachine({
       };
 
       this.handleJoyPadEvent.apply = function() {
-        // ignore events while watching, but count it as trying to grab control
+        // Interpret inputs as trying to grab control
         fsm.tap();
+        Reflect.apply(...arguments);
       };
     },
 
