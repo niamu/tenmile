@@ -50,16 +50,16 @@ const fsm = new StateMachine({
         lifecycle.to
         //...args
       );
-      
+
       this.canvas.classList.remove(lifecycle.from);
       this.canvas.classList.add(lifecycle.to);
 
       if (
         this.gameboy != null &&
-        !identicalArrays(this.gameboy.unproxiedROM, this.currentROM)
+        !identicalArrays(this.gameboy._unproxiedROM, this.currentROM)
       ) {
         // need to rebuild for new ROM
-        console.log('rebuilding gameboy');
+        console.log("rebuilding gameboy");
         clearInterval(this.runInterval);
         this.runInterval = null;
         this.gameboy = null;
@@ -71,19 +71,21 @@ const fsm = new StateMachine({
 
       if (this.gameboy == null && this.currentROM != null) {
         this.gameboy = GameBoyCore(this.canvas, this.currentROM, opts);
-        
-        this.gameboy.opts.volume = document.getElementById("sound").checked ? 1 : 0;
+
+        this.gameboy.opts.volume = document.getElementById("sound").checked
+          ? 1
+          : 0;
 
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
-        
+
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
           fsm.gameboy.run();
         }, EMULATOR_LOOP_INTERVAL);
-        
-        this.gameboy.unproxiedROM = this.gameboy.ROM;
-        this.gameboy.unproxiedJoyPadEvent = this.gameboy.JoyPadEvent;
+
+        this.gameboy._unproxiedROM = this.gameboy.ROM;
+        this.gameboy._unproxiedJoyPadEvent = this.gameboy.JoyPadEvent;
 
         this.gameboy.JoyPadEvent = new Proxy(
           this.gameboy.JoyPadEvent,
@@ -96,12 +98,17 @@ const fsm = new StateMachine({
         );
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-        
-        this.gameboy.resume = (state) => {
+
+        this.gameboy._restore = state => {
           this.gameboy.returnFromState(state);
           this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
         };
-        
+
+        this.gameboy._save = () => {
+          let state = this.gameboy.saveState();
+          state[0] = this.gameboy._unproxiedROM;
+          return state;
+        };
       }
 
       if (this.gameboy) {
@@ -118,8 +125,8 @@ const fsm = new StateMachine({
     onEnterWatching: function() {
       this.button.value = "Take control";
 
-      this.gameboy.resume(this.currentQuote.state);
-      
+      this.gameboy._restore(this.currentQuote.state);
+
       let oob = false;
 
       this.handleROM.get = function(target, prop) {
@@ -131,22 +138,21 @@ const fsm = new StateMachine({
 
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
-        
-        if(iteration >= fsm.currentQuote.actions.length) {
-          fsm.gameboy.resume(fsm.currentQuote.state);
+        if (iteration >= fsm.currentQuote.actions.length) {
+          fsm.gameboy._restore(fsm.currentQuote.state);
           iteration = 0;
         } else {
-          for(let action of fsm.currentQuote.actions[iteration]) {
-            fsm.gameboy.unproxiedJoyPadEvent(...action);
+          for (let action of fsm.currentQuote.actions[iteration]) {
+            fsm.gameboy._unproxiedJoyPadEvent(...action);
           }
           iteration++;
         }
-        
+
         return Reflect.apply(...arguments);
         if (oob) {
-          console.log("Resetting after OOB (shouldn't really be happening during watching).");
+          console.warn("Resetting after OOB while *watching*.");
           oob = false;
-          fsm.gameboy.resume(fsm.currentQuote.state);
+          fsm.gameboy._restore(fsm.currentQuote.state);
         }
       };
 
@@ -160,8 +166,7 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
-      this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.gameboy.unproxiedROM;
+      this.lastState = this.gameboy._save();
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -190,22 +195,20 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       if (this.lastState) {
-        this.gameboy.resume(this.lastState);
+        this.gameboy._restore(this.lastState);
       }
       this.button.value = "Record new quote";
     },
 
     onLeavePlaying: function() {
-      this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.gameboy.unproxiedROM;
+      this.lastState = this.gameboy._save();
     },
 
     onEnterRecording: function() {
-      this.gameboy.resume(this.lastState);
+      this.gameboy._restore(this.lastState);
 
       this.currentTrace = new Trace();
-      this.currentTrace.initialState = this.gameboy.saveState();
-      this.currentTrace.initialState[0] = this.gameboy.unproxiedROM;
+      this.currentTrace.initialState = this.gameboy._save();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
@@ -277,7 +280,7 @@ const fsm = new StateMachine({
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.gameboy.resume(fsm.currentQuote.state);
+          fsm.gameboy._restore(fsm.currentQuote.state);
         }
       };
     },
@@ -285,8 +288,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
-      this.lastState = this.gameboy.saveState();
-      this.lastState[0] = this.gameboy.unproxiedROM;
+      this.lastState = this.gameboy._save();
     }
   }
 });
@@ -313,13 +315,17 @@ const buttonToKeycode = {
   start: 7
 };
 
-function identicalArrays(a,b) {
-  for(let i in a) {
-    if(a[i] != b[i]) {
-      return false;
-    } 
+function identicalArrays(a, b) {
+  if (a.length != b.length) {
+    return false;
+  } else {
+    for (let i in a) {
+      if (a[i] != b[i]) {
+        return false;
+      }
+    }
+    return true;
   }
-  return a.length == b.length;
 }
 
 (async function onPageLoad() {
@@ -331,7 +337,7 @@ function identicalArrays(a,b) {
         fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
         try {
           event.preventDefault();
-        } catch(error) {
+        } catch (error) {
           console.log("handleKey", error);
         }
       }
@@ -339,7 +345,7 @@ function identicalArrays(a,b) {
   }
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
-  document.getElementById("button").onclick = () => fsm.can('tap') && fsm.tap();
+  document.getElementById("button").onclick = () => fsm.can("tap") && fsm.tap();
 
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = ev => {
@@ -348,16 +354,25 @@ function identicalArrays(a,b) {
       processFile(item);
     }
   };
-  
-  document.getElementById("sound").onchange = (checkbox) => {
+
+  document.getElementById("sound").onchange = checkbox => {
     fsm.gameboy.opts.volume = checkbox.srcElement.checked ? 1 : 0;
-    fsm.gameboy.changeVolume()
+    fsm.gameboy.changeVolume();
   };
 
-  let buttonToKey = {}
-  Object.keys(keyToButton).forEach((key) => {buttonToKey[keyToButton[key]] = key})
-  
-  const controls = "A/B/Start/Select with " + [buttonToKey["a"],buttonToKey["b"],buttonToKey["start"],buttonToKey["select"]].join("/")
+  let buttonToKey = {};
+  Object.keys(keyToButton).forEach(key => {
+    buttonToKey[keyToButton[key]] = key;
+  });
+
+  const controls =
+    "A/B/Start/Select with " +
+    [
+      buttonToKey["a"],
+      buttonToKey["b"],
+      buttonToKey["start"],
+      buttonToKey["select"]
+    ].join("/");
   document.getElementById("controls").textContent = controls;
 })();
 
