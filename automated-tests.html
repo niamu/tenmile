@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>automated tests</title>
+    <script src="lib/pako.min.js" defer></script>
+    <script src="lib/emitter.js"></script>
+    <script src="lib/gameboy.js"></script>
+    <script src="lib/UPNG.js"></script>
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/msgpack.js"></script>
+    <script src="js/quotes.js"></script>
+  </head>
+  <body>
+  </body>
+  <script>
+    const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
+    
+    const TESTS = {}
+      testGasync function testGbSaveRestore() {
+      /*
+      Gb test: (save/restore determinism)
+- load rom
+- construct
+- run
+- joypadevent
+- run
+- save A
+- check A
+- run
+- joypadevent
+- run
+- save B
+- check B
+- restore
+- check A
+- run
+- joypadevent
+- run
+- save B
+- check B
+      */
+      
+    }
+    
+    const testFns = [
+      testGbSaveRestor
+    ]
+    
+  </script>
+</html>
