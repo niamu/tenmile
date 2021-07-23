@@ -17,49 +17,98 @@
       }
     </style>
   </head>
-  <body>(See browser console for messages.)</body>
+  <body>
+    (See browser console for messages.)
+  </body>
   <script>
-      "use strict";
+    "use strict";
 
-      const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
+    const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
 
-      const TESTS = {
-        gbSaveRestore: async function() {
-          let response = await fetch(TEST_GAME_URL);
-          let buffer = await response.arrayBuffer();
-          
-          let canvas = document.createElement("canvas");
-          canvas.setAttribute("width", 160);
-          canvas.setAttribute("height", 144);
-          
-          let opts = {};
-          window.debug = ()=>{};
-          let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), opts);
-          gameboy.stopEmulator = 1;
-          gameboy.start();
-          
-          for(let i = 0; i < 100; i++) {
+    async function digest(obj) {
+      let bytes = msgpack.serialize(obj);
+      let digest = await crypto.subtle.digest("SHA-1", bytes);
+      let str = "";
+      for (let byte of new Uint8Array(digest)) {
+        str += byte.toString(16).padStart(2, "0");
+      }
+      return str;
+    }
+    
+    async function play(gameboy, steps) {
+      for(let step of steps) {
+        if (step.run) {
+          for(let i = 0; i < step.run; i++) {
             gameboy.run();
           }
+        }
+        if (step.joy) {
+          gameboy.JoyPadEvent(step.joy[0], step.joy[1]);
+        }
+      }
+    }
+
+    const TESTS = {
+      gbSaveRestore: async function() {
+        let response = await fetch(TEST_GAME_URL);
+        let buffer = await response.arrayBuffer();
+
+        let canvas = document.createElement("canvas");
+        canvas.setAttribute("width", 160);
+        canvas.setAttribute("height", 144);
+
+        let opts = {};
+        window.debug = () => {};
+        let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), opts);
+        gameboy.stopEmulator = 1;
+        gameboy.start();
+
+        play(gameboy,[
+          {run: 100}
+        ]);
+        
+        let stateA = gameboy.saveState();
+        let stateDigestA = await digest(stateA);
+
+        play(gameboy,[
+          {joy: [4,true]},
+          {run: 10},
+          {joy: [4,false]},
+          {run: 100}
+        ]);
+
+        let stateB = gameboy.saveState();
+        let stateDigestB = await digest(stateDigestB)
+        
+        play(gameboy,[
+          {joy: [4,true]},
+          {run: 10},
+          {joy: [4,false]},
+          {run: 100}
+        ]);
+        
+        let stateC = gameboy.saveState();
+        let stateDigestC = await digest(stateC);
+        
+        gameboy.returnFromState(stateA);
+        
+        play(gameboy,[
+          {joy: [4,true]},
+          {run: 10},
+          {joy: [4,false]},
+          {run: 100},
+          {joy: [0,true]};
+          {run: 10},
+          {joy: [0,false]},
           
-          gameboy.JoyPadEvent(4, true);
-          
-          for(let i = 0; i < 10; i++) {
-            gameboy.run();
-          }
-          
-          gameboy.JoyPadEvent(4, false);
-          
-          
-          for(let i = 0; i < 100; i++) {
-            gameboy.run();
-          }
-          
-          let state = msgpack.serialize(gameboy.saveState());
-          let stateDigest = await crypto.subtle.digest('SHA-1', state);
-          return stateDigest;
-          
-          /*
+        ]);
+        
+        gameboy.returnFromState(stateA);
+        
+        
+        return stateDigest;
+
+        /*
           Gb test: (save/restore determinism)
     - load rom
     - construct
@@ -81,22 +130,23 @@
     - save B
     - check B
           */
-
-        }
+      }
     };
 
     (async function runAllTests() {
-      for(let [name, test] of Object.entries(TESTS)) {
+      for (let [name, test] of Object.entries(TESTS)) {
         console.log(`Running ${name}...`);
         let okay = false;
         try {
           let result = await test();
-          console.log('Result:', result);
+          console.log("Result:", result);
           okay = true;
-        } catch(exception) {
-          console.error(exception)
+        } catch (exception) {
+          console.error(exception);
         }
-        document.body.innerText += `Test "${name}" ${(okay?'passed':'failed')}.\n`;
+        document.body.innerText += `Test "${name}" ${
+          okay ? "passed" : "failed"
+        }.\n`;
       }
     })();
   </script>
