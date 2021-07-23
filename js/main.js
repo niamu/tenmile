@@ -1,3 +1,4 @@
+"use strict";
 /* global GameBoyCore, XAudioServer, StateMachine */
 /* global loadQuote, compileQuote, Quote, Trace */
 

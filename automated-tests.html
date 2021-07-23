@@ -11,41 +11,69 @@
     <script src="lib/msgpack.js"></script>
     <script src="js/quotes.js"></script>
   </head>
-  <body>
-  </body>
+  <body></body>
   <script>
-    const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
-    
-    const TESTS = {}
-      testGasync function testGbSaveRestore() {
-      /*
-      Gb test: (save/restore determinism)
-- load rom
-- construct
-- run
-- joypadevent
-- run
-- save A
-- check A
-- run
-- joypadevent
-- run
-- save B
-- check B
-- restore
-- check A
-- run
-- joypadevent
-- run
-- save B
-- check B
-      */
-      
-    }
-    
-    const testFns = [
-      testGbSaveRestor
-    ]
-    
+      "use strict";
+
+      const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
+
+      const TESTS = {
+        gbSaveRestore: async function() {
+          let response = await fetch(TEST_GAME_URL);
+          let rom = await response.arrayBuffer();
+          
+          let canvas = document.createElement("canvas");
+          canvas.setAttribute("width", 160);
+          canvas.setAttribute("height", 144);
+          
+          let opts = {};
+          window.debug = ()=>{};
+          let gameboy = GameBoyCore(canvas, rom, opts);
+          
+          for(let i = 0; i < 100; i++) {
+            gameboy.run();
+          }
+          
+          gameboy.
+          
+          return gameboy;
+          
+          /*
+          Gb test: (save/restore determinism)
+    - load rom
+    - construct
+    - run
+    - joypadevent
+    - run
+    - save A
+    - check A
+    - run
+    - joypadevent
+    - run
+    - save B
+    - check B
+    - restore
+    - check A
+    - run
+    - joypadevent
+    - run
+    - save B
+    - check B
+          */
+
+        }
+    };
+
+    (async function runAllTests() {
+      for(let [name, test] of Object.entries(TESTS)) {
+        console.log(`Running ${name}...`);
+        try {
+          let result = await test();
+          console.log('Result:', result);
+        } catch(exception) {
+          console.warn(exception)
+        }
+      }
+    })();
   </script>
 </html>

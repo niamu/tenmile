@@ -1,3 +1,4 @@
+"use strict";
 /* global PNGBaker, JSZip, UPNG, msgpack */
 
 class Quote {
