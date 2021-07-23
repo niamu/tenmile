@@ -29,11 +29,15 @@ While playing a game (after you've provided the ROM), you can use the
 
 - Try to start your recording from a *quiet* moment in the game (e.g. character standing still in a safe position). This will make it easier for viewers riffing on your quote to assume control without immediately exceeding the quote bounds. Relatedly, let go of all controls before starting a recording so that the recording doesn't begin with one of the buttons stuck down unexpectedly.
 
-### "Why is the quote file larger that I expect?"
+### Quote File Structure and Size
 
-During recording of a quote, you might see that you've accessed 1.5KB of ROM. However, the final quote file is 35KB -- what happened?
+During recording of a quote, you might see that you've accessed 1.5KB of ROM. However, the final quote file might be 35KB -- what happened?
 
-The quote file is larger for two big reasons. First, beyond including the slice of ROM data needed to play back your quote, we also include a snapshot of the Game Boy emulator's dynamic elements (e.g. unabridged RAM and other )
+The quote file is larger for two big reasons. First, beyond including the slice of ROM data needed to play back your quote, we also include a snapshot of the Game Boy emulator's dynamic elements (e.g. unabridged RAM and other platform/cartridge state), an image of the screen at the first moment of your quote, and the recording of your inputs over time. We also include detailed information about the shape of the ROM slice so that we can keep others on the rails when they are riffing on your quote.
+
+We also include more ROM bytes than just those that are touched during your recording. We include a subset of the ROM header (capturing the name of the game, the cartridge hardware type, etc.). Additionally, we include ROM bytes in pages/chunks larger with a granularity larger than a single byte. This creates quotes that are more robust to variation when riffing. By analogy to quoting text, we try to expand your quote out to the nearest paragraph boundary. We don't really know what counts as a paragraph, so we use fixed size memory pages as a crude proxy.
+
+If you rename the `.png` quote file to `.zip`, most unzipping tools will be able to show you the extra data encoded inside the quote file. A `README.md` file included inside the zip provides more detailed information about how your specific relates to the original ROM.
 
 
 ## "Is sharing playable quotes legal?"
