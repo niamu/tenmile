@@ -29,9 +29,20 @@ While playing a game (after you've provided the ROM), you can use the
 
 - Try to start your recording from a *quiet* moment in the game (e.g. character standing still in a safe position). This will make it easier for viewers riffing on your quote to assume control without immediately exceeding the quote bounds. Relatedly, let go of all controls before starting a recording so that the recording doesn't begin with one of the buttons stuck down unexpectedly.
 
+### "Why is the quote file larger that I expect?"
+
+During recording of a quote, you might see that you've accessed 1.5KB of ROM. However, the final quote file is 35KB -- what happened?
+
+The quote file is larger for two big reasons. First, beyond including the slice of ROM data needed to play back your quote, we also include a snapshot of the Game Boy emulator's dynamic elements (e.g. unabridged RAM and other )
+
+
 ## "Is sharing playable quotes legal?"
 
 We aren't intellectual property laywers, but by the same reasoning that [Google can distribute delimited "snippets" of the books that they've scanned](https://www.theatlantic.com/technology/archive/2015/10/fair-use-transformative-leval-google-books/411058/), we think that sharing these playable quotes should be safe.
+
+
+
+
 
 
 ## Credits
