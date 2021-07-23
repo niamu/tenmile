@@ -3,11 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>automated tests</title>
-    <script src="lib/pako.min.js" defer></script>
     <script src="lib/emitter.js"></script>
     <script src="lib/gameboy.js"></script>
-    <script src="lib/UPNG.js"></script>
-    <script src="lib/jszip.min.js"></script>
     <script src="lib/msgpack.js"></script>
     <script src="js/quotes.js"></script>
     <style>
@@ -25,18 +22,17 @@
 
     const TEST_GAME_URL = "https://bonsaiden.github.io/Tuff.gb/roms/game.gb";
 
-    async function digest(obj) {
+    async function _digest(obj) {
       let bytes = msgpack.serialize(obj);
       let digest = await crypto.subtle.digest("SHA-1", bytes);
       let str = "";
       for (let byte of new Uint8Array(digest)) {
         str += byte.toString(16).padStart(2, "0");
       }
-      console.log(str);
       return str;
     }
 
-    async function play(gameboy, steps) {
+    async function _play(gameboy, steps) {
       for (let step of steps) {
         if (step.run) {
           for (let i = 0; i < step.run; i++) {
@@ -46,6 +42,12 @@
         if (step.joy) {
           gameboy.JoyPadEvent(step.joy[0], step.joy[1]);
         }
+      }
+    }
+
+    function _assert(cond, msg) {
+      if (!cond) {
+        throw msg;
       }
     }
 
@@ -64,12 +66,12 @@
         gameboy.stopEmulator = 1;
         gameboy.start();
 
-        play(gameboy, [{ run: 100 }]);
+        _play(gameboy, [{ run: 100 }]);
 
         let stateA = gameboy.saveState();
-        let stateDigestA = await digest(stateA);
+        let stateDigestA = await _digest(stateA);
 
-        play(gameboy, [
+        _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
@@ -77,21 +79,21 @@
         ]);
 
         let stateB = gameboy.saveState();
-        let stateDigestB = await digest(stateB);
-        console.assert(
+        let stateDigestB = await _digest(stateB);
+        _assert(
           stateDigestA != stateDigestB,
           "initial state should not match progressed state"
         );
 
         gameboy.returnFromState(stateA);
         let stateC = gameboy.saveState();
-        let stateDigestC = await digest(stateC);
-        console.assert(
+        let stateDigestC = await _digest(stateC);
+        _assert(
           stateDigestA == stateDigestC,
           "restoration to initial state should yield identical saved state"
         );
 
-        play(gameboy, [
+        _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
@@ -99,15 +101,34 @@
         ]);
 
         let stateD = gameboy.saveState();
-        let stateDigestD = await digest(stateD);
-        console.assert(
+        let stateDigestD = await _digest(stateD);
+        for(let i in stateB) {
+          if(stateB[i].toString() != stateD[i].toString()) {
+            console.warn(i);
+          }
+        }
+        _assert(
           stateDigestB == stateDigestD,
           "two identically progressed states should equal"
         );
 
         gameboy.returnFromState(stateA);
+        _play(gameboy, [
+          { joy: [4, true] },
+          { run: 10 },
+          { joy: [4, false] },
+          { run: 100 }
+        ]);
+        let stateZ = gameboy.saveState();
+        let stateDigestZ = await _digest(stateZ);
+        _assert(
+          stateDigestD == stateDigestZ,
+          "three identically progressed states should equal"
+        );
 
-        play(gameboy, [
+        gameboy.returnFromState(stateA);
+
+        _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
@@ -119,8 +140,8 @@
         ]);
 
         let stateE = gameboy.saveState();
-        let stateDigestE = await digest(stateE);
-        console.assert(
+        let stateDigestE = await _digest(stateE);
+        _assert(
           stateDigestB != stateDigestE,
           "two differently progressed states should not be equal"
         );
