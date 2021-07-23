@@ -32,12 +32,12 @@
       return str;
     }
     
-    function _crapSnap(gameboy) {
-      let crap = new Map();
+    function _stringView(gameboy) {
+      let view = new Map();
       for(let k in gameboy) {
-        crap.set(k, (""+gameboy[k]));
+        view.set(k, (""+gameboy[k]));
       }
-      return crap;
+      return view;
     }
 
     async function _play(gameboy, steps) {
@@ -60,24 +60,20 @@
     }
     
     function _save(gameboy) {
-      let state = gameboy.saveState();
-      state.CPUCyclesTotalCurrent = gameboy.CPUCyclesTotalCurrent;
-      state.JoyPad = gameboy.JoyPad;
+      let state = Array.from(gameboy.saveState());
+      state.push(gameboy.CPUCyclesTotalCurrent);
+      state.push(gameboy.JoyPad);
       return state;
     }
     
     function _restore(gameboy, state) {
       gameboy.returnFromState(state);
-      gameboy.CPUCyclesTotalCurrent = state.CPUCyclesTotalCurrent;
-      gameboy.JoyPad = state.JoyPad;
+      gameboy.CPUCyclesTotalCurrent = state[state.length-2];
+      gameboy.JoyPad = state[state.length-1];
     }
 
     const TESTS = {
       gbSaveRestoreDeterminism: async function() {
-        /*
-        From other experimentation, I know that the JoyPad propery of GameBoyCore is stateful but not currently saved in savestates. However, that isnt' the explanation for the problem reproduced here.
-        */
-
         let response = await fetch(TEST_GAME_URL);
         let buffer = await response.arrayBuffer();
 
@@ -93,20 +89,18 @@
 
         _play(gameboy, [{ run: 150 }]);
 
-        let crapA = _crapSnap(gameboy);
+        let viewA = _stringView(gameboy);
         let stateA = _save(gameboy);
         
         let stateDigestA = await _digest(stateA);
 
-        console.log(gameboy.CPUTicks, gameboy);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
-        console.log(gameboy.CPUTicks, gameboy);
-
+        
         let stateB = _save(gameboy);
         let stateDigestB = await _digest(stateB);
         _assert(
@@ -115,7 +109,7 @@
         );
 
         _restore(gameboy, stateA);
-        let crapC = _crapSnap(gameboy);
+        let viewC = _stringView(gameboy);
         let stateC = _save(gameboy);
         let stateDigestC = await _digest(stateC);
         _assert(
@@ -123,28 +117,22 @@
           "restoration to initial state should yield identical saved state"
         );
         
-        for(let k of crapA.keys()) {
-          if(crapA.get(k) != crapC.get(k)) {
-            console.log('crapSnap mismatch on key', k, crapA.get(k), '->', crapC.get(k));
+        for(let k of viewA.keys()) {
+          if(viewA.get(k) != viewC.get(k)) {
+            // Some mismatches are okay (e.g. for caches) so long as they don't impact how the future plays out.
+            console.log(`stringView mismatch on key "${k}: "${viewA.get(k)}" -> "${viewC.get(k)}"`);
           }
         }
 
-        console.log(gameboy.CPUTicks, gameboy);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
-        console.log(gameboy.CPUTicks, gameboy);
-
+        
         let stateD = _save(gameboy);
         let stateDigestD = await _digest(stateD);
-        for (let i in stateB) {
-          if (stateB[i].toString() != stateD[i].toString()) {
-            console.warn("mismatch at savestate index", i);
-          }
-        }
         _assert(
           stateDigestB == stateDigestD,
           "two identically progressed states should equal"
