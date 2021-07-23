@@ -10,8 +10,14 @@
     <script src="lib/jszip.min.js"></script>
     <script src="lib/msgpack.js"></script>
     <script src="js/quotes.js"></script>
+    <style>
+      body {
+        white-space: pre;
+        font-family: monospace;
+      }
+    </style>
   </head>
-  <body></body>
+  <body>(See browser console for messages.)</body>
   <script>
       "use strict";
 
@@ -20,7 +26,7 @@
       const TESTS = {
         gbSaveRestore: async function() {
           let response = await fetch(TEST_GAME_URL);
-          let rom = await response.arrayBuffer();
+          let buffer = await response.arrayBuffer();
           
           let canvas = document.createElement("canvas");
           canvas.setAttribute("width", 160);
@@ -28,15 +34,30 @@
           
           let opts = {};
           window.debug = ()=>{};
-          let gameboy = GameBoyCore(canvas, rom, opts);
+          let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), opts);
+          gameboy.stopEmulator = 1;
+          gameboy.start();
           
           for(let i = 0; i < 100; i++) {
             gameboy.run();
           }
           
-          gameboy.
+          gameboy.JoyPadEvent(4, true);
           
-          return gameboy;
+          for(let i = 0; i < 10; i++) {
+            gameboy.run();
+          }
+          
+          gameboy.JoyPadEvent(4, false);
+          
+          
+          for(let i = 0; i < 100; i++) {
+            gameboy.run();
+          }
+          
+          let state = msgpack.serialize(gameboy.saveState());
+          let stateDigest = await crypto.subtle.digest('SHA-1', state);
+          return stateDigest;
           
           /*
           Gb test: (save/restore determinism)
@@ -67,12 +88,15 @@
     (async function runAllTests() {
       for(let [name, test] of Object.entries(TESTS)) {
         console.log(`Running ${name}...`);
+        let okay = false;
         try {
           let result = await test();
           console.log('Result:', result);
+          okay = true;
         } catch(exception) {
-          console.warn(exception)
+          console.error(exception)
         }
+        document.body.innerText += `Test "${name}" ${(okay?'passed':'failed')}.\n`;
       }
     })();
   </script>
