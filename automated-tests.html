@@ -78,10 +78,14 @@
         gameboy.stopEmulator = 1;
         gameboy.start();
 
-        _play(gameboy, [{ run: 100 }]);
+        _play(gameboy, [{ run: 150 }]);
 
         let crapA = _crapSnap(gameboy);
         let stateA = gameboy.saveState();
+        
+        let _CPUCyclesTotalCurrent = gameboy.CPUCyclesTotalCurrent;
+        let _totalLinesPassed = gameboy.totalLinesPassed;
+        let _JoyPad = gameboy.JoyPad;
         let stateDigestA = await _digest(stateA);
 
         console.log(gameboy.CPUTicks, gameboy);
@@ -101,6 +105,9 @@
         );
 
         gameboy.returnFromState(stateA);
+        gameboy.CPUCyclesTotalCurrent = _CPUCyclesTotalCurrent;
+        gameboy.totalLinesPassed = _totalLinesPassed;
+        gameboy.JoyPad = _JoyPad;
         let crapC = _crapSnap(gameboy);
         let stateC = gameboy.saveState();
         let stateDigestC = await _digest(stateC);
@@ -110,8 +117,8 @@
         );
         
         for(let k of crapA.keys()) {
-          if(crapA[k] != crapC[k]) {
-            console.log('crapSnap mismatch on key', k);
+          if(crapA.get(k) != crapC.get(k)) {
+            console.log('crapSnap mismatch on key', k, crapA.get(k), '->', crapC.get(k));
           }
         }
 
