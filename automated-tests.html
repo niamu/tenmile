@@ -58,6 +58,19 @@
         throw msg;
       }
     }
+    
+    function _save(gameboy) {
+      let state = gameboy.saveState();
+      state.CPUCyclesTotalCurrent = gameboy.CPUCyclesTotalCurrent;
+      state.JoyPad = gameboy.JoyPad;
+      return state;
+    }
+    
+    function _restore(gameboy, state) {
+      gameboy.returnFromState(state);
+      gameboy.CPUCyclesTotalCurrent = state.CPUCyclesTotalCurrent;
+      gameboy.JoyPad = state.JoyPad;
+    }
 
     const TESTS = {
       gbSaveRestoreDeterminism: async function() {
@@ -81,11 +94,8 @@
         _play(gameboy, [{ run: 150 }]);
 
         let crapA = _crapSnap(gameboy);
-        let stateA = gameboy.saveState();
+        let stateA = _save(gameboy);
         
-        let _CPUCyclesTotalCurrent = gameboy.CPUCyclesTotalCurrent;
-        let _totalLinesPassed = gameboy.totalLinesPassed;
-        let _JoyPad = gameboy.JoyPad;
         let stateDigestA = await _digest(stateA);
 
         console.log(gameboy.CPUTicks, gameboy);
@@ -97,19 +107,16 @@
         ]);
         console.log(gameboy.CPUTicks, gameboy);
 
-        let stateB = gameboy.saveState();
+        let stateB = _save(gameboy);
         let stateDigestB = await _digest(stateB);
         _assert(
           stateDigestA != stateDigestB,
           "initial state should not match progressed state"
         );
 
-        gameboy.returnFromState(stateA);
-        gameboy.CPUCyclesTotalCurrent = _CPUCyclesTotalCurrent;
-        gameboy.totalLinesPassed = _totalLinesPassed;
-        gameboy.JoyPad = _JoyPad;
+        _restore(gameboy, stateA);
         let crapC = _crapSnap(gameboy);
-        let stateC = gameboy.saveState();
+        let stateC = _save(gameboy);
         let stateDigestC = await _digest(stateC);
         _assert(
           stateDigestA == stateDigestC,
@@ -131,7 +138,7 @@
         ]);
         console.log(gameboy.CPUTicks, gameboy);
 
-        let stateD = gameboy.saveState();
+        let stateD = _save(gameboy);
         let stateDigestD = await _digest(stateD);
         for (let i in stateB) {
           if (stateB[i].toString() != stateD[i].toString()) {
@@ -143,21 +150,21 @@
           "two identically progressed states should equal"
         );
 
-        gameboy.returnFromState(stateA);
+        _restore(gameboy, stateA);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
-        let stateZ = gameboy.saveState();
+        let stateZ = _save(gameboy);
         let stateDigestZ = await _digest(stateZ);
         _assert(
           stateDigestD == stateDigestZ,
           "three identically progressed states should equal"
         );
 
-        gameboy.returnFromState(stateA);
+        _restore(gameboy,stateA);
 
         _play(gameboy, [
           { joy: [4, true] },
@@ -170,7 +177,7 @@
           { run: 100 }
         ]);
 
-        let stateE = gameboy.saveState();
+        let stateE = _save(gameboy);
         let stateDigestE = await _digest(stateE);
         _assert(
           stateDigestB != stateDigestE,
@@ -184,8 +191,7 @@
         console.log(`Running ${name}...`);
         let okay = false;
         try {
-          let result = await test();
-          console.log("Result:", result);
+          await test();
           okay = true;
         } catch (exception) {
           console.error(exception);
