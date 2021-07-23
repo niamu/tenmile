@@ -108,7 +108,7 @@
         let stateDigestD = await _digest(stateD);
         for (let i in stateB) {
           if (stateB[i].toString() != stateD[i].toString()) {
-            console.warn('mismatch at savestate index',i);
+            console.warn('mismatch at savestate index', i);
           }
         }
         _assert(
