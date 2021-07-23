@@ -21,7 +21,7 @@
       let canvas = document.getElementById("screen");
       let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
 
-      /* Big saveState elements size (compressed size at main menu)
+      /* Big saveState elements size (compressed size after booting to main menu)
         - gameboy.ROM: 64KB (17KB)
         - gameboy.memory: 64KB (10KB)
         - gameboy.MBCRam: 128KB (149bytes)

@@ -52,7 +52,7 @@
     }
 
     const TESTS = {
-      gbSaveRestore: async function() {
+      gbSaveRestoreDeterminism: async function() {
         let response = await fetch(TEST_GAME_URL);
         let buffer = await response.arrayBuffer();
 
@@ -71,12 +71,14 @@
         let stateA = gameboy.saveState();
         let stateDigestA = await _digest(stateA);
 
+        console.log(gameboy.CPUTicks);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
+        console.log(gameboy.CPUTicks);
 
         let stateB = gameboy.saveState();
         let stateDigestB = await _digest(stateB);
@@ -93,18 +95,20 @@
           "restoration to initial state should yield identical saved state"
         );
 
+        console.log(gameboy.CPUTicks);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
+        console.log(gameboy.CPUTicks);
 
         let stateD = gameboy.saveState();
         let stateDigestD = await _digest(stateD);
-        for(let i in stateB) {
-          if(stateB[i].toString() != stateD[i].toString()) {
-            console.warn(i);
+        for (let i in stateB) {
+          if (stateB[i].toString() != stateD[i].toString()) {
+            console.warn('mismatch at savestate index',i);
           }
         }
         _assert(
