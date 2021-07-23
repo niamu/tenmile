@@ -71,14 +71,14 @@
         let stateA = gameboy.saveState();
         let stateDigestA = await _digest(stateA);
 
-        console.log(gameboy.CPUTicks);
+        console.log(gameboy.CPUTicks, gameboy);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
-        console.log(gameboy.CPUTicks);
+        console.log(gameboy.CPUTicks, gameboy);
 
         let stateB = gameboy.saveState();
         let stateDigestB = await _digest(stateB);
@@ -95,14 +95,14 @@
           "restoration to initial state should yield identical saved state"
         );
 
-        console.log(gameboy.CPUTicks);
+        console.log(gameboy.CPUTicks, gameboy);
         _play(gameboy, [
           { joy: [4, true] },
           { run: 10 },
           { joy: [4, false] },
           { run: 100 }
         ]);
-        console.log(gameboy.CPUTicks);
+        console.log(gameboy.CPUTicks, gameboy);
 
         let stateD = gameboy.saveState();
         let stateDigestD = await _digest(stateD);
