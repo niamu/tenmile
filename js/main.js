@@ -105,7 +105,9 @@ const fsm = new StateMachine({
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
 
         this.gameboy._save = () => {
-          let state = this.gameboy.saveState();
+          let state = Array.from(this.gameboy.saveState());
+          state.push(gameboy.CPUCyclesTotalCurrent);
+          state.push(gameboy.JoyPad);
           state[0] = this.gameboy._unproxiedROM;
           return state;
         };
@@ -114,6 +116,22 @@ const fsm = new StateMachine({
           this.gameboy.returnFromState(state);
           this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
         };
+        
+        /*
+            function _save(gameboy) {
+      // stuff extra apparently-needed state elements onto the end of the original array format
+      let state = Array.from(gameboy.saveState());
+      state.push(gameboy.CPUCyclesTotalCurrent);
+      state.push(gameboy.JoyPad);
+      return state;
+    }
+    
+    function _restore(gameboy, state) {
+      gameboy.returnFromState(state);
+      gameboy.CPUCyclesTotalCurrent = state[state.length-2];
+      gameboy.JoyPad = state[state.length-1];
+    }
+        */
 
 
       }
