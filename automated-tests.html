@@ -31,6 +31,14 @@
       }
       return str;
     }
+    
+    function _crapSnap(gameboy) {
+      let crap = new Map();
+      for(let k in gameboy) {
+        crap.set(k, (""+gameboy[k]));
+      }
+      return crap;
+    }
 
     async function _play(gameboy, steps) {
       for (let step of steps) {
@@ -53,6 +61,10 @@
 
     const TESTS = {
       gbSaveRestoreDeterminism: async function() {
+        /*
+        From other experimentation, I know that the JoyPad propery of GameBoyCore is stateful but not currently saved in savestates. However, that isnt' the explanation for the problem reproduced here.
+        */
+
         let response = await fetch(TEST_GAME_URL);
         let buffer = await response.arrayBuffer();
 
@@ -68,6 +80,7 @@
 
         _play(gameboy, [{ run: 100 }]);
 
+        let crapA = _crapSnap(gameboy);
         let stateA = gameboy.saveState();
         let stateDigestA = await _digest(stateA);
 
@@ -88,12 +101,19 @@
         );
 
         gameboy.returnFromState(stateA);
+        let crapC = _crapSnap(gameboy);
         let stateC = gameboy.saveState();
         let stateDigestC = await _digest(stateC);
         _assert(
           stateDigestA == stateDigestC,
           "restoration to initial state should yield identical saved state"
         );
+        
+        for(let k of crapA.keys()) {
+          if(crapA[k] != crapC[k]) {
+            console.log('crapSnap mismatch on key', k);
+          }
+        }
 
         console.log(gameboy.CPUTicks, gameboy);
         _play(gameboy, [
@@ -108,7 +128,7 @@
         let stateDigestD = await _digest(stateD);
         for (let i in stateB) {
           if (stateB[i].toString() != stateD[i].toString()) {
-            console.warn('mismatch at savestate index', i);
+            console.warn("mismatch at savestate index", i);
           }
         }
         _assert(
