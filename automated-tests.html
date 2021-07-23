@@ -60,6 +60,7 @@
     }
     
     function _save(gameboy) {
+      // stuff extra apparently-needed state elements onto the end of the original array format
       let state = Array.from(gameboy.saveState());
       state.push(gameboy.CPUCyclesTotalCurrent);
       state.push(gameboy.JoyPad);
@@ -120,7 +121,7 @@
         for(let k of viewA.keys()) {
           if(viewA.get(k) != viewC.get(k)) {
             // Some mismatches are okay (e.g. for caches) so long as they don't impact how the future plays out.
-            console.log(`stringView mismatch on key "${k}: "${viewA.get(k)}" -> "${viewC.get(k)}"`);
+            console.log(`stringView mismatch on key "${k}": "${viewA.get(k)}" -> "${viewC.get(k)}"`);
           }
         }
 
@@ -176,7 +177,7 @@
 
     (async function runAllTests() {
       for (let [name, test] of Object.entries(TESTS)) {
-        console.log(`Running ${name}...`);
+        console.log(`Running ${name}.`);
         let okay = false;
         try {
           await test();
@@ -187,8 +188,9 @@
         document.body.innerText += `Test "${name}" ${
           okay ? "passed" : "failed"
         }.\n`;
+        console.log(`Done with ${name}.`);
       }
-      document.body.innerText += "Done with tests.";
+      document.body.innerText += "Done with all tests.";
     })();
   </script>
 </html>

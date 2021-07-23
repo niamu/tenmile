@@ -143,6 +143,9 @@ const fsm = new StateMachine({
         return target[prop];
       };
 
+      // [jf] I need to read the emulator code in more depth, but it occoured to me that
+      //      the emulator might perform differently based on system load.
+      //      See, for example: initializeTiming
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         if (iteration >= fsm.currentQuote.actions.length) {
@@ -157,6 +160,7 @@ const fsm = new StateMachine({
 
         return Reflect.apply(...arguments);
         if (oob) {
+          // [jf] Note to Adam ... this should never happen though, right?
           console.warn("Resetting after OOB while *watching*.");
           oob = false;
           fsm.gameboy._restore(fsm.currentQuote.state);
@@ -351,10 +355,13 @@ function identicalArrays(a, b) {
       }
     }
   }
+  // keydown and keyup are what we use to get key events into the Game Boy
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
+  // The Button is a multi-use button that has different uses depending on the state of the emulator
   document.getElementById("button").onclick = () => fsm.can("tap") && fsm.tap();
 
+  // enable drag & drop operations onto the emulator
   document.getElementById("container").ondragover = ev => ev.preventDefault();
   document.getElementById("container").ondrop = ev => {
     ev.preventDefault();
@@ -368,6 +375,7 @@ function identicalArrays(a, b) {
     fsm.gameboy.changeVolume();
   };
 
+  // print out the buttons based on the value of the buttonToKey mapping
   let buttonToKey = {};
   Object.keys(keyToButton).forEach(key => {
     buttonToKey[keyToButton[key]] = key;
