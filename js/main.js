@@ -408,7 +408,7 @@ function handleTouch(event) {
   let eventType = event.type == "touchstart" ? "down" : "up";
   console.log("buttonName: ", buttonName);
   console.log(eventType);
-  if (event.type == "mousedown") {
+  if (eventType == "down") {
     div.classList.remove("up");
     div.classList.add("down");
   } else {
@@ -424,7 +424,7 @@ function handleTouch(event) {
   
   if (fsm.gameboy) {
     let keycode = buttonToKeycode[buttonName];
-    fsm.gameboy.JoyPadEvent(keycode, event.type == "mousedown");
+    fsm.gameboy.JoyPadEvent(keycode, eventType == "down");
   }
 }
 
