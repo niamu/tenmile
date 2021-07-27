@@ -82,10 +82,10 @@ const fsm = new StateMachine({
 
         const EMULATOR_LOOP_INTERVAL = 8;
         this.runInterval = setInterval(function() {
-          try{
+          try {
             fsm.gameboy.run();
-          } catch(exception) {
-            console.warn('Exception during gameboy.run():', exception);
+          } catch (exception) {
+            console.warn("Exception during gameboy.run():", exception);
           }
         }, EMULATOR_LOOP_INTERVAL);
 
@@ -111,15 +111,13 @@ const fsm = new StateMachine({
           state.push(this.JoyPad);
           return state;
         };
-        
+
         this.gameboy._restore = state => {
           this.gameboy.returnFromState(state);
-          this.gameboy.CPUCyclesTotalCurrent = state[state.length-2];
-          this.gameboy.JoyPad = state[state.length-1];
+          this.gameboy.CPUCyclesTotalCurrent = state[state.length - 2];
+          this.gameboy.JoyPad = state[state.length - 1];
           this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
         };
-
-
       }
 
       if (this.gameboy) {
@@ -280,7 +278,6 @@ const fsm = new StateMachine({
 
     onEnterRiffing: function() {
       this.button.value = "Watch pre-recorded play";
-      
 
       let oob = false;
 
@@ -345,20 +342,6 @@ function identicalArrays(a, b) {
 }
 
 (async function onPageLoad() {
-  function handleKey(event) {
-    if (fsm.gameboy) {
-      let key = event.key;
-      if (key in keyToButton) {
-        let keycode = buttonToKeycode[keyToButton[key]];
-        fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
-        try {
-          event.preventDefault();
-        } catch (error) {
-          console.log("handleKey", error);
-        }
-      }
-    }
-  }
   // keydown and keyup are what we use to get key events into the Game Boy
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
@@ -394,25 +377,54 @@ function identicalArrays(a, b) {
       buttonToKey["select"]
     ].join("/");
   document.getElementById("controls").textContent = controls;
-  
+
   let buttons = document.querySelectorAll(".button");
   let buttonsArray = Array.prototype.slice.call(buttons);
-  buttonsArray.forEach(function(element){
-    element.addEventListener("mousedown", handleButton);
-    element.addEventListener("mouseup", handleButton);
+  buttonsArray.forEach(function(element) {
+    element.addEventListener("touchstart", handleTouch);
+    element.addEventListener("touchend", handleTouch);
+    element.addEventListener("touchcancel", handleTouch);
   });
 })();
 
-function handleButton(event) {
+function handleKey(event) {
+  if (fsm.gameboy) {
+    let key = event.key;
+    if (key in keyToButton) {
+      let keycode = buttonToKeycode[keyToButton[key]];
+      fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
+      try {
+        event.preventDefault();
+      } catch (error) {
+        console.log("handleKey", error);
+      }
+    }
+  }
+}
+
+function handleTouch(event) {
   let div = event.target;
   let buttonName = div.id.split("-")[1];
-  console.log(buttonName);
+  let eventType = event.type == "touchstart" ? "down" : "up";
+  console.log("buttonName: ", buttonName);
+  console.log(eventType);
   if (event.type == "mousedown") {
-    div.classList.remove('up');
-    div.classList.add('down');    
+    div.classList.remove("up");
+    div.classList.add("down");
   } else {
-    div.classList.remove('down');
-    div.classList.add('up');    
+    div.classList.remove("down");
+    div.classList.add("up");
+  }
+  
+  try {
+    event.preventDefault();
+  } catch (error) {
+    console.log("handleButton", error);
+  }
+  
+  if (fsm.gameboy) {
+    let keycode = buttonToKeycode[buttonName];
+    fsm.gameboy.JoyPadEvent(keycode, event.type == "mousedown");
   }
 }
 
