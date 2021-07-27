@@ -394,7 +394,24 @@ function identicalArrays(a, b) {
       buttonToKey["select"]
     ].join("/");
   document.getElementById("controls").textContent = controls;
+  
+  let buttons = document.querySelectorAll(".button");
+  let buttonsArray = Array.prototype.slice.call(buttons);
+  buttonsArray.forEach(function(element){
+    element.addEventListener("mousedown", handleButton);
+    element.addEventListener("mouseup", handleButton);
+  });
 })();
+
+function handleButton(thing) {
+  console.log("handleButton");
+  console.log(thing);
+  let div = thing.target;
+  if thing.type = "mousedown"
+  div.classList.remove('up');
+  div.classList.add('down');
+  console.log(div);
+}
 
 async function dropGameByUrl(url) {
   let buffer = await (await fetch(url)).arrayBuffer();

@@ -72,9 +72,14 @@
       .button {
         height: 100px;
         width: 100px;
-        background-color: red;
         margin: 20px;
         display: inline-block;
+      }
+      .button.up {
+        background-color: red;
+      }
+      .button.down {
+        background-color: green;
       }
     </style>
 
@@ -124,10 +129,10 @@
     </button>
     <div id="quotes"></div>
     <div id="joel-testing">
-      <div id="button-a" class="button">
+      <div id="button-a" class="button up">
         a
       </div>      
-      <div id="button-b" class="button">
+      <div id="button-b" class="button up">
         b
       </div>
     </div>
