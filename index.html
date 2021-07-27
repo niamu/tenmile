@@ -69,7 +69,7 @@
         opacity: 0.5;
       }
 
-      #buttons {
+      #control-pad {
         display: none;
       }
 
@@ -88,11 +88,8 @@
       }
 
       @media (max-width: 500px) {
-        #buttons {
+        #control-pad {
           display: inline;
-        }
-        #instructions-container: {
-          display: none;
         }
       }
     </style>
@@ -121,16 +118,26 @@
       <br />
       Sound: <input type="checkbox" id="sound" />
     </div>
-    <span id="instructions-container">
-      <div id="instructions">
-        Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
-        play.<br />
-        Game Boy controls: <span id="controls"></span>
-        <!-- A/B/Start/Select with z/x/enter/shift--><br />
-        For more information, see <a href="README.md">README.md</a>.
-        <br />
-      </div>
-    </span>
+    <div id="control-pad">
+      <!-- FIXME: Replace this with a touchpad that allows for finger sliding -->
+      <div id="button-up" class="button up">Up</div>
+      <div id="button-down" class="button up">Down</div>
+      <div id="button-left" class="button up">Left</div>
+      <div id="button-right" class="button up">Right</div>
+      
+      <div id="button-start" class="button up">Start</div>
+      <div id="button-select" class="button up">Select</div>
+      <div id="button-a" class="button up">A</div>
+      <div id="button-b" class="button up">B</div>
+    </div>
+    <div id="instructions">
+      Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
+      play.<br />
+      Game Boy controls: <span id="controls"></span>
+      <!-- A/B/Start/Select with z/x/enter/shift--><br />
+      For more information, see <a href="README.md">README.md</a>.
+      <br />
+    </div>
     <button
       id="example-game"
       onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
@@ -144,16 +151,5 @@
       Example quote
     </button>
     <div id="quotes"></div>
-    <div id="buttons">
-      <!-- Joel is testing this -->
-      <div id="button-up" class="button up">Up</div>
-      <div id="button-down" class="button up">Down</div>
-      <div id="button-left" class="button up">Left</div>
-      <div id="button-right" class="button up">Right</div>
-      <div id="button-start" class="button up">Start</div>
-      <div id="button-select" class="button up">Select</div>
-      <div id="button-a" class="button up">A</div>
-      <div id="button-b" class="button up">B</div>
-    </div>
   </body>
 </html>

@@ -405,26 +405,24 @@ function handleKey(event) {
 function handleTouch(event) {
   let div = event.target;
   let buttonName = div.id.split("-")[1];
-  let eventType = event.type == "touchstart" ? "down" : "up";
-  console.log("buttonName: ", buttonName);
-  console.log(eventType);
-  if (eventType == "down") {
+  let buttonDown = event.type == "touchstart" ? true : false;
+  if (buttonDown) {
     div.classList.remove("up");
     div.classList.add("down");
   } else {
     div.classList.remove("down");
     div.classList.add("up");
   }
-  
+
   try {
     event.preventDefault();
   } catch (error) {
-    console.log("handleButton", error);
+    console.log("handleTouch", error);
   }
-  
+
   if (fsm.gameboy) {
     let keycode = buttonToKeycode[buttonName];
-    fsm.gameboy.JoyPadEvent(keycode, eventType == "down");
+    fsm.gameboy.JoyPadEvent(keycode, buttonDown);
   }
 }
 
