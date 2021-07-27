@@ -403,14 +403,17 @@ function identicalArrays(a, b) {
   });
 })();
 
-function handleButton(thing) {
-  console.log("handleButton");
-  console.log(thing);
-  let div = thing.target;
-  if thing.type = "mousedown"
-  div.classList.remove('up');
-  div.classList.add('down');
-  console.log(div);
+function handleButton(event) {
+  let div = event.target;
+  let buttonName = div.id.split("-")[1];
+  console.log(buttonName);
+  if (event.type == "mousedown") {
+    div.classList.remove('up');
+    div.classList.add('down');    
+  } else {
+    div.classList.remove('down');
+    div.classList.add('up');    
+  }
 }
 
 async function dropGameByUrl(url) {
