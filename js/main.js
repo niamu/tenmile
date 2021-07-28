@@ -52,14 +52,14 @@ const fsm = new StateMachine({
     saveState: function() {
       let state = Array.from(this.gameboy.saveState());
       state[0] = this.gameboy._unproxiedROM;
-      state.push(this.CPUCyclesTotalCurrent);
-      state.push(this.JoyPad);
+      state[207] = this.CPUCyclesTotalCurrent;
+      state[208] = this.JoyPad;
       return state;
     },
     restoreState: function(state) {
       this.gameboy.returnFromState(state);
-      this.gameboy.CPUCyclesTotalCurrent = state[state.length - 2];
-      this.gameboy.JoyPad = state[state.length - 1];
+      this.gameboy.CPUCyclesTotalCurrent = state[207];
+      this.gameboy.JoyPad = state[208];
       this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
     },
     onTransition: function(lifecycle, ...args) {
@@ -177,7 +177,7 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
-      this.lastState = this.saveState();
+      this.lastState = this.saveState(); // current state might be used to start riffing at this specific moment
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -212,7 +212,7 @@ const fsm = new StateMachine({
     },
 
     onLeavePlaying: function() {
-      this.lastState = this.saveState();
+      this.lastState = this.saveState(); // state might be used to begin recording
     },
 
     onEnterRecording: function() {
@@ -299,7 +299,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
-      this.lastState = this.saveState();
+      this.lastState = this.saveState(); // current state might be used to continue play unlocked with full ROM
     }
   }
 });
