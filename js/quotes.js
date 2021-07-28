@@ -1,5 +1,5 @@
 "use strict";
-/* global PNGBaker, JSZip, UPNG, msgpack */
+/* global JSZip, UPNG, msgpack */
 
 class Quote {
   contstructor() {

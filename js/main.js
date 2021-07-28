@@ -146,9 +146,6 @@ const fsm = new StateMachine({
         return target[prop];
       };
 
-      // [jf] I need to read the emulator code in more depth, but it occoured to me that
-      //      the emulator might perform differently based on system load.
-      //      See, for example: initializeTiming - https://github.com/rauchg/gameboy/blob/ce228dfdba6c63382d11601de2f12de20501cb4c/index.js#L5010-L5017
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         if (iteration >= fsm.currentQuote.actions.length) {
