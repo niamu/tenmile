@@ -87,7 +87,14 @@
         background-color: green;
       }
       
-      #button-a {
+      #button-pad {
+        height: 160px;
+        width: 160px;
+        background-color: lightgrey;
+        float: left;
+      }
+      
+      .button.round {
         border-radius: 50%;
       }
 
@@ -124,15 +131,18 @@
     </div>
     <div id="control-pad">
       <!-- FIXME: Replace this with a touchpad that allows for finger sliding -->
+      <!--
       <div id="button-up" class="button up">Up</div>
       <div id="button-down" class="button up">Down</div>
       <div id="button-left" class="button up">Left</div>
       <div id="button-right" class="button up">Right</div>
+      <!-- -->
+      <div id="button-pad"></div>
       
+      <div id="button-a" class="button round up">A</div>
+      <div id="button-b" class="button round up">B</div>
       <div id="button-start" class="button up">Start</div>
       <div id="button-select" class="button up">Select</div>
-      <div id="button-a" class="button up">A</div>
-      <div id="button-b" class="button up">B</div>
     </div>
     <div id="instructions">
       Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
