@@ -113,16 +113,11 @@ const fsm = new StateMachine({
           this.handleJoyPadEvent
         );
 
-        // this.gameboy.executeIteration = new Proxy(
-        //   this.gameboy.executeIteration,
-        //   this.handleExecuteIteration
-        // );
-        this.gameboy.updateCore = new Proxy(
-          this.gameboy.updateCore,
+        this.gameboy.executeIteration = new Proxy(
+          this.gameboy.executeIteration,
           this.handleExecuteIteration
         );
 
-        
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
       }
 
