@@ -391,7 +391,7 @@ function identicalArrays(a, b) {
     handleDPad(event, dPadRect);
   }
   dPad.addEventListener("touchstart", dPadClosure);
-  dPad.addEventListener("touchmove", dPadClosure);
+  //dPad.addEventListener("touchmove", dPadClosure);
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
 })();
@@ -412,35 +412,24 @@ function handleKey(event) {
 }
 
 function handleDPad(event, rect) {
-  // console.log(event);
-  // console.log(position);
   event.preventDefault();
+  let buttonDown = event.type == "touchstart" ? true : false;
   for (var i = 0; i < event.changedTouches.length; i++) {
     let touch = event.changedTouches[i];
+    console.log(event.type);
     let x = touch.clientX - rect.left;
     let y = touch.clientY - rect.top;
-    console.log("x:", x, "y:", y, "y/x:", y/x, "x y:", (x)/(rect.height - y));
     let a = (y/x) < 1.0 ? true : false;
     let b = (x/(rect.height - y)) < 1.0 ? true : false;
-    console.log("a:", a, "b:", b);
     let direction = ""
-    if (a == true && b == true) {
-      direction = "up"
-    } else if (a == true && b == true) {
-    } else if (a == true && b == true) {
+    if (a == b) {
+      direction = a ? "up" : "down";
     } else {
-    } 
-    if( (y/x) < 1.0) {
-      console.log("Upper right");
-      
-    } else {
-      console.log("Lower Left");
+      direction = a ? "right" : "left";
     }
-    if( (x/(rect.height - y)) < 1.0) {
-      console.log("Upper left")
-    } else {
-      console.log("Lower right")
-    }
+    console.log("D-Pad:", direction);
+    let keycode = buttonToKeycode[direction];
+    fsm.gameboy.JoyPadEvent(keycode, buttonDown);
   }
 }
 
