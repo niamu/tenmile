@@ -192,14 +192,11 @@ const fsm = new StateMachine({
             match = false;
           }
         }
-        if (match) {
+        if (match && confirm('Continue play with inserted ROM?')) {
           // Continuing unbounded play!
-          console.log('Continuing play with inserted ROM.')
           this.currentQuote = null;
           this.currentROM = rom;
           return;
-        } else {
-          console.log("Inserted ROM did not match current quote's ROM.")
         }
       }
       this.currentROM = rom;
