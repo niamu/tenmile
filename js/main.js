@@ -12,12 +12,12 @@ const fsm = new StateMachine({
   transitions: [
     {
       name: "dropGame",
-      from: ["idle", "watching", "riffing", "playing", "recording"],
+      from: ["idle", "watching", "riffing", "playing"],
       to: "playing"
     },
     {
       name: "dropQuote",
-      from: ["idle", "watching", "riffing", "playing", "recording"],
+      from: ["idle", "watching", "riffing", "playing"],
       to: "watching"
     },
     { name: "tap", from: "watching", to: "riffing" },
@@ -30,6 +30,7 @@ const fsm = new StateMachine({
     canvas: document.getElementById("screen"),
     button: document.getElementById("button"),
     status: document.getElementById("status"),
+    sound: document.getElementById("sound"),
     currentROM: null,
     currentQuote: null,
     currentTrace: null,
@@ -42,6 +43,12 @@ const fsm = new StateMachine({
     gameboy: null
   },
   methods: {
+    updateVolume: function() {
+      if (this.gameboy) {
+        this.gameboy.opts.volume = this.sound.checked ? 1 : 0;
+        this.gameboy.changeVolume();
+      }
+    },
     onTransition: function(lifecycle, ...args) {
       console.info(
         "transition:",
@@ -66,16 +73,12 @@ const fsm = new StateMachine({
         this.gameboy = null;
       }
 
-      const opts = {
-        sound: XAudioServer
-      };
+      const opts = { sound: XAudioServer };
 
       if (this.gameboy == null && this.currentROM != null) {
         this.gameboy = GameBoyCore(this.canvas, this.currentROM, opts);
 
-        this.gameboy.opts.volume = document.getElementById("sound").checked
-          ? 1
-          : 0;
+        this.gameboy.opts.volume = this.sound.checked ? 1 : 0;
 
         this.gameboy.stopEmulator = 1; // required for some reason
         this.gameboy.start();
@@ -358,8 +361,7 @@ function identicalArrays(a, b) {
   };
 
   document.getElementById("sound").onchange = checkbox => {
-    fsm.gameboy.opts.volume = checkbox.srcElement.checked ? 1 : 0;
-    fsm.gameboy.changeVolume();
+    fsm.updateVolume();
   };
 
   // print out the buttons based on the value of the buttonToKey mapping
@@ -385,7 +387,7 @@ function identicalArrays(a, b) {
     element.addEventListener("touchend", handleTouch);
     element.addEventListener("touchcancel", handleTouch);
   });
-  let dPad = document.getElementById("d-pad")
+  let dPad = document.getElementById("d-pad");
   const dPadRect = dPad.getBoundingClientRect();
   function dPadClosure(event) {
     handleDPad(event, dPadRect);
@@ -419,9 +421,9 @@ function handleDPad(event, rect) {
     console.log(event.type);
     let x = touch.clientX - rect.left;
     let y = touch.clientY - rect.top;
-    let a = (y/x) < 1.0 ? true : false;
-    let b = (x/(rect.height - y)) < 1.0 ? true : false;
-    let direction = ""
+    let a = y / x < 1.0 ? true : false;
+    let b = x / (rect.height - y) < 1.0 ? true : false;
+    let direction = "";
     if (a == b) {
       direction = a ? "up" : "down";
     } else {
