@@ -60,7 +60,7 @@ const fsm = new StateMachine({
       this.gameboy.returnFromState(state);
       this.gameboy.CPUCyclesTotalCurrent = state[207];
       this.gameboy.JoyPad = state[208];
-      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+      this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
     },
     onTransition: function(lifecycle, ...args) {
       console.info(
@@ -197,7 +197,6 @@ const fsm = new StateMachine({
           console.log('Continuing play with inserted ROM.')
           this.currentQuote = null;
           this.currentROM = rom;
-          this.lastState[0] = rom; // patch last state for continued play
           return;
         } else {
           console.log("Inserted ROM did not match current quote's ROM.")
