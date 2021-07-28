@@ -49,6 +49,19 @@ const fsm = new StateMachine({
         this.gameboy.changeVolume();
       }
     },
+    saveState: function() {
+      let state = Array.from(this.gameboy.saveState());
+      state[0] = this.gameboy._unproxiedROM;
+      state.push(this.CPUCyclesTotalCurrent);
+      state.push(this.JoyPad);
+      return state;
+    },
+    restoreState: function(state) {
+      this.gameboy.returnFromState(state);
+      this.gameboy.CPUCyclesTotalCurrent = state[state.length - 2];
+      this.gameboy.JoyPad = state[state.length - 1];
+      this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+    },
     onTransition: function(lifecycle, ...args) {
       console.info(
         "transition:",
@@ -106,21 +119,6 @@ const fsm = new StateMachine({
         );
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-
-        this.gameboy._save = () => {
-          let state = Array.from(this.gameboy.saveState());
-          state[0] = this.gameboy._unproxiedROM;
-          state.push(this.CPUCyclesTotalCurrent);
-          state.push(this.JoyPad);
-          return state;
-        };
-
-        this.gameboy._restore = state => {
-          this.gameboy.returnFromState(state);
-          this.gameboy.CPUCyclesTotalCurrent = state[state.length - 2];
-          this.gameboy.JoyPad = state[state.length - 1];
-          this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
-        };
       }
 
       if (this.gameboy) {
@@ -137,7 +135,7 @@ const fsm = new StateMachine({
     onEnterWatching: function() {
       this.button.value = "Take control";
 
-      this.gameboy._restore(this.currentQuote.state);
+      this.restoreState(this.currentQuote.state);
 
       let oob = false;
 
@@ -154,7 +152,7 @@ const fsm = new StateMachine({
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         if (iteration >= fsm.currentQuote.actions.length) {
-          fsm.gameboy._restore(fsm.currentQuote.state);
+          fsm.restoreState(fsm.currentQuote.state);
           iteration = 0;
         } else {
           for (let action of fsm.currentQuote.actions[iteration]) {
@@ -165,10 +163,9 @@ const fsm = new StateMachine({
 
         return Reflect.apply(...arguments);
         if (oob) {
-          // [jf] Note to Adam ... this should never happen though, right?
           console.warn("Resetting after OOB while *watching*.");
           oob = false;
-          fsm.gameboy._restore(fsm.currentQuote.state);
+          fsm.restoreState(fsm.currentQuote.state);
         }
       };
 
@@ -182,7 +179,7 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
-      this.lastState = this.gameboy._save();
+      this.lastState = this.saveState();
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -211,20 +208,20 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       if (this.lastState) {
-        this.gameboy._restore(this.lastState);
+        this.restoreState(this.lastState);
       }
       this.button.value = "Record new quote";
     },
 
     onLeavePlaying: function() {
-      this.lastState = this.gameboy._save();
+      this.lastState = this.saveState();
     },
 
     onEnterRecording: function() {
-      this.gameboy._restore(this.lastState);
+      this.restoreState(this.lastState);
 
       this.currentTrace = new Trace();
-      this.currentTrace.initialState = this.gameboy._save();
+      this.currentTrace.initialState = this.saveState();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
       this.currentTrace.romDependencies = new Set();
@@ -296,7 +293,7 @@ const fsm = new StateMachine({
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.gameboy._restore(fsm.currentQuote.state);
+          fsm.restoreState(fsm.currentQuote.state);
         }
       };
     },
@@ -304,7 +301,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
-      this.lastState = this.gameboy._save();
+      this.lastState = this.saveState();
     }
   }
 });
