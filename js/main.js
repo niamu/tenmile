@@ -385,11 +385,15 @@ function identicalArrays(a, b) {
     element.addEventListener("touchend", handleTouch);
     element.addEventListener("touchcancel", handleTouch);
   });
-  let dpad = document.getElementById("d-pad")
-  dpad.addEventListener("touchstart", handleDPad);
-  dpad.addEventListener("touchmove", handleDPad);
-  dpad.addEventListener("touchend", handleDPad);
-  dpad.addEventListener("touchcancel", handleDPad);
+  let dPad = document.getElementById("d-pad")
+  const dPadRect = dPad.getBoundingClientRect();
+  function dPadClosure(event) {
+    handleDPad(event, dPadRect);
+  }
+  dPad.addEventListener("touchstart", dPadClosure);
+  dPad.addEventListener("touchmove", dPadClosure);
+  dPad.addEventListener("touchend", dPadClosure);
+  dPad.addEventListener("touchcancel", dPadClosure);
 })();
 
 function handleKey(event) {
@@ -407,12 +411,15 @@ function handleKey(event) {
   }
 }
 
-function handleDPad(event) {
-  console.log(event);
+function handleDPad(event, rect) {
+  // console.log(event);
+  // console.log(position);
   event.preventDefault();
   for (var i = 0; i < event.changedTouches.length; i++) {
     let touch = event.changedTouches[i];
-    console.log(touch);
+    let x = touch.clientX - rect.left;
+    let y = touch.clientY - rect.top;
+    console.log("x:", x, "y:", y, "y/x:", y/x, "x/y:", x/y);
   }
 }
 
