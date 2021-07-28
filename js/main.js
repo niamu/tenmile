@@ -52,8 +52,8 @@ const fsm = new StateMachine({
     saveState: function() {
       let state = Array.from(this.gameboy.saveState());
       state[0] = this.gameboy._unproxiedROM;
-      state[207] = this.CPUCyclesTotalCurrent;
-      state[208] = this.JoyPad;
+      state[207] = this.gameboy.CPUCyclesTotalCurrent;
+      state[208] = this.gameboy.JoyPad;
       return state;
     },
     restoreState: function(state) {
@@ -276,6 +276,7 @@ const fsm = new StateMachine({
 
     onEnterRiffing: function() {
       this.button.value = "Watch pre-recorded play";
+      this.restoreState(this.lastState);
 
       let oob = false;
 
