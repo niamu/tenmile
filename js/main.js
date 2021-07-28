@@ -159,7 +159,7 @@ const fsm = new StateMachine({
           iteration++;
         }
 
-        return Reflect.apply(...arguments);
+        Reflect.apply(...arguments);
         if (oob) {
           console.warn("Resetting after OOB while *watching*.");
           oob = false;
