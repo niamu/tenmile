@@ -76,7 +76,7 @@ const fsm = new StateMachine({
 
       if (
         this.gameboy != null &&
-        this.gameboy._unproxiedROM != this.currentROM
+        !identicalArrays(this.gameboy._unproxiedROM, this.currentROM)
       ) {
         // need to rebuild for new ROM
         console.log("rebuilding gameboy");
@@ -128,7 +128,6 @@ const fsm = new StateMachine({
     onBeforeDropQuote: function(lifecycle, quote) {
       this.currentQuote = quote;
       this.currentROM = fsm.currentQuote.rom;
-      this.lastState = fsm.currentQuote.state;
     },
 
     onEnterWatching: function() {
@@ -178,7 +177,6 @@ const fsm = new StateMachine({
       delete this.handleExecuteIteration.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
-      this.lastState = this.saveState(); // current state might be used to start riffing at this specific moment
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -195,7 +193,9 @@ const fsm = new StateMachine({
         if (match && confirm("Continue play with inserted ROM?")) {
           this.currentQuote = null;
           this.currentROM = rom;
-          this.gameboy._unproxiedROM = rom; // When the state is saved when leaving currenn fsm state, it will look compatible for restoration when entering the play state.
+          // hack to continue play with complete ROM
+          this.gameboy._unproxiedROM = rom;
+          this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
           return;
         }
       }
