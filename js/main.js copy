@@ -34,6 +34,7 @@ const fsm = new StateMachine({
     currentROM: null,
     currentQuote: null,
     currentTrace: null,
+    lastState: null,
     handleJoyPadEvent: {},
     handleExecuteIteration: {},
     handleROM: {},
@@ -200,16 +201,25 @@ const fsm = new StateMachine({
         }
       }
       this.currentROM = rom;
+      this.lastState = null;
     },
 
     onEnterPlaying: function() {
+      if (
+        this.lastState &&
+        identicalArrays(this.lastState[0], this.currentROM)
+      ) {
+        this.restoreState(this.lastState);
+      }
       this.button.value = "Record new quote";
     },
 
     onLeavePlaying: function() {
+      this.lastState = this.saveState(); // state might be used to begin recording
     },
 
     onEnterRecording: function() {
+      this.restoreState(this.lastState);
 
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.saveState();
@@ -265,12 +275,12 @@ const fsm = new StateMachine({
 
     onLeaveCompiling: function() {
       this.button.disabled = false;
-      this.restoreState(this.currentTrace.initialState);
       this.currentTrace = null;
     },
 
     onEnterRiffing: function() {
       this.button.value = "Watch pre-recorded play";
+      this.restoreState(this.lastState);
 
       let oob = false;
 
@@ -294,6 +304,7 @@ const fsm = new StateMachine({
     onLeaveRiffing: function() {
       delete this.handleROM.get;
       delete this.handleExecuteIteration.apply;
+      this.lastState = this.saveState(); // current state might be used to continue play unlocked with full ROM
     }
   }
 });
