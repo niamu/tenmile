@@ -419,7 +419,13 @@ function handleDPad(event, rect) {
     let touch = event.changedTouches[i];
     let x = touch.clientX - rect.left;
     let y = touch.clientY - rect.top;
-    console.log("x:", x, "y:", y, "y/x:", y/x, "x/y:", x/y);
+    console.log("x:", x, "y:", y, "y/x:", y/x, "x y:", (x - y)/(y - x));
+    if( (y/x) < 1.0) {
+      console.log("Upper right");
+      
+    } else {
+      console.log("Lower Left");
+    }
   }
 }
 
