@@ -140,7 +140,7 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.handleROM.get = function(target, prop) {
-        if (fsm.currentQuote.romMask[prop] == 0) {
+        if (fsm.currentQuote.romMask[prop] != 1) {
           oob = true;
         }
         return target[prop];
@@ -149,6 +149,7 @@ const fsm = new StateMachine({
       let iteration = 0;
       this.handleExecuteIteration.apply = function() {
         if (iteration >= fsm.currentQuote.actions.length) {
+          console.log("Resetting after end of recorded actions.");
           fsm.restoreState(fsm.currentQuote.state);
           iteration = 0;
         } else {
@@ -279,7 +280,7 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.handleROM.get = function(target, prop) {
-        if (fsm.currentQuote.romMask[prop] == 0) {
+        if (fsm.currentQuote.romMask[prop] != 1) {
           oob = true;
         }
         return target[prop];
