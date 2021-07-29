@@ -37,11 +37,19 @@
     
     function _stringView(gameboy) {
       let view = new Map();
-      for(let k in gameboy) {
-        v = 
-        view.set(k, (typeof(gameboy[k])+": "+gameboy[k]));
+      for(let [k,v] of Object.entries(gameboy)) {
+        let v = gameboy[k];
+        view.set(k, (typeof(v)+": "+v));
       }
       return view;
+    }
+    
+    function _compareViews(a,b,prefix) {
+              for(let k of a.keys()) {
+          if(a.get(k) != b.get(k)) {
+            console.log(`${prefix} mismatch on ${k}: ${a.get(k)} -> ${b.get(k)}`);
+          }
+        }
     }
 
     async function _play(gameboy, steps) {
@@ -69,7 +77,7 @@
       let state = Array.from(gameboy.saveState());
       state.push(gameboy.CPUCyclesTotalCurrent);
       state.push(gameboy.JoyPad);
-      return state;
+      return msgpack.deserialize(msgpack.serialize(state));
     }
     
     function _restore(gameboy, state) {
@@ -79,7 +87,7 @@
     }
     
     async function _delay(ms) {
-      return new Promise(resolve => setTimeout(resolve,ms));
+      return new Promise(resolve => setTimeout(resolve,2*ms*Math.random()));
     }
 
     const TESTS = {
@@ -97,6 +105,8 @@
         let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), opts);
         gameboy.stopEmulator = 1;
         gameboy.start();
+        
+        _restore(gameboy,_save(gameboy)); // save+restore once so that we don't see the `fromSaveState` flag and caches change
 
         await _play(gameboy, [{ run: 150 }]);
 
@@ -132,7 +142,7 @@
         for(let k of viewA.keys()) {
           if(viewA.get(k) != viewC.get(k)) {
             // Some mismatches are okay (e.g. for caches) so long as they don't impact how the future plays out.
-            console.log(`AC stringView mismatch on key "${k}": "${viewA.get(k)}" -> "${viewC.get(k)}"`);
+            console.log(`AC mismatch on ${k}: ${viewA.get(k)} -> ${viewC.get(k)}`);
           }
         }
 
@@ -146,7 +156,7 @@
         let viewD = _stringView(gameboy);
         for(let k of viewA.keys()) {
           if(viewB.get(k) != viewD.get(k)) {
-            console.log(`BD stringView mismatch on key "${k}": "${viewB.get(k)}" -> "${viewD.get(k)}"`);
+            console.log(`BD mismatch on ${k}: ${viewB.get(k)} -> ${viewD.get(k)}`);
           }
         }
         
