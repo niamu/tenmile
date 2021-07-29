@@ -7,6 +7,9 @@ window.debug = function() {
   //console.log("debug:", ...arguments);
 };
 
+// [jf] testing
+let programCounterCounter = 0;
+
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
@@ -204,6 +207,14 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
+      
+      // [jf] I'm testing here
+      this.gameboy.programCounter = new Proxy({}, {
+        set: function(obj, prop, value) {
+          obj[prop] = value;
+          programCounterCounter++;
+        }
+      });
     },
 
     onLeavePlaying: function() {
