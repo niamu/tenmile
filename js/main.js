@@ -35,7 +35,7 @@ const fsm = new StateMachine({
     currentQuote: null,
     currentTrace: null,
     handleJoyPadEvent: {},
-    handleExecuteIteration: {},
+    handleRun: {},
     handleROM: {},
     runInterval: null,
     recordingStatusInterval: null,
@@ -112,9 +112,9 @@ const fsm = new StateMachine({
           this.handleJoyPadEvent
         );
 
-        this.gameboy.executeIteration = new Proxy(
-          this.gameboy.executeIteration,
-          this.handleExecuteIteration
+        this.gameboy.run = new Proxy(
+          this.gameboy.run,
+          this.handleRun
         );
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
@@ -146,7 +146,7 @@ const fsm = new StateMachine({
 
       let iteration = 0;
 
-      this.handleExecuteIteration.apply = function() {
+      this.handleRun.apply = function() {
         if (iteration >= fsm.currentQuote.actions.length) {
           console.log("Resetting after end of recorded actions.");
           fsm.restoreState(fsm.currentQuote.state);
@@ -174,7 +174,7 @@ const fsm = new StateMachine({
     },
 
     onLeaveWatching: function() {
-      delete this.handleExecuteIteration.apply;
+      delete this.handleRun.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
     },
@@ -220,7 +220,7 @@ const fsm = new StateMachine({
 
       let actionsSinceLastIteration = [];
 
-      this.handleExecuteIteration.apply = function() {
+      this.handleRun.apply = function() {
         fsm.currentTrace.actions.push(actionsSinceLastIteration);
         actionsSinceLastIteration = [];
         return Reflect.apply(...arguments);
@@ -272,7 +272,7 @@ const fsm = new StateMachine({
     onLeaveRecording: function() {
       this.status.innerText = "";
       clearInterval(this.recordingStatusInterval);
-      delete this.handleExecuteIteration.apply;
+      delete this.handleRun.apply;
       delete this.handleJoyPadEvent.apply;
       delete this.handleROM.get;
     },
@@ -301,7 +301,7 @@ const fsm = new StateMachine({
         return target[prop];
       };
 
-      this.handleExecuteIteration.apply = function() {
+      this.handleRun.apply = function() {
         Reflect.apply(...arguments);
         if (oob) {
           console.log("Resetting after OOB.");
@@ -313,7 +313,7 @@ const fsm = new StateMachine({
 
     onLeaveRiffing: function() {
       delete this.handleROM.get;
-      delete this.handleExecuteIteration.apply;
+      delete this.handleRun.apply;
     }
   }
 });
