@@ -208,13 +208,15 @@ const fsm = new StateMachine({
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
       
+      
       // [jf] I'm testing here
-      this.gameboy.programCounter = new Proxy({}, {
+      this.gameboy.programCounter = new Proxy(Number, {
         set: function(obj, prop, value) {
           obj[prop] = value;
           programCounterCounter++;
         }
       });
+      /* */
     },
 
     onLeavePlaying: function() {
