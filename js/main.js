@@ -7,9 +7,6 @@ window.debug = function() {
   //console.log("debug:", ...arguments);
 };
 
-// [jf] testing
-let programCounterCounter = 0;
-
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
@@ -198,7 +195,10 @@ const fsm = new StateMachine({
           this.currentROM = rom;
           // hack to continue play with complete ROM
           this.gameboy._unproxiedROM = rom;
-          this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
+          this.gameboy.ROM = new Proxy(
+            this.gameboy._unproxiedROM,
+            this.handleROM
+          );
           return;
         }
       }
@@ -207,23 +207,11 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
-      
-      
-      // [jf] I'm testing here
-      this.gameboy.programCounter = new Proxy(Number, {
-        set: function(obj, prop, value) {
-          obj[prop] = value;
-          programCounterCounter++;
-        }
-      });
-      /* */
     },
 
-    onLeavePlaying: function() {
-    },
+    onLeavePlaying: function() {},
 
     onEnterRecording: function() {
-
       this.currentTrace = new Trace();
       this.currentTrace.initialState = this.saveState();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
@@ -237,6 +225,25 @@ const fsm = new StateMachine({
         actionsSinceLastIteration = [];
         return Reflect.apply(...arguments);
       };
+      
+      
+      // [jf] Adam, observing the TICKTable should get us clock accurate replays. For example:
+      // See my notes on the Game Boy Online emulator for details
+      //
+      // Note that the ticks get really big, really fast
+      /*
+      let tickCount = 0;
+      this.gameboy.TICKTable = new Proxy(this.gameboy.TICKTable, {
+        get: function(target, prop) {
+          if (tickCount not in fsm.currentTrace.tickActions) {
+            fsm.currentTrace.tickActions[tickCount] = [];
+          }
+          fsm.currentTrace.tickActions[tickCount].push(actionsSinceLastIteration);
+          return target[prop];
+          tickCount++;
+        }
+      });
+      /* */
 
       this.handleJoyPadEvent.apply = function(target, thisArg, args) {
         actionsSinceLastIteration.push(args);
@@ -398,6 +405,11 @@ function identicalArrays(a, b) {
   //dPad.addEventListener("touchmove", dPadClosure);
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
+  
+  if(window.location.hash.startswith("#drop=")) {
+    let url = window.location.hash.split("=")[1];
+    drop
+  }
 })();
 
 function handleKey(event) {
