@@ -16,14 +16,13 @@
   </head>
   <body>
     (See console for detailed messages.)
-    <div id="messages">
-      
-    </div>
+    <div id="messages"></div>
   </body>
   <script>
     "use strict";
 
-    const TEST_GAME_URL = "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftellinglys.gb?v=1627599338312";
+    const TEST_GAME_URL =
+      "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftellinglys.gb?v=1627599338312";
 
     async function _digest(obj) {
       let bytes = msgpack.serialize(obj);
@@ -34,22 +33,22 @@
       }
       return str;
     }
-    
+
     function _stringView(gameboy) {
       let view = new Map();
-      for(let [k,v] of Object.entries(gameboy)) {
+      for (let [k, v] of Object.entries(gameboy)) {
         let v = gameboy[k];
-        view.set(k, (typeof(v)+": "+v));
+        view.set(k, typeof v + ": " + v);
       }
       return view;
     }
-    
-    function _compareViews(a,b,prefix) {
-              for(let k of a.keys()) {
-          if(a.get(k) != b.get(k)) {
-            console.log(`${prefix} mismatch on ${k}: ${a.get(k)} -> ${b.get(k)}`);
-          }
+
+    function _compareViews(a, b, prefix) {
+      for (let k of a.keys()) {
+        if (a.get(k) != b.get(k)) {
+          console.log(`${prefix} mismatch on ${k}: ${a.get(k)} -> ${b.get(k)}`);
         }
+      }
     }
 
     async function _play(gameboy, steps) {
@@ -71,7 +70,7 @@
         throw msg;
       }
     }
-    
+
     function _save(gameboy) {
       // stuff extra apparently-needed state elements onto the end of the original array format
       let state = Array.from(gameboy.saveState());
@@ -79,15 +78,17 @@
       state.push(gameboy.JoyPad);
       return msgpack.deserialize(msgpack.serialize(state));
     }
-    
+
     function _restore(gameboy, state) {
       gameboy.returnFromState(state);
-      gameboy.CPUCyclesTotalCurrent = state[state.length-2];
-      gameboy.JoyPad = state[state.length-1];
+      gameboy.CPUCyclesTotalCurrent = state[state.length - 2];
+      gameboy.JoyPad = state[state.length - 1];
     }
-    
+
     async function _delay(ms) {
-      return new Promise(resolve => setTimeout(resolve,2*ms*Math.random()));
+      return new Promise(resolve =>
+        setTimeout(resolve, 2 * ms * Math.random())
+      );
     }
 
     const TESTS = {
@@ -105,14 +106,14 @@
         let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), opts);
         gameboy.stopEmulator = 1;
         gameboy.start();
-        
-        _restore(gameboy,_save(gameboy)); // save+restore once so that we don't see the `fromSaveState` flag and caches change
+
+        _restore(gameboy, _save(gameboy)); // save+restore once so that we don't see the `fromSaveState` flag and caches change
 
         await _play(gameboy, [{ run: 150 }]);
 
         let viewA = _stringView(gameboy);
         let stateA = _save(gameboy);
-        
+
         let stateDigestA = await _digest(stateA);
 
         await _play(gameboy, [
@@ -121,7 +122,7 @@
           { joy: [4, false] },
           { run: 100 }
         ]);
-        
+
         let viewB = _stringView(gameboy);
         let stateB = _save(gameboy);
         let stateDigestB = await _digest(stateB);
@@ -138,13 +139,8 @@
           stateDigestA == stateDigestC,
           "restoration to initial state should yield identical saved state"
         );
-        
-        for(let k of viewA.keys()) {
-          if(viewA.get(k) != viewC.get(k)) {
-            // Some mismatches are okay (e.g. for caches) so long as they don't impact how the future plays out.
-            console.log(`AC mismatch on ${k}: ${viewA.get(k)} -> ${viewC.get(k)}`);
-          }
-        }
+
+        _compareViews(viewA,viewC,"AC");
 
         _play(gameboy, [
           { joy: [4, true] },
@@ -152,14 +148,10 @@
           { joy: [4, false] },
           { run: 100 }
         ]);
-        
+
         let viewD = _stringView(gameboy);
-        for(let k of viewA.keys()) {
-          if(viewB.get(k) != viewD.get(k)) {
-            console.log(`BD mismatch on ${k}: ${viewB.get(k)} -> ${viewD.get(k)}`);
-          }
-        }
-        
+        _compareViews(viewB,viewD,"BD");
+
         let stateD = _save(gameboy);
         let stateDigestD = await _digest(stateD);
         _assert(
@@ -181,7 +173,7 @@
           "three identically progressed states should equal"
         );
 
-        _restore(gameboy,stateA);
+        _restore(gameboy, stateA);
 
         await _play(gameboy, [
           { joy: [4, true] },
@@ -213,9 +205,7 @@
         } catch (exception) {
           console.error(exception);
         }
-        messages.innerText += `Test "${name}" ${
-          okay ? "passed" : "failed"
-        }.\n`;
+        messages.innerText += `Test "${name}" ${okay ? "passed" : "failed"}.\n`;
         console.log(`Done with ${name}.`);
       }
       messages.innerText += "Done with all tests.";
