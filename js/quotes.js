@@ -174,5 +174,14 @@ async function compileQuote(trace) {
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
-  document.getElementById("quotes").appendChild(img);
+  let container = document.createElement("span");
+  container.appendChild(img);
+  /*
+    TODO: add inline controls:
+      <span class="icon-download"></span>
+      See fontello-embedded.css
+  */
+  
+  document.getElementById("quotes").appendChild(container);
+  
 }
