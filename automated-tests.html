@@ -38,7 +38,8 @@
     function _stringView(gameboy) {
       let view = new Map();
       for(let k in gameboy) {
-        view.set(k, (""+gameboy[k]));
+        v = 
+        view.set(k, (typeof(gameboy[k])+": "+gameboy[k]));
       }
       return view;
     }
@@ -111,6 +112,7 @@
           { run: 100 }
         ]);
         
+        let viewB = _stringView(gameboy);
         let stateB = _save(gameboy);
         let stateDigestB = await _digest(stateB);
         _assert(
@@ -130,7 +132,7 @@
         for(let k of viewA.keys()) {
           if(viewA.get(k) != viewC.get(k)) {
             // Some mismatches are okay (e.g. for caches) so long as they don't impact how the future plays out.
-            console.log(`stringView mismatch on key "${k}": "${viewA.get(k)}" -> "${viewC.get(k)}"`);
+            console.log(`AC stringView mismatch on key "${k}": "${viewA.get(k)}" -> "${viewC.get(k)}"`);
           }
         }
 
@@ -140,6 +142,13 @@
           { joy: [4, false] },
           { run: 100 }
         ]);
+        
+        let viewD = _stringView(gameboy);
+        for(let k of viewA.keys()) {
+          if(viewB.get(k) != viewD.get(k)) {
+            console.log(`BD stringView mismatch on key "${k}": "${viewB.get(k)}" -> "${viewD.get(k)}"`);
+          }
+        }
         
         let stateD = _save(gameboy);
         let stateDigestD = await _digest(stateD);
