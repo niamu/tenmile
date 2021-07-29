@@ -28,6 +28,10 @@
         font-size: smaller;
         color: gray;
       }
+      
+      #examples {
+        visibility: hidden;
+      }
 
       button#example-game {
         background: #adeaad;
@@ -167,7 +171,8 @@
       For more information, see <a href="README.md">README.md</a>.
       <br />
     </div>
-    <button
+    <div id="examples">
+      <button
       id="example-game"
       onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
     >
@@ -179,6 +184,7 @@
     >
       Example quote
     </button>
+    </div>
     <div id="quotes"></div>
   </body>
 </html>

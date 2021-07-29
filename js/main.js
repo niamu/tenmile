@@ -406,9 +406,15 @@ function identicalArrays(a, b) {
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
   
-  if(window.location.hash.startswith("#drop=")) {
+  if(window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
-    drop
+    if(url.endsWith(".gb")) {
+      dropGameByUrl(url);
+    } else if(url.endsWith(".png")) {
+      dropQuoteByUrl(url);
+    }
+  } else {
+    document.getElementById("examples").style.visibility = "visible";
   }
 })();
 
