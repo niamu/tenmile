@@ -207,9 +207,19 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
+      this.handleROM.set = function(target, addr, value) {
+        if(addr == 0xFF00) {
+          console.log(value)
+        }
+        target[addr] = value;
+        return true;
+      }
     },
 
-    onLeavePlaying: function() {},
+    
+    onLeavePlaying: function() {
+      delete this.handleROM.set;
+    },
 
     onEnterRecording: function() {
       this.currentTrace = new Trace();
