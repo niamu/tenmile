@@ -214,9 +214,9 @@ const fsm = new StateMachine({
         set: function(target, addr, value) {
         if(addr == 0xFF00 && !seen[value]) {
           console.log(value)
-          // 47 = b00101111
-          // 31 = b00011111
-          // 63 = b
+          // 47 = b0010 1111
+          // 31 = b0001 1111
+          // 63 = b0011 1111
           seen[value] = true;
         }
         target[addr] = value;
