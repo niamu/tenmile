@@ -112,10 +112,7 @@ const fsm = new StateMachine({
           this.handleJoyPadEvent
         );
 
-        this.gameboy.run = new Proxy(
-          this.gameboy.run,
-          this.handleRun
-        );
+        this.gameboy.run = new Proxy(this.gameboy.run, this.handleRun);
 
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
       }
@@ -207,7 +204,9 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
-  
+
+      // [jf] this ... sort of works? Investigate more later
+      /*
       this.gameboy._unproxiedMemory = this.gameboy.memory;
       let seen = {};
       this.gameboy.memory = new Proxy(this.gameboy.memory, {
@@ -222,11 +221,12 @@ const fsm = new StateMachine({
         target[addr] = value;
         return true;
       }});
+      */
     },
 
-    
     onLeavePlaying: function() {
-      this.gameboy.memory = this.gameboy._unproxiedMemory;
+      // [jf] this ... sort of works? Investigate more later
+      // this.gameboy.memory = this.gameboy._unproxiedMemory;
     },
 
     onEnterRecording: function() {
@@ -243,8 +243,7 @@ const fsm = new StateMachine({
         actionsSinceLastIteration = [];
         return Reflect.apply(...arguments);
       };
-      
-      
+
       // [jf] Adam, observing the TICKTable should get us clock accurate replays. For example:
       // See my notes on the Game Boy Online emulator for details
       //
@@ -423,12 +422,12 @@ function identicalArrays(a, b) {
   //dPad.addEventListener("touchmove", dPadClosure);
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
-  
-  if(window.location.hash.startsWith("#drop=")) {
+
+  if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
-    if(url.endsWith(".gb")) {
+    if (url.endsWith(".gb")) {
       dropGameByUrl(url);
-    } else if(url.endsWith(".png")) {
+    } else if (url.endsWith(".png")) {
       dropQuoteByUrl(url);
     }
   } else {
