@@ -207,18 +207,26 @@ const fsm = new StateMachine({
 
     onEnterPlaying: function() {
       this.button.value = "Record new quote";
-      this.handleROM.set = function(target, addr, value) {
-        if(addr == 0xFF00) {
+  
+      this.gameboy._unproxiedMemory = this.gameboy.memory;
+      let seen = {};
+      this.gameboy.memory = new Proxy(this.gameboy.memory, {
+        set: function(target, addr, value) {
+        if(addr == 0xFF00 && !seen[value]) {
           console.log(value)
+          // 47 = b00101111
+          // 31 = b00011111
+          // 63 = b
+          seen[value] = true;
         }
         target[addr] = value;
         return true;
-      }
+      }});
     },
 
     
     onLeavePlaying: function() {
-      delete this.handleROM.set;
+      this.gameboy.memory = this.gameboy._unproxiedMemory;
     },
 
     onEnterRecording: function() {
