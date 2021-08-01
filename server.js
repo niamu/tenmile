@@ -2,16 +2,19 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const app = express();
 
+const UNPROCESSABLE_ENTITY = 422
+
 const JSZip = require("jszip");
 //const zip = new JSZip();
 
 const fiftyKilobytesInBytes = 50 * 1024;
+const maximumFileSizeInBytes = fiftyKilobytesInBytes;
 
 app.use(
   fileUpload({
     abortOnLimit: true,
     limits: {
-      fileSize: fiftyKilobytesInBytes,
+      fileSize: maximumFileSizeInBytes,
       fields: 1,
       files: 1
     }
@@ -27,20 +30,20 @@ app.post("/upload", async function(req, res) {
   }
 
   let zip = await JSZip().loadAsync(req.files.file.data);
+  
   const containsRequiredFiles =
     "rom.bin" in zip.files &&
     "romMask.bin" in zip.files &&
     "initialState.msgpack" in zip.files;
-
-  // error if required files are not in zip
+  if(!containsRequiredFiles) {
+    res.status(UNPROCESSABLE_ENTITY).send('Required files are not in the playable quote');
+  }
   
   let rom = await zip.file('rom.bin').async("uint8array");
   let romMask = await zip.file('romMask.bin').async("uint8array");
-
-  console.log(rom.length);
-  console.log(romMask.length);
-  // error if lengths of rom and romMask do not match
-  
+  if(rom.length != romMask.length) {
+    res.status(UNPROCESSABLE_ENTITY).send('Lengths of rom.bin and romMask.bin do not match');
+  }
   
   let contents = {}
   romMask.map(function(byte) {
@@ -52,12 +55,12 @@ app.post("/upload", async function(req, res) {
   
   console.log(containsRequiredFiles);
   console.log(contents);
-  // error if rom mask has more than 2 keys
+  // HTTP 422 Invalid romMask.bin
   console.log(Object.keys(contents).length);
   
-  // error if percentage of ROM mask is about a threshold
+  // HTTP 422 Too many valid bytes included in rom.bin
   
-  //error if number of 0s in ROM Mask is < number of 0s in ROM
+  // HTTP 422 Semantic mismatch between romMask.bin and rom.bin
   
   res.send("testing");
 });
