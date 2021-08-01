@@ -14,27 +14,9 @@
   <body></body>
   <script>
     (async function() {
-      /*
-        Sketch:
-          - create dummy data:
-            - framebuffer
-            - metadata:
-              - name
-              - num steps
-              - slice bytes
-            - data:
-              - rom
-              - readme
-          - make a zip, fill it, convert to byte array
-          - create and render to canvas
-            - framebuffer
-            - metadata stuff
-            - [A]: put the zip in steganographically (8bpp)
-          - compress png
-          - download
-            
-      */
-
+      
+      // This mess attempts to show how to pack data into the new quote file design
+      
       let rgba = [];
       for (let i = 0; i < 144; i++) {
         for (let j = 0; j < 160; j++) {
@@ -84,10 +66,18 @@
       ctx.fillRect(0,0,160+2*borderSize,144+2*borderSize);
       
       ctx.fillStyle = '#444';
-      ctx.fillRect(borderSize-1,borderSize-1,160+1,144+1);
+      ctx.fillRect(borderSize-1,borderSize-1,160+2,144+2);
       
+      let imageData = ctx.createImageData(160, 144);
+      // TODO: fill imageData.data with screenshot
+      ctx.putImageData(imageData,borderSize,borderSize);
       
+      // TODO: write surrounding text from metadata
       
+      // TODO: get canvas into a png somewhow
+      // TODO: combine with zip (stegano?)
+      
+      // TODO: let it be downloadable with a click such that filename is correct
       
       
       
