@@ -33,10 +33,7 @@ app.use(
 app.post("/upload", async function(req, res) {
   // [jf] FIXME: This "files" interface sucks, just do it directly
   if (!req.files) {
-    res.send({
-      status: false,
-      message: "No files sent"
-    });
+    res.status(UNPROCESSABLE).send("No files sent");
   }
 
   const data = req.files.file.data;
