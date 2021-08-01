@@ -37,7 +37,12 @@ app.post("/upload", async function(req, res) {
   }
 
   const data = req.files.file.data;
-  const zip = await JSZip().loadAsync(data);
+  try {
+    const zip = await JSZip().loadAsync(data);
+    
+  } catch {
+    
+  }
 
   if (
     !(
