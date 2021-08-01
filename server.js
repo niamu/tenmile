@@ -5,7 +5,6 @@ const app = express();
 const UNPROCESSABLE = 422; // HTTP 422 Unprocessable Entity
 
 const JSZip = require("jszip");
-//const zip = new JSZip();
 
 const fiftyKilobytesInBytes = 50 * 1024;
 const maximumFileSizeInBytes = fiftyKilobytesInBytes;
@@ -30,7 +29,7 @@ app.post("/upload", async function(req, res) {
     });
   }
 
-  let zip = await JSZip().loadAsync(req.files.file.data);
+  const zip = await JSZip().loadAsync(req.files.file.data);
 
   if (
     !(
@@ -42,45 +41,45 @@ app.post("/upload", async function(req, res) {
     res.status(UNPROCESSABLE).send("Required files are missing");
   }
 
-  let rom = await zip.file("rom.bin").async("uint8array");
-  let romMask = await zip.file("romMask.bin").async("uint8array");
+  const rom = await zip.file("rom.bin").async("uint8array");
+  const romMask = await zip.file("romMask.bin").async("uint8array");
   if (rom.length != romMask.length) {
     res.status(UNPROCESSABLE).send("rom.bin and romMask.bin length mismatch");
   }
 
-  let maskContents = {};
-  romMask.map(function(byte) {
-    if (!(byte in maskContents)) {
-      maskContents[byte] = 1;
-    }
-    maskContents[byte] += 1;
-  });
-
-  if (Object.keys(maskContents).length != 2) {
+  let maskContents = { 0: 1, 1: 1 };
+  try {
+    romMask.map(function(byte) {
+      maskContents[byte] += 1;
+    });
+  } catch {
     res.status(UNPROCESSABLE).send("romMask.bin contains invalid data");
   }
 
-  let byteRatio = maskContents["1"] / (maskContents["1"] + maskContents["0"]);
+  const byteRatio = maskContents["1"] / (maskContents["1"] + maskContents["0"]);
   if (byteRatio > maximumByteRatioInQuote) {
     res.status(UNPROCESSABLE).send("Too many valid bytes included in rom.bin");
   }
-
-  let romContents = {};
+  
+  let romContents = { 0: 1 };
   rom.map(function(byte) {
-    if (!(byte in romContents)) {
-      romContents[byte] = 1;
+    if (byte in romContents) {
+      romContents[byte] += 1;
     }
-    romContents[byte] += 1;
   });
 
-  console.log(romContents);
-  // HTTP 422 Semantic mismatch between romMask.bin and rom.bin
+  if (maskContents["0"] < romContents["0"]) {
+    res
+      .status(UNPROCESSABLE)
+      .send("Semantic mismatch between romMask.bin and rom.bin");
+  }
 
+  // [jf] Add S3 upload logic here
   res.send("testing");
 });
 
 app.use(express.static(__dirname));
 
 const listener = app.listen(process.env.PORT, () => {
-  console.log("Your app is listening on port " + listener.address().port);
+  console.log("Tenmile is listening on port " + listener.address().port);
 });
