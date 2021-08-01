@@ -11,6 +11,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
-    "jszip": "^3.7.0"
+    "jszip": "^3.7.0",
+    "aws-sdk": "^2.957.0",
+    "xid-js": "^1.0.1"
   }
 }

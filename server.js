@@ -1,10 +1,17 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
+const JSZip = require("jszip");
+const AWS = require("aws-sdk");
+const xid = require("xid-js");
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
+
 const app = express();
 
 const UNPROCESSABLE = 422; // HTTP 422 Unprocessable Entity
-
-const JSZip = require("jszip");
 
 const fiftyKilobytesInBytes = 50 * 1024;
 const maximumFileSizeInBytes = fiftyKilobytesInBytes;
@@ -60,7 +67,7 @@ app.post("/upload", async function(req, res) {
   if (byteRatio > maximumByteRatioInQuote) {
     res.status(UNPROCESSABLE).send("Too many valid bytes included in rom.bin");
   }
-  
+
   let romContents = { 0: 1 };
   rom.map(function(byte) {
     if (byte in romContents) {
