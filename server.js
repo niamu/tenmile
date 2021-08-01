@@ -12,6 +12,7 @@ const s3 = new AWS.S3({
 const app = express();
 
 const UNPROCESSABLE = 422; // HTTP 422 Unprocessable Entity
+const INSUFFICIENT_STORAGE = 507 // HTTP 507 Insufficient Storage
 
 const fiftyKilobytesInBytes = 50 * 1024;
 const maximumFileSizeInBytes = fiftyKilobytesInBytes;
@@ -28,6 +29,7 @@ app.use(
   })
 );
 
+// curl -F "file=@filename.png" https://tenmile.quote.games/upload
 app.post("/upload", async function(req, res) {
   if (!req.files) {
     res.send({
@@ -36,7 +38,8 @@ app.post("/upload", async function(req, res) {
     });
   }
 
-  const zip = await JSZip().loadAsync(req.files.file.data);
+  const data = req.files.file.data;
+  const zip = await JSZip().loadAsync(data);
 
   if (
     !(
@@ -75,14 +78,28 @@ app.post("/upload", async function(req, res) {
     }
   });
 
-  if (maskContents["0"] < romContents["0"]) {
+  console.log(maskContents["0"])
+  console.log(romContents["0"])
+  if (maskContents["0"] > romContents["0"]) {
     res
       .status(UNPROCESSABLE)
       .send("Semantic mismatch between romMask.bin and rom.bin");
   }
 
-  // [jf] Add S3 upload logic here
-  res.send("testing");
+  const fileId = xid.next();
+  const filename = `${fileId}.png`;
+
+  s3.upload({
+    Bucket: "tenmile",
+    ACL: "public-read",
+    Key: filename,
+    Body: data
+  }, function(err, data) {
+    if(err) {
+      res.status(INSUFFICIENT_STORAGE).send("S3 is unavailable");
+    }
+    res.send(data.Location);  
+  });
 });
 
 app.use(express.static(__dirname));
