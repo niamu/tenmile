@@ -31,6 +31,7 @@ app.use(
 
 // curl -F "file=@filename.png" https://tenmile.quote.games/upload
 app.post("/upload", async function(req, res) {
+  // [jf] FIXME: This "files" interface sucks, just do it directly
   if (!req.files) {
     res.send({
       status: false,
@@ -78,8 +79,6 @@ app.post("/upload", async function(req, res) {
     }
   });
 
-  console.log(maskContents["0"])
-  console.log(romContents["0"])
   if (maskContents["0"] > romContents["0"]) {
     res
       .status(UNPROCESSABLE)
@@ -98,7 +97,7 @@ app.post("/upload", async function(req, res) {
     if(err) {
       res.status(INSUFFICIENT_STORAGE).send("S3 is unavailable");
     }
-    res.send(data.Location);  
+    res.send({"url": data.Location});  
   });
 });
 
