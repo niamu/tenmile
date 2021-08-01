@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>new quote file design</title>
+    <script src="lib/pako.min.js" defer></script>
+    <script src="lib/UPNG.js"></script>
+    <script src="lib/jszip.min.js"></script>
+  </head>
+  <body>
+    
+  </body>
+  <script>
+    (async function() {
+      /*
+        Sketch:
+          - create dummy data:
+            - framebuffer
+            - metadata:
+              - name
+              - frames
+              - slice bytes
+            - data:
+              - rom
+              - readme
+          - make a zip, fill it, convert to byte array
+          - create and render to canvas
+            - framebuffer
+            - metadata stuff
+            - [A]: put the zip in steganographically (8bpp)
+          - compress png
+          - download
+            
+      */
+      
+      let rgba = [];
+      for(let i = 0; i < 160; i++) {
+        for(let j = 0; j < 144; j++) {
+          if(Math.floor((i+j)/10)%2==0) {
+            rgba.push(0xFFAA00FF);
+          } else {
+            rgba.push(0xAA00FF);
+          }
+          
+        }
+      }
+      console.log(rgba.length);
+      
+    })();
+  </script>
+</html>

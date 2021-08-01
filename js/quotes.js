@@ -32,7 +32,7 @@ Playable quotes are delimited references to specific moments in a game along wit
 
 * \`initialState.msgpack\`: A [MessagePack](https://github.com/msgpack/msgpack-javascript) encoded savestate for a [specific Game Boy emulator](https://github.com/rauchg/gameboy). After decoding, entry 0 of the resulting array should be replaced with a reference to the contents of the ROM image above. Additionally, entry 71 should be replaced with a reference to a 160 * 144 entry Int32Array with the decoded contents of the encoding PNG file (representing the screen visible at the start of the recorded actions). There are some additional state variables stored in here that we should document as well. We are in the process of adding more to make replay more deterministic.
 
-* \`actions.msgpack\`: A MessagePack-encoded array of instructions of which values to pass to \`gameboy.JoyPadEvent\` based on the number of previous calls to \`gameboy.executeIteration\`. Or maybe it is something like this. The format is currently changing, and this archive comes from a time when we hadn't worked out all of the details. Allowing the game to continue execution past the end of recorded actions (or attempting alternate actions) might result in reads to invalided ROM addresses. When this happens, it might be a good idea to return to the provided initial state.
+* \`actions.msgpack\`: A MessagePack-encoded array of instructions of which values to pass to \`gameboy.JoyPadEvent\` based on the number of previous calls to \`gameboy.run\`. Allowing the game to continue execution past the end of recorded actions (or attempting alternate actions) might result in reads to invalided ROM addresses. When this happens, it might be a good idea to return to the provided initial state.
 
 Details about this specific quote:
 DETAILS_GO_HERE
@@ -135,7 +135,7 @@ async function compileQuote(trace) {
     ").\n";
 
   details += "- Original ROM SHA-256 digest: " + digest.toUpperCase() + "\n";
-  details += "- Reference gameplay recording: " + trace.actions.length + " emulator iterations\n";
+  details += "- Reference gameplay recording: " + trace.actions.length + " emulator steps\n";
 
   let readme = ARCHIVE_README_TEMPLATE.slice().replace(
     "DETAILS_GO_HERE",
