@@ -37,11 +37,12 @@ app.post("/upload", async function(req, res) {
   }
 
   const data = req.files.file.data;
+  let zip = null;
   try {
-    const zip = await JSZip().loadAsync(data);
+    zip = await JSZip().loadAsync(data);
     
   } catch {
-    
+    res.status(UNPROCESSABLE).send("No zip file included");
   }
 
   if (
