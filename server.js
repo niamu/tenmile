@@ -3,7 +3,7 @@ const fileUpload = require('express-fileupload');
 const app = express()
 
 const JSZip = require('jszip');
-const zip = new JSZip();
+//const zip = new JSZip();
 
 const fiftyKilobytesInBytes = 50 * 1024;
 
@@ -16,7 +16,7 @@ app.use(fileUpload({
   }
 }));
 
-app.post('/upload', function (req, res) {
+app.post('/upload', async function (req, res) {
   if(!req.files) {
     res.send({
       status: false,
@@ -24,12 +24,20 @@ app.post('/upload', function (req, res) {
     });
   }
   
-  /*
-  let zipfile = zip.loadAsync(req.files.file.data)
-  .then(function())
-  console.log(req.files);
+  let zipContents = {}
+  let zip = await JSZip().loadAsync(req.files.file.data);
+  for (let filename of Object.keys(zip.files)) {
+    zipContents[filename] = true;
+    console.log(filename);
+  }
   
-  */
+  const containsRequiredFiles = (
+    'rom.bin' in zip.files &&
+    'romMask.bin' in zip.files &&
+    'initialState.msgpack' in zip.files
+  );
+  
+  console.log(containsRequiredFiles);
   
   res.send("testing");
 });
