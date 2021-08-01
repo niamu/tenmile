@@ -6,10 +6,12 @@
     <script src="lib/pako.min.js" defer></script>
     <script src="lib/UPNG.js"></script>
     <script src="lib/jszip.min.js"></script>
+    <script src="lib/msgpack.js"></script>
+    <style>
+      canvas {border: thick solid salmon; }
+    </style>
   </head>
-  <body>
-    
-  </body>
+  <body></body>
   <script>
     (async function() {
       /*
@@ -18,7 +20,7 @@
             - framebuffer
             - metadata:
               - name
-              - frames
+              - num steps
               - slice bytes
             - data:
               - rom
@@ -32,19 +34,62 @@
           - download
             
       */
-      
+
       let rgba = [];
-      for(let i = 0; i < 160; i++) {
-        for(let j = 0; j < 144; j++) {
-          if(Math.floor((i+j)/10)%2==0) {
-            rgba.push(0xFFAA00FF);
+      for (let i = 0; i < 144; i++) {
+        for (let j = 0; j < 160; j++) {
+          if (Math.floor((i + j) / 10) % 2 == 0) {
+            rgba.push(0xffaa00ff);
           } else {
-            rgba.push(0xAA00FF);
+            rgba.push(0xaaff00ff);
           }
-          
         }
       }
-      console.log(rgba.length);
+
+      let name = "MYGAME";
+      let numActions = 5422;
+      let sliceBytes = 1425;
+      let originalBytes = 65535;
+
+      let state = { foo: 0, bar: [5, 6, 7] };
+      let rom = Uint8Array.from([0, 0, 4, 5]);
+      let romMask = Uint8Array.from([0, 0, 1, 1]);
+      let readme = "hello from the text file\n";
+
+      let zip = new JSZip();
+      zip.file("rom.bin", rom);
+      zip.file("romMask.bin", romMask);
+      zip.file("state.msgpack", msgpack.serialize(state));
+      zip.file("README.md", readme);
+
+      let zipBuffer = await zip.generateAsync({
+        type: "arraybuffer",
+        compression: "DEFLATE",
+        compressionOptions: { level: 9 }
+      });
+      
+      
+      let canvas = document.createElement("canvas");
+      
+      
+      const borderSize = 32;
+      
+      canvas.setAttribute("width", 160 + 2*borderSize);
+      canvas.setAttribute("height", 144 + 2*borderSize);
+      document.body.appendChild(canvas);
+      
+      
+      let ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#aaa';
+      ctx.fillRect(0,0,160+2*borderSize,144+2*borderSize);
+      
+      ctx.fillStyle = '#444';
+      ctx.fillRect(borderSize-1,borderSize-1,160+1,144+1);
+      
+      
+      
+      
+      
       
     })();
   </script>
