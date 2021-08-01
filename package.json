@@ -2,9 +2,9 @@
   "name": "snippets",
   "version": "0.8.0",
   "description": "Playable Quotes for Game Boy",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "author": "Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com)",
   "license": "GPL-2.0-only",
