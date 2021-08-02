@@ -74,6 +74,8 @@ function generateMaskedROM(rom, dependencies) {
   return { maskedROM, mask };
 }
 
+const BORDER_SIZE = 12;
+
 async function loadQuote(buffer) {
   let quote = new Quote();
 
@@ -103,6 +105,16 @@ async function loadQuote(buffer) {
   return quote;
 }
 
+async function digest256(data) {
+  let digest = "";
+  for (let byte of new Uint8Array(
+    await crypto.subtle.digest("SHA-256", data)
+  )) {
+    digest += byte.toString(16).padStart(2, "0");
+  }
+  return digest;
+}
+
 async function compileQuote(trace) {
   let originalROM = trace.initialState[SAVESTATE_ROM];
 
@@ -114,13 +126,9 @@ async function compileQuote(trace) {
   let originalBytes = originalROM.length;
   let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
 
-  let digest = "";
-  for (let byte of new Uint8Array(
-    await crypto.subtle.digest("SHA-256", originalROM)
-  )) {
-    digest += byte.toString(16).padStart(2, "0");
-  }
-
+  let ROMDigest = await digest256(originalROM);
+  console.log(ROMDigest);
+  
   let details = "";
   details +=
     "- Included original ROM bytes: " +
@@ -134,7 +142,7 @@ async function compileQuote(trace) {
     }) +
     ").\n";
 
-  details += "- Original ROM SHA-256 digest: " + digest.toUpperCase() + "\n";
+  details += "- Original ROM SHA-256 digest: " + ROMDigest.toUpperCase() + "\n";
   details +=
     "- Reference gameplay recording: " +
     trace.actions.length +
@@ -175,9 +183,12 @@ async function compileQuote(trace) {
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
 
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
+  let blobDigest = await digest256(blob.arrayBuffer());
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
 
+  console.log()
+  
   let download = document.createElement("span");
   download.classList.add("icon-download");
   download.onclick = async function(e) {
