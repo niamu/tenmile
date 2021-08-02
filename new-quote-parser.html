@@ -12,14 +12,15 @@
   <script>
     (async function() {
       let buffer = await (await fetch(
-        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F8pp-steg-zip-test.png?v=1627890723668"
+        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F8pp-steg-zip-test.png?v=1627921720551"
       )).arrayBuffer();
-      let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
+      let quotePng = UPNG.decode(buffer)
+      let rgba = new Uint8Array(UPNG.toRGBA8(quotePng)[0]);
 
       let decodedBytes = [];
       let frameBufferRgba = [];
       
-      let borderSize = 16;
+      let borderSize = 12;
       let sw = 160+2*borderSize;
       let sh = 144+2*borderSize;
       for(let i = 0; i < rgba.length/4; i++) {

@@ -181,12 +181,16 @@ async function compileQuote(trace) {
   let download = document.createElement("span");
   download.classList.add("icon-download");
   download.onclick = async function(e) {
+    console.log("download clicked");
     let imgUri = e.target.parentElement.children[0].src;
-    let imgBlob = await (await fetch(imgUri)).blob();
+    // let imgBlob = await (await fetch(imgUri)).blob();
     let a = document.createElement("a");
-    a.href = "fnord.png";
-    a.download = imgBlob;
+    a.href = imgUri;
+    // GAMENAME-ROMHASHSLICE-FILEHASHSLICE.png
+    // TUFF-123-abcdefghijk.png
+    a.download = "quote.png";
     document.body.appendChild(a);
+    console.log(a);
     a.click();
     document.body.removeChild(a);
     // debugger;
