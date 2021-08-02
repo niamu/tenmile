@@ -12,6 +12,7 @@ class Quote {
 
 class Trace {
   constructor() {
+    this.name = null;
     this.initialState = null;
     this.actions = null;
     this.romDependencies = null;
@@ -74,8 +75,6 @@ function generateMaskedROM(rom, dependencies) {
   return { maskedROM, mask };
 }
 
-const BORDER_SIZE = 12;
-
 async function loadQuote(buffer) {
   let quote = new Quote();
 
@@ -116,6 +115,7 @@ async function digest256(data) {
 }
 
 async function compileQuote(trace) {
+  console.log(trace.name);
   let originalROM = trace.initialState[SAVESTATE_ROM];
 
   let { maskedROM, mask } = generateMaskedROM(
@@ -183,11 +183,10 @@ async function compileQuote(trace) {
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
 
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
-  let blobDigest = await digest256(blob.arrayBuffer());
+  let blobDigest = await digest256(await blob.arrayBuffer());
+  console.log(blobDigest);
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
-
-  console.log()
   
   let download = document.createElement("span");
   download.classList.add("icon-download");
@@ -197,9 +196,7 @@ async function compileQuote(trace) {
     // let imgBlob = await (await fetch(imgUri)).blob();
     let a = document.createElement("a");
     a.href = imgUri;
-    // GAMENAME-ROMHASHSLICE-FILEHASHSLICE.png
-    // TUFF-123-abcdefghijk.png
-    a.download = "quote.png";
+    a.download = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,10)}.png`;
     document.body.appendChild(a);
     console.log(a);
     a.click();

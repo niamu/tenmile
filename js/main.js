@@ -233,6 +233,7 @@ const fsm = new StateMachine({
 
     onEnterRecording: function() {
       this.currentTrace = new Trace();
+      this.currentTrace.name = this.gameboy.name;
       this.currentTrace.initialState = this.saveState();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
