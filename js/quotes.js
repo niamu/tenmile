@@ -135,7 +135,10 @@ async function compileQuote(trace) {
     ").\n";
 
   details += "- Original ROM SHA-256 digest: " + digest.toUpperCase() + "\n";
-  details += "- Reference gameplay recording: " + trace.actions.length + " emulator steps\n";
+  details +=
+    "- Reference gameplay recording: " +
+    trace.actions.length +
+    " emulator steps\n";
 
   let readme = ARCHIVE_README_TEMPLATE.slice().replace(
     "DETAILS_GO_HERE",
@@ -174,14 +177,21 @@ async function compileQuote(trace) {
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
+
+  let download = document.createElement("span");
+  download.classList.add("icon-download");
+  download.onclick = function(x) {
+    console.log(x);
+  }
+
   let container = document.createElement("span");
   container.appendChild(img);
+  container.appendChild(download);
   /*
     TODO: add inline controls:
       <span class="icon-download"></span>
       See fontello-embedded.css
   */
-  
+
   document.getElementById("quotes").appendChild(container);
-  
 }

@@ -49,19 +49,22 @@
       
       let canvas = document.createElement("canvas");
       
-      const borderSize = 16;
+      const borderSize = 12;
       
-      canvas.setAttribute("width", 160*2 + 2*borderSize);
-      canvas.setAttribute("height", 144*2 + 2*borderSize);
+      const sw = 160;
+      const sh = 144;
+      
+      canvas.setAttribute("width", sw + 2*borderSize);
+      canvas.setAttribute("height", sh + 2*borderSize);
       document.body.appendChild(canvas);
       
       
       let ctx = canvas.getContext('2d');
       ctx.fillStyle = '#aaa';
-      ctx.fillRect(0,0,160*2+2*borderSize,144*2+2*borderSize);
+      ctx.fillRect(0,0,sw+2*borderSize,sh+2*borderSize);
       
       ctx.fillStyle = '#444';
-      ctx.fillRect(borderSize-1,borderSize-1,160*2+2,144*2+2);
+      ctx.fillRect(borderSize-1,borderSize-1,sw+2,sh+2);
       
       let imageData = ctx.createImageData(160, 144);
       for (let i = 0; i < rgba.length; i++) {
@@ -69,33 +72,34 @@
       }
       let imageBitmap = await createImageBitmap(imageData);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(imageBitmap,borderSize,borderSize,160*2,144*2);
+      ctx.drawImage(imageBitmap,borderSize,borderSize,sw,sh);
       
       
       
       ctx.fillStyle = '#000';
       ctx.font = `${0.5*borderSize}px "Early GameBoy"`;
-    
-      ctx.fillText("~"+name, borderSize,0.75*borderSize);
+      ctx.fillText(name, borderSize,0.75*borderSize);
+      
       
       ctx.fillStyle = '#666';
-      
       ctx.textAlign = 'right';
-      ctx.fillText('playable quote * 8bpp steg zip [', 160*2+borderSize,144*2+borderSize+0.75*borderSize);
+      ctx.fillText('playable quote', sw+borderSize,0.75*borderSize);
+      
+      ctx.fillText('[ 8bpp steg zip [', sw+borderSize,sh+borderSize+0.75*borderSize);
       
       
       ctx.save();
-      ctx.translate(borderSize+160*2+0.75*borderSize,borderSize+144*2/2);
+      ctx.translate(borderSize+sw+0.75*borderSize,borderSize+sh/2);
       ctx.rotate(-Math.PI/2);
       ctx.textAlign = 'center';
-      ctx.fillText('5524 steps (~2.5sec)', 0,0);
+      ctx.fillText('5524 steps ~ 0:42.5', 0,0);
       ctx.restore();
       
       ctx.save();
-      ctx.translate(0.25*borderSize,borderSize+144*2/2);
+      ctx.translate(0.25*borderSize,borderSize+sh/2);
       ctx.rotate(Math.PI/2);
       ctx.textAlign = 'center';
-      ctx.fillText('123 of 20025 ROM bytes 2.5%', 0,0);
+      ctx.fillText('123 ROM bytes ~ 2.5(', 0,0);
       ctx.restore();
       
       // TODO: write surrounding text from metadata
