@@ -9,15 +9,15 @@
     <script src="lib/msgpack.js"></script>
     <style>
       canvas {
-        border: thin dotted #facade;
       }
     </style>
   </head>
   <body></body>
   <script>
     (async function() {
-      
-      let buffer = await(await fetch("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F6236ed13-d5a7-4fc5-9473-8ae93b18ea08.png?v=1627504375824")).arrayBuffer();
+      let buffer = await (await fetch(
+        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F6236ed13-d5a7-4fc5-9473-8ae93b18ea08.png?v=1627504375824"
+      )).arrayBuffer();
       let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
 
       let name = "MYGAME";
@@ -41,76 +41,79 @@
         compression: "DEFLATE",
         compressionOptions: { level: 9 }
       });
-      
-      //let font = new FontFace('Pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
-      let font = new FontFace('Early GameBoy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FEarly%20GameBoy.woff?v=1627886220949")');
+
+      let font = new FontFace(
+        "Early GameBoy",
+        'url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FEarly%20GameBoy.woff?v=1627886220949")'
+      );
       await font.load();
       document.fonts.add(font);
-      
+
       let canvas = document.createElement("canvas");
-      
+
       const borderSize = 12;
-      
+
       const sw = 160;
       const sh = 144;
-      
-      canvas.setAttribute("width", sw + 2*borderSize);
-      canvas.setAttribute("height", sh + 2*borderSize);
+
+      canvas.setAttribute("width", sw + 2 * borderSize);
+      canvas.setAttribute("height", sh + 2 * borderSize);
       document.body.appendChild(canvas);
-      
-      
-      let ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#aaa';
-      ctx.fillRect(0,0,sw+2*borderSize,sh+2*borderSize);
-      
-      ctx.fillStyle = '#444';
-      ctx.fillRect(borderSize-1,borderSize-1,sw+2,sh+2);
-      
+
+      let ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#ccc";
+      ctx.fillRect(0, 0, sw + 2 * borderSize, sh + 2 * borderSize);
+
+      ctx.strokeStyle = "#444";
+      ctx.strokeRect(0, 0, sw + 2 * borderSize, sh + 2 * borderSize);
+      ctx.strokeRect(borderSize, borderSize, sw, sh);
+
+      ctx.fillStyle = "#444";
+      ctx.fillRect(borderSize - 1, borderSize - 1, sw + 2, sh + 2);
+
       let imageData = ctx.createImageData(160, 144);
       for (let i = 0; i < rgba.length; i++) {
         imageData.data[i] = rgba[i];
       }
       let imageBitmap = await createImageBitmap(imageData);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(imageBitmap,borderSize,borderSize,sw,sh);
-      
-      
-      
-      ctx.fillStyle = '#000';
-      ctx.font = `${0.5*borderSize}px "Early GameBoy"`;
-      ctx.fillText(name, borderSize,0.75*borderSize);
-      
-      
-      ctx.fillStyle = '#666';
-      ctx.textAlign = 'right';
-      ctx.fillText('playable quote', sw+borderSize,0.75*borderSize);
-      
-      ctx.fillText('[ 8bpp steg zip [', sw+borderSize,sh+borderSize+0.75*borderSize);
-      
-      
+      ctx.drawImage(imageBitmap, borderSize, borderSize, sw, sh);
+
+      ctx.fillStyle = "#000";
+      ctx.font = `${0.5 * borderSize}px "Early GameBoy"`;
+      ctx.fillText(name, borderSize, 0.75 * borderSize);
+
+      ctx.fillStyle = "#888";
+      ctx.textAlign = "right";
+      ctx.fillText("playable quote", sw + borderSize, 0.75 * borderSize);
+
+      ctx.fillText(
+        "8bpp steg zip",
+        sw + borderSize,
+        sh + borderSize + 0.75 * borderSize
+      );
+
       ctx.save();
-      ctx.translate(borderSize+sw+0.75*borderSize,borderSize+sh/2);
-      ctx.rotate(-Math.PI/2);
-      ctx.textAlign = 'center';
-      ctx.fillText('5524 steps ~ 0:42.5', 0,0);
+      ctx.translate(borderSize + sw + 0.75 * borderSize, borderSize + sh / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillText("51524 steps", 0, 0);
       ctx.restore();
-      
+
       ctx.save();
-      ctx.translate(0.25*borderSize,borderSize+sh/2);
-      ctx.rotate(Math.PI/2);
-      ctx.textAlign = 'center';
-      ctx.fillText('123 ROM bytes ~ 2.5(', 0,0);
+      ctx.translate(0.25 * borderSize, borderSize + sh / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillText("12223 ROM bytes", 0, 0);
       ctx.restore();
-      
+
       // TODO: write surrounding text from metadata
-      
+
       // TODO: get canvas into a png somewhow
       // TODO: combine with zip (stegano?)
-      
+
       // TODO: let it be downloadable with a click such that filename is correct
-      
-      
-      
     })();
   </script>
 </html>

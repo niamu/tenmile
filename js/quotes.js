@@ -180,8 +180,8 @@ async function compileQuote(trace) {
 
   let download = document.createElement("span");
   download.classList.add("icon-download");
-  download.onclick = function(x) {
-    console.log(x);
+  download.onclick = function(e) {
+    debugger
   }
 
   let container = document.createElement("span");
