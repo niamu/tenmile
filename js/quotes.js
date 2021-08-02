@@ -186,12 +186,11 @@ async function compileQuote(trace) {
 
   let share = document.createElement("span");
   share.classList.add("icon-share");
-  share.onclick = function(e) {
-    const reader = new FileReader();
+  share.onclick = async function(e) {
     let imgUri = e.target.parentElement.children[0].src;
-    let imgArrayBuffer = reader.readAsArrayBuffer(imgUri);
+    let imgBlob = await (await fetch(imgUri)).blob();
     let fd = new FormData();
-    fd.append("file", new Blob([imgArrayBuffer]), "quote.png");
+    fd.append("file", imgBlob, "quote.png");
     fetch("/upload", { method: "POST", body: fd }).then(function(res) {
       if(!res.ok) {
         console.log("Error POSTing image", res);
@@ -201,12 +200,13 @@ async function compileQuote(trace) {
       })
       
     });
-    debugger;
+    // debugger;
   };
 
   let container = document.createElement("span");
   container.appendChild(img);
   container.appendChild(download);
+  container.appendChild(share);
   /*
     TODO: add inline controls:
       <span class="icon-download"></span>

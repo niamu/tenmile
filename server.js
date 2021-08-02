@@ -37,6 +37,7 @@ app.post("/upload", async function(req, res) {
   }
 
   const data = req.files.file.data;
+  /*
   let zip = null;
   try {
     zip = await JSZip().loadAsync(data);
@@ -86,7 +87,8 @@ app.post("/upload", async function(req, res) {
       .status(UNPROCESSABLE)
       .send("Semantic mismatch between romMask.bin and rom.bin");
   }
-
+  /* */
+  
   const fileId = xid.next();
   const filename = `${fileId}.png`;
 
