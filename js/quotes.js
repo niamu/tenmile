@@ -193,10 +193,9 @@ async function compileQuote(trace) {
   download.onclick = async function(e) {
     console.log("download clicked");
     let imgUri = e.target.parentElement.children[0].src;
-    // let imgBlob = await (await fetch(imgUri)).blob();
     let a = document.createElement("a");
     a.href = imgUri;
-    a.download = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,10)}.png`;
+    a.download = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
     document.body.appendChild(a);
     console.log(a);
     a.click();
