@@ -64,10 +64,15 @@
       for (let i = 0; i < rgba.length; i++) {
         imageData.data[i] = rgba[i];
       }
-      ctx.putImageData(imageData,borderSize,borderSize,0,0,160*2,144*2);
+      let imageBitmap = await createImageBitmap(imageData);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(imageBitmap,borderSize,borderSize,160*2,144*2);
+      
+      let font = new FontFace('pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
+      await font.load();
       
       ctx.fillStyle = '#000';
-      ctx.font = `bold ${0.75*borderSize}px monospace`;
+      ctx.font = `${0.75*borderSize}px pixeboy`;
       ctx.fillText(name, borderSize,0.75*borderSize);
       
       ctx.fillStyle = '#444';

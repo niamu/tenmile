@@ -421,7 +421,7 @@ function identicalArrays(a, b) {
     handleDPad(event, dPadRect);
   }
   dPad.addEventListener("touchstart", dPadClosure);
-  //dPad.addEventListener("touchmove", dPadClosure);
+  dPad.addEventListener("touchmove", dPadClosure);
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
 
@@ -455,10 +455,11 @@ function handleKey(event) {
 function handleDPad(event, rect) {
   event.preventDefault();
   if(dpadDirection && event.type == "touchend") {
-    fsm.gameboy.JoyPadEvent(dpadDirection, false);
+    fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
     dpadDirection = null;
+    return;
   }
-  let buttonDown = event.type == "touchstart" ? true : false;
+  // let buttonDown = event.type == "touchstart" ? true : false;
   for (var i = 0; i < event.changedTouches.length; i++) {
     let touch = event.changedTouches[i];
     console.log(event.type);
@@ -472,9 +473,12 @@ function handleDPad(event, rect) {
     } else {
       direction = a ? "right" : "left";
     }
+    if(dpadDirection && dpadDirection != direction) {
+      fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
+    }
     console.log("D-Pad:", direction);
-    let keycode = buttonToKeycode[direction];
-    fsm.gameboy.JoyPadEvent(keycode, buttonDown);
+    fsm.gameboy.JoyPadEvent(buttonToKeycode[direction], true);
+    dpadDirection = direction;
   }
 }
 
