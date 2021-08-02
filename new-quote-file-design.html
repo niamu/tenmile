@@ -48,39 +48,47 @@
       
       const borderSize = 16;
       
-      canvas.setAttribute("width", 160 + 2*borderSize);
-      canvas.setAttribute("height", 144 + 2*borderSize);
+      canvas.setAttribute("width", 160*2 + 2*borderSize);
+      canvas.setAttribute("height", 144*2 + 2*borderSize);
       document.body.appendChild(canvas);
       
       
       let ctx = canvas.getContext('2d');
       ctx.fillStyle = '#aaa';
-      ctx.fillRect(0,0,160+2*borderSize,144+2*borderSize);
+      ctx.fillRect(0,0,160*2+2*borderSize,144*2+2*borderSize);
       
       ctx.fillStyle = '#444';
-      ctx.fillRect(borderSize-1,borderSize-1,160+2,144+2);
+      ctx.fillRect(borderSize-1,borderSize-1,160*2+2,144*2+2);
       
       let imageData = ctx.createImageData(160, 144);
       for (let i = 0; i < rgba.length; i++) {
         imageData.data[i] = rgba[i];
       }
-      ctx.putImageData(imageData,borderSize,borderSize);
+      ctx.putImageData(imageData,borderSize,borderSize,0,0,160*2,144*2);
       
       ctx.fillStyle = '#000';
       ctx.font = `bold ${0.75*borderSize}px monospace`;
       ctx.fillText(name, borderSize,0.75*borderSize);
       
+      ctx.fillStyle = '#444';
+      
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#000';
-      ctx.font = `${0.5*borderSize}px monospace`;
-      ctx.fillText('playable quote [8bpp steg]', 160+borderSize,144+borderSize+0.75*borderSize);
+      ctx.font = `${0.75*borderSize}px monospace`;
+      ctx.fillText('PLAYABLE QUOTE [8bpp steg zip]', 160*2+borderSize,144*2+borderSize+0.75*borderSize);
       
       
       ctx.save();
-      ctx.translate(borderSize+160+0.75*borderSize,borderSize+144/2);
+      ctx.translate(borderSize+160*2+0.75*borderSize,borderSize+144*2/2);
       ctx.rotate(-Math.PI/2);
       ctx.textAlign = 'center';
       ctx.fillText('5524 steps (~2.5sec)', 0,0);
+      ctx.restore();
+      
+      ctx.save();
+      ctx.translate(0.25*borderSize,borderSize+144*2/2);
+      ctx.rotate(Math.PI/2);
+      ctx.textAlign = 'center';
+      ctx.fillText('123 of 20025 ROM bytes (~2.5%)', 0,0);
       ctx.restore();
       
       // TODO: write surrounding text from metadata

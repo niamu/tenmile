@@ -7,6 +7,8 @@ window.debug = function() {
   //console.log("debug:", ...arguments);
 };
 
+let dpadDirection = null;
+
 const fsm = new StateMachine({
   init: "idle",
   transitions: [
@@ -452,6 +454,10 @@ function handleKey(event) {
 
 function handleDPad(event, rect) {
   event.preventDefault();
+  if(dpadDirection && event.type == "touchend") {
+    fsm.gameboy.JoyPadEvent(dpadDirection, false);
+    dpadDirection = null;
+  }
   let buttonDown = event.type == "touchstart" ? true : false;
   for (var i = 0; i < event.changedTouches.length; i++) {
     let touch = event.changedTouches[i];
