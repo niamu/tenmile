@@ -42,9 +42,11 @@
         compressionOptions: { level: 9 }
       });
       
+      let font = new FontFace('Pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
+      await font.load();
+      document.fonts.add(font);
       
       let canvas = document.createElement("canvas");
-      
       
       const borderSize = 16;
       
@@ -68,17 +70,15 @@
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(imageBitmap,borderSize,borderSize,160*2,144*2);
       
-      let font = new FontFace('pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
-      await font.load();
+      
       
       ctx.fillStyle = '#000';
-      ctx.font = `${0.75*borderSize}px pixeboy`;
+      ctx.font = `${borderSize}px Pixeboy`;
       ctx.fillText(name, borderSize,0.75*borderSize);
       
       ctx.fillStyle = '#444';
       
       ctx.textAlign = 'right';
-      ctx.font = `${0.75*borderSize}px monospace`;
       ctx.fillText('PLAYABLE QUOTE [8bpp steg zip]', 160*2+borderSize,144*2+borderSize+0.75*borderSize);
       
       
