@@ -180,8 +180,16 @@ async function compileQuote(trace) {
 
   let download = document.createElement("span");
   download.classList.add("icon-download");
-  download.onclick = function(e) {
-    debugger;
+  download.onclick = async function(e) {
+    let imgUri = e.target.parentElement.children[0].src;
+    let imgBlob = await (await fetch(imgUri)).blob();
+    let a = document.createElement("a");
+    a.href = "fnord.png";
+    a.download = imgBlob;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // debugger;
   };
 
   let share = document.createElement("span");
@@ -192,13 +200,12 @@ async function compileQuote(trace) {
     let fd = new FormData();
     fd.append("file", imgBlob, "quote.png");
     fetch("/upload", { method: "POST", body: fd }).then(function(res) {
-      if(!res.ok) {
+      if (!res.ok) {
         console.log("Error POSTing image", res);
       }
       res.json().then(function(rv) {
         console.log(rv);
-      })
-      
+      });
     });
     // debugger;
   };
