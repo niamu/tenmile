@@ -42,7 +42,8 @@
         compressionOptions: { level: 9 }
       });
       
-      let font = new FontFace('Pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
+      //let font = new FontFace('Pixeboy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FPixeboy-z8XGD.woff?v=1627885178361")');
+      let font = new FontFace('Early GameBoy','url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FEarly%20GameBoy.woff?v=1627886220949")');
       await font.load();
       document.fonts.add(font);
       
@@ -73,13 +74,14 @@
       
       
       ctx.fillStyle = '#000';
-      ctx.font = `${borderSize}px Pixeboy`;
-      ctx.fillText(name, borderSize,0.75*borderSize);
+      ctx.font = `${0.5*borderSize}px "Early GameBoy"`;
+    
+      ctx.fillText("~"+name, borderSize,0.75*borderSize);
       
-      ctx.fillStyle = '#444';
+      ctx.fillStyle = '#666';
       
       ctx.textAlign = 'right';
-      ctx.fillText('PLAYABLE QUOTE [8bpp steg zip]', 160*2+borderSize,144*2+borderSize+0.75*borderSize);
+      ctx.fillText('playable quote * 8bpp steg zip [', 160*2+borderSize,144*2+borderSize+0.75*borderSize);
       
       
       ctx.save();
@@ -93,7 +95,7 @@
       ctx.translate(0.25*borderSize,borderSize+144*2/2);
       ctx.rotate(Math.PI/2);
       ctx.textAlign = 'center';
-      ctx.fillText('123 of 20025 ROM bytes (~2.5%)', 0,0);
+      ctx.fillText('123 of 20025 ROM bytes 2.5%', 0,0);
       ctx.restore();
       
       // TODO: write surrounding text from metadata
