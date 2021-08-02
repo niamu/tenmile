@@ -214,13 +214,13 @@ async function compileQuote(trace) {
     console.log(rv);
   };
 
-  let container = document.createElement("span");
+  let container = document.createElement("div");
   container.appendChild(img);
   
   let toolsContainer = document.createElement("span");
   container.appendChild(toolsContainer);
   
-  toolsContainer.classList.add("tools-container")
+  toolsContainer.classList.add("quote-tools")
   toolsContainer.appendChild(download);
   toolsContainer.appendChild(share);
   

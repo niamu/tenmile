@@ -62,13 +62,6 @@
         border: thick solid yellow;
       }
 
-      #quotes {
-        margin: 5px;
-      }
-      #quotes img {
-        padding: 5px;
-      }
-
       #instructions {
         font-size: smaller;
         opacity: 0.5;
@@ -83,22 +76,12 @@
       }
 
       .button {
-        /* height: 100px;
-        width: 100px; */
         padding: 10px;
         margin: 10px;
         display: inline-block;
         background-color: grey;
         color: white;
       }
-      /*
-      .button.up {
-        background-color: red;
-      }
-      .button.down {
-        background-color: green;
-      }
-      */
 
       #d-pad {
         height: 160px;
@@ -138,16 +121,18 @@
         float: right;
       }
 
-      #quotes img {
-        display: block;
-      }
-      
-      #quotes > span {
+
+      #quotes div {
         display: inline-block;
       }
-      
-      .quote-tools {
+      #quotes div img {
         position: absolute;
+      }
+      #quotes div span {
+        position: absolute;
+      }
+      .quote-tools span {
+        position: relative;
       }
     </style>
 
