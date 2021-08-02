@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>new quote file design</title>
+    <script src="lib/pako.min.js" defer></script>
+    <script src="lib/UPNG.js"></script>
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/msgpack.js"></script>
+  </head>
+  <body></body>
+  <script>
+    (async function() {
+      let buffer = await (await fetch(
+        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F8pp-steg-zip-test.png?v=1627890723668"
+      )).arrayBuffer();
+      let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
+
+      let decodedBytes = [];
+      for(let i = 0; i < rgba.length/4; i++) {
+        let byte = ((rgba[4*i+0]&0x3)<<6) +
+                   ((rgba[4*i+1]&0x3)<<4) +
+                   ((rgba[4*i+2]&0x3)<<2) +
+                   ((rgba[4*i+3]&0x3)<<0);
+        
+        decodedBytes.push(byte);
+      }
+      let zip = await JSZip.loadAsync(new Uint8Array(decodedBytes));
+      console.log(zip);
+      
+      let state = msgpack.deserialize(await zip.file('state.msgpack').async('uint8array'));
+      console.log(state);
+      
+    })();
+  </script>
+</html>
