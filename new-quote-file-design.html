@@ -8,7 +8,9 @@
     <script src="lib/jszip.min.js"></script>
     <script src="lib/msgpack.js"></script>
     <style>
-      canvas {border: thin dotted #facade; }
+      canvas {
+        border: thin dotted #facade;
+      }
     </style>
   </head>
   <body></body>
@@ -71,8 +73,15 @@
       ctx.textAlign = 'right';
       ctx.fillStyle = '#000';
       ctx.font = `${0.5*borderSize}px monospace`;
-      ctx.fillText('playable quote', 160+borderSize,0.75*borderSize);
+      ctx.fillText('playable quote [8bpp steg]', 160+borderSize,144+borderSize+0.75*borderSize);
       
+      
+      ctx.save();
+      ctx.translate(borderSize+160+0.75*borderSize,borderSize+144/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.textAlign = 'center';
+      ctx.fillText('5524 steps (~2.5sec)', 0,0);
+      ctx.restore();
       
       // TODO: write surrounding text from metadata
       
