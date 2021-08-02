@@ -26,8 +26,11 @@
       let originalBytes = 65535;
 
       let state = { foo: 0, bar: [5, 6, 7] };
-      let rom = Uint8Array.from([0, 0, 4, 5]);
-      let romMask = Uint8Array.from([0, 0, 1, 1]);
+      let dummyBytes = [];
+      for (let i = 0; i < 10000; i++) {
+        dummyBytes = Math.floor(256*Math.random());
+      }
+      let rom = Uint8Array.from(dummyBytes);
       let readme = "hello from the text file\n";
 
       let zip = new JSZip();
@@ -104,24 +107,24 @@
       ctx.restore();
 
       let quoteImageData = ctx.getImageData(0,0,sw+2*borderSize,sh+2*borderSize);
-      console.log(quoteImageData.data.length);
-      console.log(zipBuffer);
+
+      
       let imgBytes = quoteImageData.data;
       let zipBytes = new Uint8Array(zipBuffer);
-      if (zipBytes.length > imgBytes.length) {
+      if (zipBytes.length*4 > imgBytes.length) {
         alert('zip too big to steganographically encode into image!');
       }
       let numBytes = zipBytes.length;
       for (let i = 0; i < numBytes; i++) {
-        let byte = imgBytes[i];
-        byte &= 3; 
+        let x = zipBytes[i];
+        imgBytes[4*i+0] = (imgBytes[4*i+0]&0xFC)|((x>>6)&0x3);
+        imgBytes[4*i+1] = (imgBytes[4*i+1]&0xFC)|((x>>4)&0x3);
+        imgBytes[4*i+2] = (imgBytes[4*i+2]&0xFC)|((x>>2)&0x3);
+        imgBytes[4*i+3] = (imgBytes[4*i+3]&0xFC)|((x>>0)&0x3);
       }
+      ctx.putImageData(quoteImageData,0,0);
       
 
-      // TODO: get canvas into a png somewhow
-      // TODO: combine with zip (stegano?)
-
-      // TODO: let it be downloadable with a click such that filename is correct
     })();
   </script>
 </html>

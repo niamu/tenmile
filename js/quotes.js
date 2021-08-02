@@ -181,14 +181,28 @@ async function compileQuote(trace) {
   let download = document.createElement("span");
   download.classList.add("icon-download");
   download.onclick = function(e) {
-    debugger
-  }
-  
+    debugger;
+  };
+
   let share = document.createElement("span");
-  download.classList.add("icon-download");
-  download.onclick = function(e) {
-    debugger
-  }
+  share.classList.add("icon-share");
+  share.onclick = function(e) {
+    const reader = new FileReader();
+    let imgUri = e.target.parentElement.children[0].src;
+    let imgArrayBuffer = reader.readAsArrayBuffer(imgUri);
+    let fd = new FormData();
+    fd.append("file", new Blob([imgArrayBuffer]), "quote.png");
+    fetch("/upload", { method: "POST", body: fd }).then(function(res) {
+      if(!res.ok) {
+        console.log("Error POSTing image", res);
+      }
+      res.json().then(function(rv) {
+        console.log(rv);
+      })
+      
+    });
+    debugger;
+  };
 
   let container = document.createElement("span");
   container.appendChild(img);
