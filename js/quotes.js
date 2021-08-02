@@ -188,48 +188,41 @@ async function compileQuote(trace) {
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
   
+  let filename = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
+  
   let download = document.createElement("span");
   download.classList.add("icon-download");
-  download.onclick = async function(e) {
-    console.log("download clicked");
-    let imgUri = e.target.parentElement.children[0].src;
+  download.onclick = async (e) => {
     let a = document.createElement("a");
-    a.href = imgUri;
-    a.download = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
+    a.href = img.src;
+    a.download = filename;
     document.body.appendChild(a);
-    console.log(a);
     a.click();
     document.body.removeChild(a);
-    // debugger;
   };
 
   let share = document.createElement("span");
   share.classList.add("icon-share");
-  share.onclick = async function(e) {
-    let imgUri = e.target.parentElement.children[0].src;
-    let imgBlob = await (await fetch(imgUri)).blob();
+  share.onclick = async (e) => {
     let fd = new FormData();
-    fd.append("file", imgBlob, "quote.png");
-    fetch("/upload", { method: "POST", body: fd }).then(function(res) {
-      if (!res.ok) {
-        console.log("Error POSTing image", res);
-      }
-      res.json().then(function(rv) {
-        console.log(rv);
-      });
-    });
-    // debugger;
+    fd.append("file", blob, filename);
+    let res = await fetch("/upload", { method: "POST", body: fd });
+    if (!res.ok) {
+      console.log("Error POSTing image", res);
+    }
+    let rv = await res.json()
+    console.log(rv);
   };
 
   let container = document.createElement("span");
   container.appendChild(img);
-  container.appendChild(download);
-  container.appendChild(share);
-  /*
-    TODO: add inline controls:
-      <span class="icon-download"></span>
-      See fontello-embedded.css
-  */
-
+  
+  let toolsContainer = document.createElement("span");
+  container.appendChild(toolsContainer);
+  
+  toolsContainer.classList.add("tools-container")
+  toolsContainer.appendChild(download);
+  toolsContainer.appendChild(share);
+  
   document.getElementById("quotes").appendChild(container);
 }
