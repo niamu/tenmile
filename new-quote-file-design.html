@@ -15,18 +15,8 @@
   <script>
     (async function() {
       
-      // This mess attempts to show how to pack data into the new quote file design
-      
-      let rgba = [];
-      for (let i = 0; i < 144; i++) {
-        for (let j = 0; j < 160; j++) {
-          if (Math.floor((i + j) / 10) % 2 == 0) {
-            rgba.push(0xffaa00ff);
-          } else {
-            rgba.push(0xaaff00ff);
-          }
-        }
-      }
+      let buffer = await(await fetch("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2F6236ed13-d5a7-4fc5-9473-8ae93b18ea08.png?v=1627504375824")).arrayBuffer();
+      let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
 
       let name = "MYGAME";
       let numActions = 5422;
@@ -69,9 +59,12 @@
       ctx.fillRect(borderSize-1,borderSize-1,160+2,144+2);
       
       let imageData = ctx.createImageData(160, 144);
-      // TODO: fill imageData.data with screenshot
+      for (let i = 0; i < rgba.length; i++) {
+        imageData.data[i] = rgba[i];
+      }
       ctx.putImageData(imageData,borderSize,borderSize);
       
+      ctx.fillText(name, borderSize,borderSize);
       // TODO: write surrounding text from metadata
       
       // TODO: get canvas into a png somewhow

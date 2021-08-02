@@ -120,6 +120,11 @@
         font-family: monospace;
         background-color: maroon;
       }
+      
+      .button.bar {
+        width: 50px;
+        height: 10px;
+      }
 
       @media (pointer: coarse) {
         #control-pad {
@@ -161,8 +166,8 @@
       
       <div id="button-b" class="button round up">B</div>
       <div id="button-a" class="button round up">A</div>
-      <div id="button-start" class="button up">Start</div>
-      <div id="button-select" class="button up">Select</div>
+      <div id="button-select" class="button bar up">Select</div>
+      <div id="button-start" class="button bar up">Start</div>
     </div>
     <div id="instructions">
       Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
