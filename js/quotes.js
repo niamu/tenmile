@@ -183,6 +183,12 @@ async function compileQuote(trace) {
   download.onclick = function(e) {
     debugger
   }
+  
+  let share = document.createElement("span");
+  download.classList.add("icon-download");
+  download.onclick = function(e) {
+    debugger
+  }
 
   let container = document.createElement("span");
   container.appendChild(img);

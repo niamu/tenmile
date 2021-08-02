@@ -12,7 +12,7 @@ const s3 = new AWS.S3({
 const app = express();
 
 const UNPROCESSABLE = 422; // HTTP 422 Unprocessable Entity
-const INSUFFICIENT_STORAGE = 507 // HTTP 507 Insufficient Storage
+const INSUFFICIENT_STORAGE = 507; // HTTP 507 Insufficient Storage
 
 const fiftyKilobytesInBytes = 50 * 1024;
 const maximumFileSizeInBytes = fiftyKilobytesInBytes;
@@ -40,7 +40,6 @@ app.post("/upload", async function(req, res) {
   let zip = null;
   try {
     zip = await JSZip().loadAsync(data);
-    
   } catch {
     res.status(UNPROCESSABLE).send("No zip file included");
   }
@@ -91,17 +90,23 @@ app.post("/upload", async function(req, res) {
   const fileId = xid.next();
   const filename = `${fileId}.png`;
 
-  s3.upload({
-    Bucket: "tenmile",
-    ACL: "public-read",
-    Key: filename,
-    Body: data
-  }, function(err, data) {
-    if(err) {
-      res.status(INSUFFICIENT_STORAGE).send("S3 is unavailable");
+  s3.upload(
+    {
+      Bucket: "tenmile",
+      ACL: "public-read",
+      Key: filename,
+      Body: data
+    },
+    function(err, data) {
+      if (err) {
+        res.status(INSUFFICIENT_STORAGE).send("S3 is unavailable");
+      }
+      res.send({
+        url: data.Location,
+        id: fileId
+      });
     }
-    res.send({"url": data.Location});  
-  });
+  );
 });
 
 app.use(express.static(__dirname));

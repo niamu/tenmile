@@ -69,13 +69,13 @@
       ctx.strokeRect(0, 0, sw + 2 * borderSize, sh + 2 * borderSize);
       ctx.strokeRect(borderSize, borderSize, sw, sh);
 
-      let imageData = ctx.createImageData(160, 144);
+      let screenshotimageData = ctx.createImageData(160, 144);
       for (let i = 0; i < rgba.length; i++) {
-        imageData.data[i] = rgba[i];
+        screenshotimageData.data[i] = rgba[i];
       }
-      let imageBitmap = await createImageBitmap(imageData);
+      let screenshotImageBitmap = await createImageBitmap(screenshotimageData);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(imageBitmap, borderSize, borderSize, sw, sh);
+      ctx.drawImage(screenshotImageBitmap, borderSize, borderSize, sw, sh);
 
       ctx.fillStyle = "#000";
       ctx.font = `${0.666 * borderSize}px "Early GameBoy"`;
@@ -103,7 +103,20 @@
       ctx.fillText("12230 rom bytes", 0, 0);
       ctx.restore();
 
-      // TODO: write surrounding text from metadata
+      let quoteImageData = ctx.getImageData(0,0,sw+2*borderSize,sh+2*borderSize);
+      console.log(quoteImageData.data.length);
+      console.log(zipBuffer);
+      let imgBytes = quoteImageData.data;
+      let zipBytes = new Uint8Array(zipBuffer);
+      if (zipBytes.length > imgBytes.length) {
+        alert('zip too big to steganographically encode into image!');
+      }
+      let numBytes = zipBytes.length;
+      for (let i = 0; i < numBytes; i++) {
+        let byte = imgBytes[i];
+        byte &= 3; 
+      }
+      
 
       // TODO: get canvas into a png somewhow
       // TODO: combine with zip (stegano?)
