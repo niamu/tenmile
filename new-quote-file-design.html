@@ -20,7 +20,7 @@
       )).arrayBuffer();
       let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
 
-      let name = "MYGAME";
+      let name = "MYGAME22MYGAME22";
       let numActions = 5422;
       let sliceBytes = 1425;
       let originalBytes = 65535;
@@ -69,9 +69,6 @@
       ctx.strokeRect(0, 0, sw + 2 * borderSize, sh + 2 * borderSize);
       ctx.strokeRect(borderSize, borderSize, sw, sh);
 
-      ctx.fillStyle = "#444";
-      ctx.fillRect(borderSize - 1, borderSize - 1, sw + 2, sh + 2);
-
       let imageData = ctx.createImageData(160, 144);
       for (let i = 0; i < rgba.length; i++) {
         imageData.data[i] = rgba[i];
@@ -81,15 +78,13 @@
       ctx.drawImage(imageBitmap, borderSize, borderSize, sw, sh);
 
       ctx.fillStyle = "#000";
-      ctx.font = `${0.5 * borderSize}px "Early GameBoy"`;
+      ctx.font = `${0.666 * borderSize}px "Early GameBoy"`;
       ctx.fillText(name, borderSize, 0.75 * borderSize);
 
       ctx.fillStyle = "#888";
       ctx.textAlign = "right";
-      ctx.fillText("playable quote", sw + borderSize, 0.75 * borderSize);
-
       ctx.fillText(
-        "8bpp steg zip",
+        "[ 8bpp steg zip",
         sw + borderSize,
         sh + borderSize + 0.75 * borderSize
       );
@@ -98,14 +93,14 @@
       ctx.translate(borderSize + sw + 0.75 * borderSize, borderSize + sh / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = "center";
-      ctx.fillText("51524 steps", 0, 0);
+      ctx.fillText("35242 steps", 0, 0);
       ctx.restore();
 
       ctx.save();
       ctx.translate(0.25 * borderSize, borderSize + sh / 2);
       ctx.rotate(Math.PI / 2);
       ctx.textAlign = "center";
-      ctx.fillText("12223 ROM bytes", 0, 0);
+      ctx.fillText("12230 rom bytes", 0, 0);
       ctx.restore();
 
       // TODO: write surrounding text from metadata
