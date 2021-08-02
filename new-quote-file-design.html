@@ -8,7 +8,7 @@
     <script src="lib/jszip.min.js"></script>
     <script src="lib/msgpack.js"></script>
     <style>
-      canvas {border: thick solid salmon; }
+      canvas {border: thin dotted #facade; }
     </style>
   </head>
   <body></body>
@@ -44,7 +44,7 @@
       let canvas = document.createElement("canvas");
       
       
-      const borderSize = 32;
+      const borderSize = 16;
       
       canvas.setAttribute("width", 160 + 2*borderSize);
       canvas.setAttribute("height", 144 + 2*borderSize);
@@ -64,7 +64,16 @@
       }
       ctx.putImageData(imageData,borderSize,borderSize);
       
-      ctx.fillText(name, borderSize,borderSize);
+      ctx.fillStyle = '#000';
+      ctx.font = `bold ${0.75*borderSize}px monospace`;
+      ctx.fillText(name, borderSize,0.75*borderSize);
+      
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#000';
+      ctx.font = `${0.5*borderSize}px monospace`;
+      ctx.fillText('playable quote', 160+borderSize,0.75*borderSize);
+      
+      
       // TODO: write surrounding text from metadata
       
       // TODO: get canvas into a png somewhow

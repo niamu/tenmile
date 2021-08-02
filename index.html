@@ -11,6 +11,7 @@
     <style>
       #container {
         background: #f5f5f5;
+        width: 350px;
       }
 
       #container input {
@@ -24,6 +25,8 @@
         padding: 5px;
         margin: 5px;
       }
+      
+
 
       #status {
         font-size: smaller;
@@ -124,12 +127,19 @@
       .button.bar {
         width: 50px;
         height: 10px;
+        line-height:10px;
+        font-family: arial;
+        text-align: center;
       }
 
       @media (pointer: coarse) {
         #control-pad {
           display: inline;
         }
+      }
+      
+      #sound-control {
+        float: right;
       }
     </style>
 
@@ -153,17 +163,12 @@
       <canvas id="screen"></canvas>
       <input id="button" type="button" value="..." />
       <span id="status"></span>
-      <br />
+      <span id="sound-control">
       Sound: <input type="checkbox" id="sound" />
+      </span>
     </div>
     <div id="control-pad">
-      <!-- 
-        FIXME: Replace with joy.js: 
-        https://github.com/bobboteck/JoyStick 
-        The only thing that sucks about this is that you have to poll it.
-      -->
       <div id="d-pad"></div>
-      
       <div id="button-b" class="button round up">B</div>
       <div id="button-a" class="button round up">A</div>
       <div id="button-select" class="button bar up">Select</div>
