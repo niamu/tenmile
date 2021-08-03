@@ -1,6 +1,7 @@
 "use strict";
 
 /* global JSZip, UPNG, msgpack */
+/* global gtag */
 
 class Quote {
   contstructor() {
@@ -118,6 +119,24 @@ async function compileQuote(trace) {
     "DETAILS_GO_HERE",
     details
   );
+  
+  gtag("event", "inclusion percent", {
+          event_category: "quote compilation",
+          event_label: trace.name,
+          value: Math.floor(100*includedBytes/originalBytes),
+  });
+  
+  gtag("event", "inclusion bytes", {
+          event_category: "quote compilation",
+          event_label: trace.name,
+          value: Math.floor(includedBytes),
+  });
+  
+  gtag("event", "actions length", {
+          event_category: "quote compilation",
+          event_label: trace.name,
+          value: trace.actions.length,
+  });
 
   let state = trace.initialState.slice();
   state[SAVESTATE_ROM] = null; // rom stored in a separate zip entry
