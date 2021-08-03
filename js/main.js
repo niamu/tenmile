@@ -393,17 +393,18 @@ function identicalArrays(a, b) {
     fsm.updateVolume();
   };
 
-  document.getElementById("upload").onclick = (e) => {
+  document.getElementById("upload").onclick = e => {
     let input = document.createElement("input");
     input.type = "file";
-    input.onchange = (e) => {
+    input.onchange = e => {
       let file = e.target.files[0];
-      const blob = new Blob([file]);
-      debugger
-    }
+      const blob = new Blob([file], { type: file.type });
+      const blobUrl = URL.createObjectURL(blob);
+      dropByUrl(file.name, blobUrl);
+    };
     input.click();
   };
-  
+
   // print out the buttons based on the value of the buttonToKey mapping
   let buttonToKey = {};
   Object.keys(keyToButton).forEach(key => {
@@ -439,15 +440,19 @@ function identicalArrays(a, b) {
 
   if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
-    if (url.endsWith(".gb")) {
-      dropGameByUrl(url);
-    } else if (url.endsWith(".png")) {
-      dropQuoteByUrl(url);
-    }
+    dropByUrl(url, url);
   } else {
     document.getElementById("examples").style.visibility = "visible";
   }
 })();
+
+function dropByUrl(name, url) {
+  if (name.toLowerCase().endsWith(".gb")) {
+    dropGameByUrl(url);
+  } else if (name.toLowerCase().endsWith(".png")) {
+    dropQuoteByUrl(url);
+  }
+}
 
 function handleKey(event) {
   if (fsm.gameboy) {
@@ -466,7 +471,7 @@ function handleKey(event) {
 
 function handleDPad(event, rect) {
   event.preventDefault();
-  if(dpadDirection && event.type == "touchend") {
+  if (dpadDirection && event.type == "touchend") {
     fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
     dpadDirection = null;
     return;
@@ -485,7 +490,7 @@ function handleDPad(event, rect) {
     } else {
       direction = a ? "right" : "left";
     }
-    if(dpadDirection && dpadDirection != direction) {
+    if (dpadDirection && dpadDirection != direction) {
       fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
     }
     console.log("D-Pad:", direction);
