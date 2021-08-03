@@ -454,6 +454,9 @@ function identicalArrays(a, b) {
 
   if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
+    gtag('event', 'hash url', {
+      event_label: url 
+    });
     dropByUrl(url, url);
   } else {
     document.getElementById("examples").style.visibility = "visible";
