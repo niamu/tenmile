@@ -12,6 +12,6 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
     "aws-sdk": "^2.957.0",
-    "express-markdown-router": "^1.1.0"
+    "express-md": "^2.0.2"
   }
 }

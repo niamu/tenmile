@@ -2,7 +2,7 @@ dependencies:
   aws-sdk: 2.958.0
   express: 4.17.1
   express-fileupload: 1.2.1
-  express-markdown-router: 1.1.0
+  express-md: 2.0.2
 packages:
   /accepts/1.3.7:
     dependencies:
@@ -13,10 +13,20 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha512-Il80Qs2WjYlJIBNzNkK6KYqlVMTbZLXgHx2oT0pU/fjRHyEp+PEfEPY0R3WCwAGVOtauxh1hOxNgIf5bv7dQpA==
+  /argparse/1.0.10:
+    dependencies:
+      sprintf-js: 1.0.3
+    dev: false
+    resolution:
+      integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
   /array-flatten/1.1.1:
     dev: false
     resolution:
       integrity: sha1-ml9pkFGx5wczKPKgCJaLZOopVdI=
+  /async/0.1.22:
+    dev: false
+    resolution:
+      integrity: sha1-D8GqoIig4+8Ovi2IMbqw3PiEUGE=
   /aws-sdk/2.958.0:
     dependencies:
       buffer: 4.9.2
@@ -139,6 +149,13 @@ packages:
     dev: false
     resolution:
       integrity: sha1-Aljq5NPQwJdN4cFpGI7wBR0dGYg=
+  /esprima/4.0.1:
+    dev: false
+    engines:
+      node: '>=4'
+    hasBin: true
+    resolution:
+      integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==
   /etag/1.8.1:
     dev: false
     engines:
@@ -159,12 +176,15 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-fWPNAkBj+Azt9Itmcz/Reqdg3LeBfaXptDEev2JM8bCC0yDptglCnlizhf0YZauyU5X/g6v7v4Xxqhg8tmEfEA==
-  /express-markdown-router/1.1.0:
+  /express-md/2.0.2:
     dependencies:
-      marked: 0.3.19
+      async: 0.1.22
+      js-yaml: 3.14.1
+      marked: 1.2.9
+      mime: 2.5.2
     dev: false
     resolution:
-      integrity: sha1-L73gaLfPMF2+QIh7/FRmlB5f/N4=
+      integrity: sha512-6YBwL1kcYCFPiYv1Y5A/XhpeCKpoxjeA4fiitoi3bzAe3RbwXFirT7X6Rk34u30y+f4GW3SRM4DhnngBoFvxqg==
   /express/4.17.1:
     dependencies:
       accepts: 1.3.7
@@ -292,13 +312,21 @@ packages:
       node: '>= 0.6.0'
     resolution:
       integrity: sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
-  /marked/0.3.19:
+  /js-yaml/3.14.1:
+    dependencies:
+      argparse: 1.0.10
+      esprima: 4.0.1
     dev: false
-    engines:
-      node: '>=0.10.0'
     hasBin: true
     resolution:
-      integrity: sha512-ea2eGWOqNxPcXv8dyERdSr/6FmzvWwzjMxpfGB/sbMccXoct+xY+YukPD+QTUZwyvK7BZwcr4m21WBOW41pAkg==
+      integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==
+  /marked/1.2.9:
+    dev: false
+    engines:
+      node: '>= 8.16.2'
+    hasBin: true
+    resolution:
+      integrity: sha512-H8lIX2SvyitGX+TRdtS06m1jHMijKN/XjfH6Ooii9fvxMlh8QdqBfBDkGUpMWH2kQNrtixjzYUa3SH8ROTgRRw==
   /media-typer/0.3.0:
     dev: false
     engines:
@@ -336,6 +364,13 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
+  /mime/2.5.2:
+    dev: false
+    engines:
+      node: '>=4.0.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-tqkh47FzKeCPD2PUiPB6pkbMzsCasjxAfC62/Wap5qrUWcb+sFasXUC5I3gYM5iBM8v/Qpn4UK0x+j0iHyFPDg==
   /ms/2.0.0:
     dev: false
     resolution:
@@ -462,6 +497,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
+  /sprintf-js/1.0.3:
+    dev: false
+    resolution:
+      integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
   /statuses/1.5.0:
     dev: false
     engines:
@@ -540,4 +579,4 @@ specifiers:
   aws-sdk: ^2.957.0
   express: ^4.17.1
   express-fileupload: ^1.2.1
-  express-markdown-router: ^1.1.0
+  express-md: ^2.0.2
