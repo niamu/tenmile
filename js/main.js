@@ -393,6 +393,17 @@ function identicalArrays(a, b) {
     fsm.updateVolume();
   };
 
+  document.getElementById("upload").onclick = (e) => {
+    let input = document.createElement("input");
+    input.type = "file";
+    input.onchange = (e) => {
+      let file = e.target.files[0];
+      const blob = new Blob([file]);
+      debugger
+    }
+    input.click();
+  };
+  
   // print out the buttons based on the value of the buttonToKey mapping
   let buttonToKey = {};
   Object.keys(keyToButton).forEach(key => {
