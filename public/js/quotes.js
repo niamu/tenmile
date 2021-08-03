@@ -28,6 +28,8 @@ const ROM_HEADER_END = 0x14d;
 
 const PAGE_SIZE = 64;
 
+const BORDER_SIZE = 12;
+
 const ARCHIVE_README_TEMPLATE = `
 This archive represents a *playable quote* of a Game Boy game.
 
@@ -80,7 +82,7 @@ function generateMaskedROM(rom, dependencies) {
   return { maskedROM, mask };
 }
 
-async function generateZip(trace) {
+async function compileQuote(trace) {
   let originalROM = trace.initialState[SAVESTATE_ROM];
 
   let { maskedROM, mask } = generateMaskedROM(
@@ -92,7 +94,7 @@ async function generateZip(trace) {
   let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
 
   let romDigest = await digest256(originalROM);
-  
+
   let details = "";
   details +=
     "- Included original ROM bytes: " +
@@ -134,10 +136,7 @@ async function generateZip(trace) {
     compression: "DEFLATE",
     compressionOptions: { level: 9 }
   });
-  return zipBuffer;
-}
 
-async function generatePng(trace) {
   let rgba = [];
   for (let pixel of trace.initialState[SAVESTATE_FRAMEBUFFER]) {
     rgba.push((pixel & 0xff0000) >> 16);
@@ -146,24 +145,87 @@ async function generatePng(trace) {
     rgba.push(0xff);
   }
 
-  let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
-  
-  return pngBuffer;
-}
+  let font = new FontFace(
+    "Early GameBoy",
+    'url("https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FEarly%20GameBoy.woff?v=1627886220949")'
+  );
+  await font.load();
+  document.fonts.add(font);
 
-async function compileQuote(trace) {
+  let canvas = document.createElement("canvas");
 
-  let zipBuffer = await generateZip(trace);
+  const sw = 160;
+  const sh = 144;
 
-  let pngBuffer = await generatePng(trace);
-  
+  canvas.setAttribute("width", sw + 2 * BORDER_SIZE);
+  canvas.setAttribute("height", sh + 2 * BORDER_SIZE);
+
+  let ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#ccc";
+  ctx.fillRect(0, 0, sw + 2 * BORDER_SIZE, sh + 2 * BORDER_SIZE);
+
+  ctx.strokeStyle = "#444";
+  ctx.strokeRect(0, 0, sw + 2 * BORDER_SIZE, sh + 2 * BORDER_SIZE);
+  ctx.strokeRect(BORDER_SIZE, BORDER_SIZE, sw, sh);
+
+  let screenshotimageData = ctx.createImageData(160, 144);
+  for (let i = 0; i < rgba.length; i++) {
+    screenshotimageData.data[i] = rgba[i];
+  }
+  let screenshotImageBitmap = await createImageBitmap(screenshotimageData);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(screenshotImageBitmap, BORDER_SIZE, BORDER_SIZE, sw, sh);
+
+  ctx.fillStyle = "#000";
+  ctx.font = `${0.666 * BORDER_SIZE}px "Early GameBoy"`;
+  ctx.fillText(trace.name, BORDER_SIZE, 0.75 * BORDER_SIZE);
+
+  ctx.fillStyle = "#888";
+  ctx.textAlign = "right";
+  ctx.fillText(
+    "[ 8bpp steg zip",
+    sw + BORDER_SIZE,
+    sh + BORDER_SIZE + 0.75 * BORDER_SIZE
+  );
+
+  ctx.save();
+  ctx.translate(BORDER_SIZE + sw + 0.75 * BORDER_SIZE, BORDER_SIZE + sh / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.fillText(`${trace.actions.length} steps`, 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(0.25 * BORDER_SIZE, BORDER_SIZE + sh / 2);
+  ctx.rotate(Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.fillText(`${includedBytes} rom bytes`, 0, 0);
+  ctx.restore();
+
+  let quoteImageData = ctx.getImageData(
+    0,
+    0,
+    sw + 2 * BORDER_SIZE,
+    sh + 2 * BORDER_SIZE
+  );
+
+  let pngBuffer = UPNG.encode(
+    [quoteImageData.data],
+    sw + 2 * BORDER_SIZE,
+    sh + 2 * BORDER_SIZE,
+    0
+  );
+
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
-  
-  let romDigest = await digest256(trace.initialState[SAVESTATE_ROM]);
+
   let blobDigest = await digest256(await blob.arrayBuffer());
-  let filename = `${trace.name}-${romDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
-  
-  return {blob, filename};
+  let filename = `${trace.name}-${romDigest.slice(0, 4)}-${blobDigest.slice(
+    0,
+    8
+  )}.png`;
+
+  return { blob, filename };
 }
 
 async function loadQuote(buffer) {
