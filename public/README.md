@@ -31,14 +31,13 @@ While playing a game (after you've provided the ROM), you can use the
 
 ### Quote File Structure and Size
 
-During recording of a quote, you might see that you've accessed 1.5KB of ROM. However, the final quote file might be 35KB -- what happened?
+During recording of a quote, you might see that you've accessed 1.5KB of ROM. However, the final quote file might be 35KB. What happened?
 
 The quote file is larger for two big reasons. First, beyond including the slice of ROM data needed to play back your quote, we also include a snapshot of the Game Boy emulator's dynamic elements (e.g. unabridged RAM and other platform/cartridge state), an image of the screen at the first moment of your quote, and the recording of your inputs over time. We also include detailed information about the shape of the ROM slice so that we can keep others on the rails when they are riffing on your quote.
 
 We also include more ROM bytes than just those that are touched during your recording. We include a subset of the ROM header (capturing the name of the game, the cartridge hardware type, etc.). Additionally, we include ROM bytes in pages/chunks larger with a granularity larger than a single byte. This creates quotes that are more robust to variation when riffing. By analogy to quoting text, we try to expand your quote out to the nearest paragraph boundary. We don't really know what counts as a paragraph, so we use fixed size memory pages as a crude proxy.
 
-If you rename the `.png` quote file to `.zip`, most unzipping tools will be able to show you the extra data encoded inside the quote file. A `README.md` file included inside the zip provides more detailed information about how your specific relates to the original ROM.
-
+A zip file containing this data is steganographically encoded in the quote file. Packing the extra data into the quote file in this way is inefficient compared to simply concatenating the zip data onto the end of the png file, but it makes sure the extra data doesn't get lost when the image is losslessly recompressed.
 
 ## "Is sharing playable quotes legal?"
 
@@ -51,13 +50,4 @@ We aren't intellectual property laywers, but by the same reasoning that [Google 
 
 ## Credits
 
-By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
-
-- `gameboy.js`: [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online).
-- `state-machine.js`: [Jake Gordon's Javascript State Machine](https://github.com/jakesgordon/javascript-state-machine).
-- `jszip.min.js`: [JSZip](https://stuk.github.io/jszip/)
-- `pako.min.js`: [pako](http://nodeca.github.io/pako/)
-- `msgpack.js`: [msgpack-javascript](https://github.com/msgpack/msgpack-javascript)
-- `emitter.js`: [emitter](https://github.com/component/emitter)
-- `XAudioServer.js`: (???)
-- `resampler.js`: (???)
+By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021. `gameboy.js` is [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online). A few bugs in it have been fixed here but not upstreamed. We could use more help making replays deterministic.

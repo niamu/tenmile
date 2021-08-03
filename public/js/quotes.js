@@ -177,12 +177,13 @@ async function compileQuote(trace) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(screenshotImageBitmap, BORDER_SIZE, BORDER_SIZE, sw, sh);
 
+  ctx.textAlign = "center";
+  
   ctx.fillStyle = "#000";
   ctx.font = `${0.666 * BORDER_SIZE}px "Early GameBoy"`;
   ctx.fillText(trace.name, BORDER_SIZE, 0.75 * BORDER_SIZE);
 
   ctx.fillStyle = "#888";
-  ctx.textAlign = "right";
   ctx.fillText(
     "[ 8bpp steg zip",
     sw + BORDER_SIZE,
@@ -192,14 +193,13 @@ async function compileQuote(trace) {
   ctx.save();
   ctx.translate(BORDER_SIZE + sw + 0.75 * BORDER_SIZE, BORDER_SIZE + sh / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = "center";
+  
   ctx.fillText(`${trace.actions.length} steps`, 0, 0);
   ctx.restore();
 
   ctx.save();
   ctx.translate(0.25 * BORDER_SIZE, BORDER_SIZE + sh / 2);
   ctx.rotate(Math.PI / 2);
-  ctx.textAlign = "center";
   ctx.fillText(`${includedBytes} rom bytes`, 0, 0);
   ctx.restore();
 
