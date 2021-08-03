@@ -184,70 +184,8 @@ async function compileQuote(trace) {
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
   
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
-  // [jf] this might be a good place to split the function into two, so that we
-  // can load a blob in as a quote at runtime
-
   let blobDigest = await digest256(await blob.arrayBuffer());
-  console.log(blobDigest);
-  let img = document.createElement("img");
-  img.src = URL.createObjectURL(blob);
-  
   let filename = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
   
-  let download = document.createElement("span");
-  download.classList.add("icon-download");
-  download.onclick = async (e) => {
-    let a = document.createElement("a");
-    a.href = img.src;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  let share = document.createElement("span");
-  share.classList.add("icon-share");
-  share.onclick = async (e) => {
-    console.log("uploading file")
-    share.classList.remove("icon-share");
-    share.classList.add("icon-spin");
-    share.classList.add("animate-spin");
-    let fd = new FormData();
-    fd.append("file", blob, filename);
-    let res = await fetch("/upload", { method: "POST", body: fd });
-    if (!res.ok) {
-      console.log("Error POSTing image", res);
-    }
-    let rv = await res.json()
-    console.log(rv);
-    share.classList.remove("icon-spin");
-    share.classList.remove("animate-spin");
-    share.classList.add("icon-share");
-  };
-
-  let play = document.createElement("span");
-  play.classList.add("icon-play");
-  play.onclick = async (e) => {
-    dropQuoteByUrl(img.src);
-  };
-  
-  let trash = document.createElement("span");
-  trash.classList.add("icon-trash");
-  trash.onclick = async (e) => {
-    e.target.parentElement.parentElement.outerHTML = "";
-  };
-   
-  let container = document.createElement("div");
-  container.appendChild(img);
-  
-  let toolsContainer = document.createElement("span");
-  container.appendChild(toolsContainer);
-  
-  toolsContainer.classList.add("quote-tools")
-  toolsContainer.appendChild(download);
-  toolsContainer.appendChild(share);
-  toolsContainer.appendChild(play);
-  toolsContainer.appendChild(trash);
-  
-  document.getElementById("quotes").appendChild(container);
+  return {blob, filename};
 }

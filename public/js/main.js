@@ -300,7 +300,10 @@ const fsm = new StateMachine({
     onEnterCompiling: function() {
       this.button.value = "Compiling...";
       this.button.disabled = true;
-      compileQuote(this.currentTrace).then(() => fsm.complete());
+      compileQuote(this.currentTrace).then((res) => {
+        displayQuote(res);
+        fsm.complete();
+      });
     },
 
     onLeaveCompiling: function() {
@@ -549,4 +552,67 @@ async function processFile(file) {
   } else {
     alert("Unsupported file");
   }
+}
+
+async function displayQuote({blob, filename}) {
+  let img = document.createElement("img");
+  img.src = URL.createObjectURL(blob);
+  
+  
+  let download = document.createElement("span");
+  download.classList.add("icon-download");
+  download.onclick = async (e) => {
+    let a = document.createElement("a");
+    a.href = img.src;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  let share = document.createElement("span");
+  share.classList.add("icon-share");
+  share.onclick = async (e) => {
+    console.log("uploading file")
+    share.classList.remove("icon-share");
+    share.classList.add("icon-spin");
+    share.classList.add("animate-spin");
+    let fd = new FormData();
+    fd.append("file", blob, filename);
+    let res = await fetch("/upload", { method: "POST", body: fd });
+    if (!res.ok) {
+      console.log("Error POSTing image", res);
+    }
+    let rv = await res.json()
+    console.log(rv);
+    share.classList.remove("icon-spin");
+    share.classList.remove("animate-spin");
+    share.classList.add("icon-share");
+  };
+
+  let play = document.createElement("span");
+  play.classList.add("icon-play");
+  play.onclick = async (e) => {
+    dropQuoteByUrl(img.src);
+  };
+  
+  let trash = document.createElement("span");
+  trash.classList.add("icon-trash");
+  trash.onclick = async (e) => {
+    e.target.parentElement.parentElement.outerHTML = "";
+  };
+   
+  let container = document.createElement("div");
+  container.appendChild(img);
+  
+  let toolsContainer = document.createElement("span");
+  container.appendChild(toolsContainer);
+  
+  toolsContainer.classList.add("quote-tools")
+  toolsContainer.appendChild(download);
+  toolsContainer.appendChild(share);
+  toolsContainer.appendChild(play);
+  toolsContainer.appendChild(trash);
+  
+  document.getElementById("quotes").appendChild(container);
 }
