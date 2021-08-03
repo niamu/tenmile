@@ -1,4 +1,5 @@
 const express = require("express");
+const markdownRouter = require('express-markdown-router');
 const fileUpload = require("express-fileupload");
 const AWS = require("aws-sdk");
 
@@ -51,7 +52,8 @@ app.post("/upload", async function(req, res) {
   );
 });
 
-app.use(express.static(__dirname));
+app.use(express.static('public'));
+app.use(markdownRouter(__dirname + '/public'));
 
 const listener = app.listen(process.env.PORT, () => {
   console.log("Tenmile service is listening on port " + listener.address().port);
