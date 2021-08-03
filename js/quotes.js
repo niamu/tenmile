@@ -182,6 +182,9 @@ async function compileQuote(trace) {
 
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
 
+  
+  // [jf] this might be a good place to split the function into two, so that we
+  // can load
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
   let blobDigest = await digest256(await blob.arrayBuffer());
   console.log(blobDigest);
@@ -214,6 +217,15 @@ async function compileQuote(trace) {
     console.log(rv);
   };
 
+  let play = document.createElement("span");
+  play.classList.add("icon-play");
+  
+  let trash = document.createElement("span");
+  trash.classList.add("icon-trash");
+  trash.onclick = async (e) => {
+    e.target.parentElement.parentElement.outerHTML = "";
+  };
+   
   let container = document.createElement("div");
   container.appendChild(img);
   
@@ -223,6 +235,8 @@ async function compileQuote(trace) {
   toolsContainer.classList.add("quote-tools")
   toolsContainer.appendChild(download);
   toolsContainer.appendChild(share);
+  toolsContainer.appendChild(play);
+  toolsContainer.appendChild(trash);
   
   document.getElementById("quotes").appendChild(container);
 }
