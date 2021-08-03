@@ -395,8 +395,8 @@ function identicalArrays(a, b) {
   document.getElementById("button").onclick = () => fsm.can("tap") && fsm.tap();
 
   // enable drag & drop operations onto the emulator
-  document.getElementById("container").ondragover = ev => ev.preventDefault();
-  document.getElementById("container").ondrop = ev => {
+  document.getElementById("screen").ondragover = ev => ev.preventDefault();
+  document.getElementById("screen").ondrop = ev => {
     ev.preventDefault();
     for (let item of ev.dataTransfer.files) {
       processFile(item);

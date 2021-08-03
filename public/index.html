@@ -7,17 +7,9 @@
 
     <title>Playable Quotes for Game Boy</title>
 
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="semantic/dist/semantic.min.css"
-    />
-    <script
-      src="https://code.jquery.com/jquery-3.1.1.min.js"
-      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-      crossorigin="anonymous"
-    ></script>
-    <script src="semantic/dist/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/semantic.min.css" />
+    <script src="lib/jquery-3.1.1.min.js"></script>
+    <script src="lib/semantic.min.js"></script>
     <link rel="stylesheet" href="css/fontello-9-embedded.css" />
     <link rel="stylesheet" href="css/animation.css" />
     <style>
@@ -218,49 +210,57 @@
   </head>
 
   <body>
-    <h1>
-      Playable Quotes for Game Boy
-    </h1>
-    <div id="container">
-      <canvas id="screen"></canvas>
-      <input id="button" type="button" value="..." />
-      <span id="status"></span>
-      <span id="upload" class="icon-upload iconbutton"></span>
-      <span id="sound-control" class="iconbutton">
-        <input type="checkbox" id="sound" />
-        <label for="sound"></label>
-      </span>
-    </div>
-    <div id="control-pad">
-      <div id="d-pad"></div>
-      <div id="buttons">
-        <div id="button-b" class="button round up">B</div>
-        <div id="button-a" class="button round up">A</div>
-        <div id="button-select" class="button bar up">Select</div>
-        <div id="button-start" class="button bar up">Start</div>
+    <div class="ui middle aligned center aligned grid">
+      <div class="column">
+        <div class="ui container">
+          sfdsfsdf
+        
+        <h1>
+          Playable Quotes for Game Boy
+        </h1>
+        <div id="container">
+          <canvas id="screen"></canvas>
+          <input id="button" type="button" value="..." />
+          <span id="status"></span>
+          <span id="upload" class="icon-upload iconbutton"></span>
+          <span id="sound-control" class="iconbutton">
+            <input type="checkbox" id="sound" />
+            <label for="sound"></label>
+          </span>
+        </div>
+        <div id="control-pad">
+          <div id="d-pad"></div>
+          <div id="buttons">
+            <div id="button-b" class="button round up">B</div>
+            <div id="button-a" class="button round up">A</div>
+            <div id="button-select" class="button bar up">Select</div>
+            <div id="button-start" class="button bar up">Start</div>
+          </div>
+        </div>
+        </div>
+        <div id="instructions">
+          Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen
+          to play.<br />
+          Game Boy controls: <span id="controls"></span><br />
+          For more information, see <a href="README.md">README.md</a>.
+          <br />
+        </div>
+        <div id="examples">
+          <button
+            id="example-game"
+            onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
+          >
+            Example game
+          </button>
+          <button
+            id="example-quote"
+            onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
+          >
+            Example quote
+          </button>
+        </div>
+        <div id="quotes"></div>
       </div>
     </div>
-    <div id="instructions">
-      Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen to
-      play.<br />
-      Game Boy controls: <span id="controls"></span><br />
-      For more information, see <a href="README.md">README.md</a>.
-      <br />
-    </div>
-    <div id="examples">
-      <button
-        id="example-game"
-        onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
-      >
-        Example game
-      </button>
-      <button
-        id="example-quote"
-        onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
-      >
-        Example quote
-      </button>
-    </div>
-    <div id="quotes"></div>
   </body>
 </html>
