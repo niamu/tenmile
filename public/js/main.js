@@ -1,6 +1,7 @@
 "use strict";
 /* global GameBoyCore, XAudioServer, StateMachine */
 /* global loadQuote, compileQuote, Quote, Trace */
+/* global gtag */
 
 // used by gameboy.js
 window.debug = function() {
@@ -72,6 +73,11 @@ const fsm = new StateMachine({
         lifecycle.to
         //...args
       );
+
+      gtag("event", "screen_view", {
+        app_name: "tenmile",
+        screen_name: lifecycle.to
+      });
 
       this.canvas.classList.remove(lifecycle.from);
       this.canvas.classList.add(lifecycle.to);
@@ -300,7 +306,7 @@ const fsm = new StateMachine({
     onEnterCompiling: function() {
       this.button.value = "Compiling...";
       this.button.disabled = true;
-      compileQuote(this.currentTrace).then((res) => {
+      compileQuote(this.currentTrace).then(res => {
         displayQuote(res);
         fsm.complete();
       });
@@ -554,14 +560,13 @@ async function processFile(file) {
   }
 }
 
-async function displayQuote({blob, filename}) {
+async function displayQuote({ blob, filename }) {
   let img = document.createElement("img");
   img.src = URL.createObjectURL(blob);
-  
-  
+
   let download = document.createElement("span");
   download.classList.add("icon-download");
-  download.onclick = async (e) => {
+  download.onclick = async e => {
     let a = document.createElement("a");
     a.href = img.src;
     a.download = filename;
@@ -572,8 +577,8 @@ async function displayQuote({blob, filename}) {
 
   let share = document.createElement("span");
   share.classList.add("icon-share");
-  share.onclick = async (e) => {
-    console.log("uploading file")
+  share.onclick = async e => {
+    console.log("uploading file");
     share.classList.remove("icon-share");
     share.classList.add("icon-spin");
     share.classList.add("animate-spin");
@@ -583,10 +588,10 @@ async function displayQuote({blob, filename}) {
     if (!res.ok) {
       console.log("Error POSTing image", res);
     }
-    let rv = await res.json()
+    let rv = await res.json();
     console.log(rv);
     window.open(`/#drop=${rv.url}`);
-    
+
     share.classList.remove("icon-spin");
     share.classList.remove("animate-spin");
     share.classList.add("icon-share");
@@ -594,27 +599,27 @@ async function displayQuote({blob, filename}) {
 
   let play = document.createElement("span");
   play.classList.add("icon-play");
-  play.onclick = async (e) => {
+  play.onclick = async e => {
     dropQuoteByUrl(img.src);
   };
-  
+
   let trash = document.createElement("span");
   trash.classList.add("icon-trash");
-  trash.onclick = async (e) => {
+  trash.onclick = async e => {
     e.target.parentElement.parentElement.outerHTML = "";
   };
-   
+
   let container = document.createElement("div");
   container.appendChild(img);
-  
+
   let toolsContainer = document.createElement("span");
   container.appendChild(toolsContainer);
-  
-  toolsContainer.classList.add("quote-tools")
+
+  toolsContainer.classList.add("quote-tools");
   toolsContainer.appendChild(download);
   toolsContainer.appendChild(share);
   toolsContainer.appendChild(play);
   toolsContainer.appendChild(trash);
-  
+
   document.getElementById("quotes").appendChild(container);
 }
