@@ -7,7 +7,7 @@
 
     <title>Playable Quotes for Game Boy</title>
 
-    <link rel="stylesheet" href="fontello-8-embedded.css" />
+    <link rel="stylesheet" href="fontello-9-embedded.css" />
     <!-- <link rel="stylesheet" href="fontello-embedded.css" /> -->
     <style>
       #container {
@@ -117,11 +117,6 @@
         }
       }
 
-      #sound-control {
-        font-size: smaller;
-        float: right;
-      }
-
       #quotes div {
         display: inline-block;
         padding: 15px;
@@ -139,11 +134,26 @@
         clear: both;
       }
 
-      input[type="checkbox"] + label:before {
-        font-family: fontello-8;
+      
+      #sound-control {
+        float: right;
+      }
+      
+      #upload {
+        float: right;
+                margin-right: 10px
+      }
+      
+      .iconbutton {
+        width: 15px;
+        padding: 5px;
+      }
+      
+      input[type="checkbox"] + label {
+        font-family: fontello;
         display: inline-block;
       }
-
+      
       input[type="checkbox"] {
         display: none;
       }
@@ -177,7 +187,8 @@
       <canvas id="screen"></canvas>
       <input id="button" type="button" value="..." />
       <span id="status"></span>
-      <span id="sound-control">
+      <span id="upload" class="icon-upload iconbutton"></span>
+      <span id="sound-control" class="iconbutton">
         <input type="checkbox" id="sound" />
         <label for="sound"></label>
       </span>
