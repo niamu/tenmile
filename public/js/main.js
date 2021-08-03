@@ -127,6 +127,8 @@ const fsm = new StateMachine({
 
       if (this.gameboy) {
         document.title = lifecycle.to + " " + this.gameboy.name;
+        this.status.innerText = lifecycle.to + " " + this.gameboy.name;
+        
         
         gtag("event", lifecycle.to, {
           event_category: lifecycle.transition,

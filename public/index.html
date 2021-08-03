@@ -16,6 +16,8 @@
       #container {
         background: #f5f5f5;
         width: 350px;
+        margin: auto;
+        text-align: left;
       }
 
       #container input {
@@ -72,7 +74,8 @@
       }
 
       #control-pad {
-        display: none;
+        display: block;
+        margin: auto;
       }
 
       #buttons {
@@ -212,9 +215,6 @@
   <body>
     <div class="ui middle aligned center aligned grid">
       <div class="column">
-        <div class="ui container">
-          sfdsfsdf
-        
         <h1>
           Playable Quotes for Game Boy
         </h1>
@@ -237,7 +237,6 @@
             <div id="button-start" class="button bar up">Start</div>
           </div>
         </div>
-        </div>
         <div id="instructions">
           Drop a game (<code>.gb</code>) or quote (<code>.png</code>) on screen
           to play.<br />
@@ -254,7 +253,7 @@
           </button>
           <button
             id="example-quote"
-            onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
+            onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca      28-7fff56ec.png?v=1628024161680');"
           >
             Example quote
           </button>
