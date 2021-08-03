@@ -1,6 +1,6 @@
 "use strict";
+
 /* global JSZip, UPNG, msgpack */
-/* global dropQuoteByUrl */
 
 class Quote {
   contstructor() {
@@ -22,6 +22,11 @@ class Trace {
 
 const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
+
+const ROM_HEADER_START = 0x134;
+const ROM_HEADER_END = 0x14d;
+
+const PAGE_SIZE = 64;
 
 const ARCHIVE_README_TEMPLATE = `
 This archive represents a *playable quote* of a Game Boy game.
@@ -47,7 +52,6 @@ function generateMaskedROM(rom, dependencies) {
   let mask = new Uint8Array(rom.length);
 
   // include any byte of a memory page associated with an address in dependencies
-  const PAGE_SIZE = 64;
   let pages = new Set();
   for (let address of dependencies) {
     pages.add(Math.floor(address / PAGE_SIZE));
@@ -62,18 +66,104 @@ function generateMaskedROM(rom, dependencies) {
   }
 
   // always remove entry point and logo (never needed for a quote of a specific moment)
-  for (let i = 0x100; i < 0x134; i++) {
+  for (let i = 0x100; i < ROM_HEADER_START; i++) {
     maskedROM[i] = 0;
     mask[i] = 0;
   }
 
   // always include header (title + ROM/RAM size + etc.)
-  for (let i = 0x134; i < 0x14d; i++) {
+  for (let i = ROM_HEADER_START; i < ROM_HEADER_END; i++) {
     maskedROM[i] = rom[i];
     mask[i] = 1;
   }
 
   return { maskedROM, mask };
+}
+
+async function generateZip(trace) {
+  let originalROM = trace.initialState[SAVESTATE_ROM];
+
+  let { maskedROM, mask } = generateMaskedROM(
+    originalROM,
+    trace.romDependencies
+  );
+
+  let originalBytes = originalROM.length;
+  let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
+
+  let romDigest = await digest256(originalROM);
+  
+  let details = "";
+  details +=
+    "- Included original ROM bytes: " +
+    includedBytes +
+    " of " +
+    originalBytes +
+    " (" +
+    Number(includedBytes / originalBytes).toLocaleString(undefined, {
+      style: "percent",
+      minimumFractionDigits: 2
+    }) +
+    ").\n";
+
+  details += "- Original ROM SHA-256 digest: " + romDigest.toUpperCase() + "\n";
+  details +=
+    "- Reference gameplay recording: " +
+    trace.actions.length +
+    " emulator steps\n";
+
+  let readme = ARCHIVE_README_TEMPLATE.slice().replace(
+    "DETAILS_GO_HERE",
+    details
+  );
+
+  let state = trace.initialState.slice();
+  state[SAVESTATE_ROM] = null; // rom stored in a separate zip entry
+  state[SAVESTATE_FRAMEBUFFER] = null; // recoverable from outer png
+
+  let zip = new JSZip();
+  zip.file("rom.bin", maskedROM);
+  zip.file("romMask.bin", mask);
+  zip.file("initialState.msgpack", msgpack.serialize(state));
+  zip.file("actions.msgpack", msgpack.serialize(trace.actions));
+
+  zip.file("README.md", readme);
+
+  let zipBuffer = await zip.generateAsync({
+    type: "arraybuffer",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 }
+  });
+  return zipBuffer;
+}
+
+async function generatePng(trace) {
+  let rgba = [];
+  for (let pixel of trace.initialState[SAVESTATE_FRAMEBUFFER]) {
+    rgba.push((pixel & 0xff0000) >> 16);
+    rgba.push((pixel & 0x00ff00) >> 8);
+    rgba.push((pixel & 0x0000ff) >> 0);
+    rgba.push(0xff);
+  }
+
+  let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
+  
+  return pngBuffer;
+}
+
+async function compileQuote(trace) {
+
+  let zipBuffer = await generateZip(trace);
+
+  let pngBuffer = await generatePng(trace);
+  
+  let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
+  
+  let romDigest = await digest256(trace.initialState[SAVESTATE_ROM]);
+  let blobDigest = await digest256(await blob.arrayBuffer());
+  let filename = `${trace.name}-${romDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
+  
+  return {blob, filename};
 }
 
 async function loadQuote(buffer) {
@@ -113,79 +203,4 @@ async function digest256(data) {
     digest += byte.toString(16).padStart(2, "0");
   }
   return digest;
-}
-
-async function compileQuote(trace) {
-  console.log(trace.name);
-  let originalROM = trace.initialState[SAVESTATE_ROM];
-
-  let { maskedROM, mask } = generateMaskedROM(
-    originalROM,
-    trace.romDependencies
-  );
-
-  let originalBytes = originalROM.length;
-  let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
-
-  let ROMDigest = await digest256(originalROM);
-  console.log(ROMDigest);
-  
-  let details = "";
-  details +=
-    "- Included original ROM bytes: " +
-    includedBytes +
-    " of " +
-    originalBytes +
-    " (" +
-    Number(includedBytes / originalBytes).toLocaleString(undefined, {
-      style: "percent",
-      minimumFractionDigits: 2
-    }) +
-    ").\n";
-
-  details += "- Original ROM SHA-256 digest: " + ROMDigest.toUpperCase() + "\n";
-  details +=
-    "- Reference gameplay recording: " +
-    trace.actions.length +
-    " emulator steps\n";
-
-  let readme = ARCHIVE_README_TEMPLATE.slice().replace(
-    "DETAILS_GO_HERE",
-    details
-  );
-  console.log(details);
-
-  let state = trace.initialState.slice();
-  state[SAVESTATE_ROM] = null; // rom+mask stored in separate zip entries
-  state[SAVESTATE_FRAMEBUFFER] = null; // stored in outer PNG
-
-  let zip = new JSZip();
-  zip.file("rom.bin", maskedROM);
-  zip.file("romMask.bin", mask);
-  zip.file("initialState.msgpack", msgpack.serialize(state));
-  zip.file("actions.msgpack", msgpack.serialize(trace.actions));
-
-  zip.file("README.md", readme);
-
-  let zipBuffer = await zip.generateAsync({
-    type: "arraybuffer",
-    compression: "DEFLATE",
-    compressionOptions: { level: 9 }
-  });
-
-  let rgba = [];
-  for (let pixel of trace.initialState[SAVESTATE_FRAMEBUFFER]) {
-    rgba.push((pixel & 0xff0000) >> 16);
-    rgba.push((pixel & 0x00ff00) >> 8);
-    rgba.push((pixel & 0x0000ff) >> 0);
-    rgba.push(0xff);
-  }
-
-  let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
-  
-  let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
-  let blobDigest = await digest256(await blob.arrayBuffer());
-  let filename = `${trace.name}-${ROMDigest.slice(0,4)}-${blobDigest.slice(0,8)}.png`;
-  
-  return {blob, filename};
 }
