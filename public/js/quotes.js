@@ -178,22 +178,22 @@ async function compileQuote(trace) {
   ctx.drawImage(screenshotImageBitmap, BORDER_SIZE, BORDER_SIZE, sw, sh);
 
   ctx.textAlign = "center";
-  
+
   ctx.fillStyle = "#000";
   ctx.font = `${0.666 * BORDER_SIZE}px "Early GameBoy"`;
-  ctx.fillText(trace.name, BORDER_SIZE, 0.75 * BORDER_SIZE);
+  ctx.fillText(trace.name, sw / 2 + BORDER_SIZE, 0.75 * BORDER_SIZE);
 
   ctx.fillStyle = "#888";
   ctx.fillText(
     "[ 8bpp steg zip",
-    sw + BORDER_SIZE,
+    sw / 2 + BORDER_SIZE,
     sh + BORDER_SIZE + 0.75 * BORDER_SIZE
   );
 
   ctx.save();
   ctx.translate(BORDER_SIZE + sw + 0.75 * BORDER_SIZE, BORDER_SIZE + sh / 2);
   ctx.rotate(-Math.PI / 2);
-  
+
   ctx.fillText(`${trace.actions.length} steps`, 0, 0);
   ctx.restore();
 
@@ -210,8 +210,22 @@ async function compileQuote(trace) {
     sh + 2 * BORDER_SIZE
   );
 
+  let imgBytes = quoteImageData.data;
+  let zipBytes = new Uint8Array(zipBuffer);
+  if (zipBytes.length * 4 > imgBytes.length) {
+    alert("zip file too big to steganographically encode into image!");
+  }
+  let numBytes = zipBytes.length;
+  for (let i = 0; i < numBytes; i++) {
+    let x = zipBytes[i];
+    imgBytes[4 * i + 0] = (imgBytes[4 * i + 0] & 0xfc) | ((x >> 6) & 0x3);
+    imgBytes[4 * i + 1] = (imgBytes[4 * i + 1] & 0xfc) | ((x >> 4) & 0x3);
+    imgBytes[4 * i + 2] = (imgBytes[4 * i + 2] & 0xfc) | ((x >> 2) & 0x3);
+    imgBytes[4 * i + 3] = (imgBytes[4 * i + 3] & 0xfc) | ((x >> 0) & 0x3);
+  }
+
   let pngBuffer = UPNG.encode(
-    [quoteImageData.data],
+    [imgBytes],
     sw + 2 * BORDER_SIZE,
     sh + 2 * BORDER_SIZE,
     0
@@ -231,12 +245,36 @@ async function compileQuote(trace) {
 async function loadQuote(buffer) {
   let quote = new Quote();
 
-  let frameBuffer = new Int32Array(160 * 144);
+  let frameBuffer = new Uint32Array(160 * 144);
   let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
-  for (let i = 0; i < frameBuffer.length; i++) {
-    frameBuffer[i] += rgba[4 * i + 0] << 16;
-    frameBuffer[i] += rgba[4 * i + 1] << 8;
-    frameBuffer[i] += rgba[4 * i + 2] << 0;
+
+  let decodedBytes = [];
+  let frameBufferRgba = [];
+
+  for (let i = 0; i < rgba.length / 4; i++) {
+    let byte =
+      ((rgba[4 * i + 0] & 0x3) << 6) +
+      ((rgba[4 * i + 1] & 0x3) << 4) +
+      ((rgba[4 * i + 2] & 0x3) << 2) +
+      ((rgba[4 * i + 3] & 0x3) << 0);
+    decodedBytes.push(byte);
+
+    let x = Math.floor(i % (160 + 2 * BORDER_SIZE));
+    let y = Math.floor(i / (160 + 2 * BORDER_SIZE));
+    if (
+      x >= BORDER_SIZE &&
+      x < 160 + BORDER_SIZE &&
+      y >= BORDER_SIZE &&
+      y < 144 + BORDER_SIZE
+    ) {
+      
+      frameBufferRgba.push(rgba[4 * i + 0]);
+      frameBufferRgba.push(rgba[4 * i + 1]);
+      frameBufferRgba.push(rgba[4 * i + 2]);
+      frameBufferRgba.push(rgba[4 * i + 3]);
+      let pixel = rgba[4*i+0]
+      frameBuffer.push(pixel);
+    }
   }
 
   let fileArrays = {};
