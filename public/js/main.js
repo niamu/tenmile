@@ -585,7 +585,7 @@ async function displayQuote({blob, filename}) {
     }
     let rv = await res.json()
     console.log(rv);
-    window.open(`/#q=${rv.url}`);
+    window.open(`/#drop=${rv.url}`);
     
     share.classList.remove("icon-spin");
     share.classList.remove("animate-spin");
