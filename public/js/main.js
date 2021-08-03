@@ -282,7 +282,7 @@ const fsm = new StateMachine({
           Number(percentage).toLocaleString(undefined, {
             style: "percent",
             minimumFractionDigits: 2
-          }) + " of ROM bytes accessed.";
+          }) + " of ROM accessed.";
       }
 
       this.button.value = "Stop recording";

@@ -246,7 +246,7 @@ async function loadQuote(buffer) {
   let quote = new Quote();
 
   let frameBuffer = new Uint32Array(160 * 144);
-  let rgba = UPNG.toRGBA8(UPNG.decode(buffer))[0];
+  let rgba = new Uint8Array(UPNG.toRGBA8(UPNG.decode(buffer))[0]);
 
   let decodedBytes = [];
   let frameBufferRgba = [];
@@ -267,18 +267,14 @@ async function loadQuote(buffer) {
       y >= BORDER_SIZE &&
       y < 144 + BORDER_SIZE
     ) {
-      
-      frameBufferRgba.push(rgba[4 * i + 0]);
-      frameBufferRgba.push(rgba[4 * i + 1]);
-      frameBufferRgba.push(rgba[4 * i + 2]);
-      frameBufferRgba.push(rgba[4 * i + 3]);
-      let pixel = rgba[4*i+0]
-      frameBuffer.push(pixel);
+      frameBuffer[i] += rgba[4 * i + 0] << 16;
+      frameBuffer[i] += rgba[4 * i + 1] << 8;
+      frameBuffer[i] += rgba[4 * i + 2] << 0;
     }
   }
 
   let fileArrays = {};
-  let zip = await JSZip.loadAsync(buffer);
+  let zip = await JSZip.loadAsync(new Uint8Array(decodedBytes));
   for (let filename of Object.keys(zip.files)) {
     fileArrays[filename] = await zip.file(filename).async("uint8array");
   }
