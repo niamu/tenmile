@@ -1,13 +1,13 @@
 {
-  "name": "snippets",
-  "version": "0.8.0",
+  "name": "tenmile",
+  "version": "0.0.1",
   "description": "Playable Quotes for Game Boy",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "author": "Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com)",
-  "license": "GPL-2.0-only",
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
