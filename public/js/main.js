@@ -74,6 +74,8 @@ const fsm = new StateMachine({
         //...args
       );
 
+      gtag("event", lifecycle.transition);
+
       gtag("event", "screen_view", {
         app_name: "tenmile",
         screen_name: lifecycle.to
@@ -127,6 +129,11 @@ const fsm = new StateMachine({
 
       if (this.gameboy) {
         document.title = lifecycle.to + " " + this.gameboy.name;
+        
+                gtag("event", "emulator start", {
+          event_category: "rom name",
+          event_label: this.gameboy.name
+        });
       }
     },
 
