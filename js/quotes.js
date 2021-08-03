@@ -1,5 +1,6 @@
 "use strict";
 /* global JSZip, UPNG, msgpack */
+/* global dropQuoteByUrl */
 
 class Quote {
   contstructor() {
@@ -181,11 +182,11 @@ async function compileQuote(trace) {
   }
 
   let pngBuffer = UPNG.encode([rgba], 160, 144, 0);
-
   
-  // [jf] this might be a good place to split the function into two, so that we
-  // can load
   let blob = new Blob([pngBuffer, zipBuffer], { type: "image/png" });
+  // [jf] this might be a good place to split the function into two, so that we
+  // can load a blob in as a quote at runtime
+
   let blobDigest = await digest256(await blob.arrayBuffer());
   console.log(blobDigest);
   let img = document.createElement("img");
@@ -219,6 +220,9 @@ async function compileQuote(trace) {
 
   let play = document.createElement("span");
   play.classList.add("icon-play");
+  play.onclick = async (e) => {
+    dropQuoteByUrl(img.src);
+  };
   
   let trash = document.createElement("span");
   trash.classList.add("icon-trash");
