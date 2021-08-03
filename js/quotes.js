@@ -208,6 +208,10 @@ async function compileQuote(trace) {
   let share = document.createElement("span");
   share.classList.add("icon-share");
   share.onclick = async (e) => {
+    console.log("uploading file")
+    share.classList.remove("icon-share");
+    share.classList.add("icon-spin");
+    share.classList.add("animate-spin");
     let fd = new FormData();
     fd.append("file", blob, filename);
     let res = await fetch("/upload", { method: "POST", body: fd });
@@ -216,6 +220,9 @@ async function compileQuote(trace) {
     }
     let rv = await res.json()
     console.log(rv);
+    share.classList.remove("icon-spin");
+    share.classList.remove("animate-spin");
+    share.classList.add("icon-share");
   };
 
   let play = document.createElement("span");
