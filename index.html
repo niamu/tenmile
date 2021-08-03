@@ -122,7 +122,6 @@
         float: right;
       }
 
-
       #quotes div {
         display: inline-block;
         padding: 15px;
@@ -138,6 +137,23 @@
         /* position: relative; */
         display: block;
         clear: both;
+      }
+
+      input[type="checkbox"] + label:before {
+        font-family: fontello-8;
+        display: inline-block;
+      }
+
+      input[type="checkbox"] {
+        display: none;
+      }
+
+      input[type="checkbox"] + label:before {
+        content: "\e802";
+      }
+
+      input[type="checkbox"]:checked + label:before {
+        content: "\e803";
       }
     </style>
 
@@ -163,6 +179,7 @@
       <span id="status"></span>
       <span id="sound-control">
         <input type="checkbox" id="sound" />
+        <label for="sound"></label>
       </span>
     </div>
     <div id="control-pad">
@@ -196,7 +213,6 @@
         Example quote
       </button>
     </div>
-    <div id="quotes">
-    </div>
+    <div id="quotes"></div>
   </body>
 </html>
