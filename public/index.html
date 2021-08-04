@@ -13,6 +13,12 @@
     <link rel="stylesheet" href="css/fontello-9-embedded.css" />
     <link rel="stylesheet" href="css/animation.css" />
     <style>
+      #player {
+        background: gray;
+        width: 370px;
+        margin: auto;
+        padding: 5px;
+      }
       #container {
         background: #f5f5f5;
         width: 350px;
@@ -218,23 +224,25 @@
         <h1>
           Playable Quotes for Game Boy
         </h1>
-        <div id="container">
-          <canvas id="screen"></canvas>
-          <input id="button" type="button" value="..." />
-          <span id="status"></span>
-          <span id="upload" class="icon-upload iconbutton"></span>
-          <span id="sound-control" class="iconbutton">
-            <input type="checkbox" id="sound" />
-            <label for="sound"></label>
-          </span>
-        </div>
-        <div id="control-pad">
-          <div id="d-pad"></div>
-          <div id="buttons">
-            <div id="button-b" class="button round up">B</div>
-            <div id="button-a" class="button round up">A</div>
-            <div id="button-select" class="button bar up">Select</div>
-            <div id="button-start" class="button bar up">Start</div>
+        <div id="player">
+          <div id="container">
+            <canvas id="screen"></canvas>
+            <input id="button" type="button" value="..." />
+            <span id="status"></span>
+            <span id="upload" class="icon-upload iconbutton"></span>
+            <span id="sound-control" class="iconbutton">
+              <input type="checkbox" id="sound" />
+              <label for="sound"></label>
+            </span>
+          </div>
+          <div id="control-pad">
+            <div id="d-pad"></div>
+            <div id="buttons">
+              <div id="button-b" class="button round up">B</div>
+              <div id="button-a" class="button round up">A</div>
+              <div id="button-select" class="button bar up">Select</div>
+              <div id="button-start" class="button bar up">Start</div>
+            </div>
           </div>
         </div>
         <div id="instructions">
