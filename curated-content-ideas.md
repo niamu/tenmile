@@ -76,8 +76,7 @@ Each should have:
 
 https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb?v=1628105208889
 
-[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. The precise timing needed for 
-License: MIT.
+[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. The precise timing needed for certain jumps in this game shows that we don't have perfectly precisel replays yet. License: MIT.
 
 ## µCity
 
