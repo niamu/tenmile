@@ -97,7 +97,7 @@ https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fsoulvoid.gb?v=1628
 
 ## Infinity
 
-![Infinity](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Finfinity.gb?v=1628111377657)
+![Infinity](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Finfinity-screenshot.png?v=1628111395548)
 
 https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Finfinity.gb?v=1628111377657
 
