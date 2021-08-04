@@ -20,15 +20,17 @@
         padding: 5px;
       }
 
-      #explanation {
+      .explanation {
         width: 370px;
         text-align: left;
         margin: auto;
         padding-bottom: 20px;
-        /* visibility: collapse; */
-        display: none;
       }
 
+      #explain-what-a-quote-is {
+        display: none;
+      }
+      
       #container {
         background: #f5f5f5;
         width: 350px;
@@ -238,7 +240,7 @@
         <h1>
           Playable Quotes for Game Boy
         </h1>
-        <div id="explain-overview" style="">
+        <div id="explanation-overview" class="explanation">
           <p>
             In the same way that you can quote a book, or make a clip of a
             video, this web page demonstrates a method to play, create, and
@@ -277,7 +279,16 @@
             Quote, the quote will reset.
           </p>
         </div>
-        <div id="explain-how-to-make-quotes">
+        <div id="explain-what-a-quote-is" class="explanation">
+          <p>
+            This is a Playable Quote. Right now you are watching the movements that were made when the
+            quote was created. However, if you <b>press the <tt>Take control</tt> button</b>,
+            you can play the game too. 
+            Since this is only a quote, the game will reset if you try to do something that wasn't done when
+            the quote was made, the game will reset.
+          </p>
+        </div>
+        <div id="explain-how-to-make-quotes" class="explanation">
           <p>
             <b>Making your own Playable Quote:</b> To make your own Playable
             Quote, start with a Game Boy game. You can use
