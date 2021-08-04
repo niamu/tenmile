@@ -1,3 +1,19 @@
+# Landing page outline
+
+- # Playable Quotes for Game Boy
+- This project offers the ability to create and share **playable quotes** of [Game Boy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *durable*, *delimited* reference to a 
+*specific* moment in a game along with a reference *recording* of how that moment can play out.
+- # Quotes
+- Quotes can allow players to share exciting moments in their favorite games, they can allow game publishers to tease content available in full games, they can allow critics and educators to make convincing comparisons within and across the many moments in past games. These examples use commercial Game Boy games to illustrate potential use cases for playable quotes. 
+- {carousel with curated quotes list, links open in player}
+- # Games
+- To record a new quote, you need access to a full game (typically a `.gb` or `.gbc` file). Use 
+- (carousel with curated games list, links open in player)
+- # What's in a Quote File?
+- # Help Needed
+- # Contact
+
+
 # Example Quotes
 
 Each should have:
