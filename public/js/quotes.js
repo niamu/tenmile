@@ -29,7 +29,7 @@ const ROM_HEADER_END = 0x14d;
 
 const PAGE_SIZE = 64;
 
-const BORDER_SIZE = 12;
+const BORDER_SIZE = 16;
 
 const ARCHIVE_README_TEMPLATE = `
 This archive represents a *playable quote* of a Game Boy game.
@@ -173,11 +173,13 @@ async function compileQuote(trace) {
 
   let canvas = document.createElement("canvas");
 
-  const sw = 160;
-  const sh = 144;
+  const sw = 160*2;
+  const sh = 144*2;
 
   canvas.setAttribute("width", sw + 2 * BORDER_SIZE);
   canvas.setAttribute("height", sh + 2 * BORDER_SIZE);
+  canvas.style.fontSmooth = 'never';
+  canvas.style.webkitFontSmoothing = 'none';
 
   let ctx = canvas.getContext("2d");
 
@@ -187,7 +189,7 @@ async function compileQuote(trace) {
   ctx.arc(sw+BORDER_SIZE,BORDER_SIZE,BORDER_SIZE-1,-Math.PI/2,0);
   ctx.arc(sw,sh,2*BORDER_SIZE-1,0,Math.PI/2);
   ctx.arc(BORDER_SIZE,sh+BORDER_SIZE,BORDER_SIZE-1,Math.PI/2,-Math.PI);
-  ctx.moveTo()
+  ctx.lineTo(1,BORDER_SIZE);
   
   ctx.stroke();
   ctx.fill();
