@@ -29,7 +29,7 @@ const ROM_HEADER_END = 0x14d;
 
 const PAGE_SIZE = 64;
 
-const BORDER_SIZE = 16;
+const BORDER_SIZE = 12;
 
 const ARCHIVE_README_TEMPLATE = `
 This archive represents a *playable quote* of a Game Boy game.
@@ -214,7 +214,7 @@ async function compileQuote(trace) {
 
   ctx.fillStyle = "#888";
   ctx.fillText(
-    "playable quote, 8bpp steg zip",
+    `${includedBytes} rom bytes * ${trace.actions.length} steps`,
     sw / 2 + BORDER_SIZE,
     sh + BORDER_SIZE + 0.75 * BORDER_SIZE
   );
@@ -223,13 +223,13 @@ async function compileQuote(trace) {
   ctx.translate(BORDER_SIZE + sw + 0.75 * BORDER_SIZE, BORDER_SIZE + sh / 2);
   ctx.rotate(-Math.PI / 2);
 
-  ctx.fillText(`${trace.actions.length} steps`, 0, 0);
+  ctx.fillText("[ 8bpp steg zip", 0, 0);
   ctx.restore();
 
   ctx.save();
   ctx.translate(0.25 * BORDER_SIZE, BORDER_SIZE + sh / 2);
   ctx.rotate(Math.PI / 2);
-  ctx.fillText(`${includedBytes} rom bytes`, 0, 0);
+  ctx.fillText("playable quote", 0, 0);
   ctx.restore();
 
   let quoteImageData = ctx.getImageData(
