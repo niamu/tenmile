@@ -181,11 +181,19 @@ async function compileQuote(trace) {
 
   let ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "#ccc";
-  ctx.fillRect(BORDER_SIZE, BORDER_SIZE, sw, sh);
-
   ctx.strokeStyle = "#444";
-  ctx.strokeRect(0, 0, sw + 2 * BORDER_SIZE, sh + 2 * BORDER_SIZE);
+  ctx.fillStyle = '#ccc';
+  ctx.arc(BORDER_SIZE,BORDER_SIZE,BORDER_SIZE-1,-Math.PI,-Math.PI/2);
+  ctx.arc(sw+BORDER_SIZE,BORDER_SIZE,BORDER_SIZE-1,-Math.PI/2,0);
+  ctx.arc(sw,sh,2*BORDER_SIZE-1,0,Math.PI/2);
+  ctx.arc(BORDER_SIZE,sh+BORDER_SIZE,BORDER_SIZE-1,Math.PI/2,-Math.PI);
+  ctx.moveTo()
+  
+  ctx.stroke();
+  ctx.fill();
+  
+
+  ctx.fillStyle = '#000';
   ctx.strokeRect(BORDER_SIZE, BORDER_SIZE, sw, sh);
 
   let screenshotimageData = ctx.createImageData(160, 144);
