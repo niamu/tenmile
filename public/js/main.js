@@ -462,6 +462,7 @@ function identicalArrays(a, b) {
     dropByUrl(url, url);
   } else {
     document.getElementById("examples").style.visibility = "visible";
+    document.getElementById("explanation").style.display = "block";
   }
 })();
 
