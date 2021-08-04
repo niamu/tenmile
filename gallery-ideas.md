@@ -13,7 +13,7 @@ A quote of core gameplay for Tetris in which you can clear a few lines at a time
 
 Practice your technique in the first boss battle of Metroid II. You can beat the boss and refill your supplies, but you can't leave the room when riffing on this quote.
 
-## (a third example)
+## (a third example, a significant quote from well-known story)
 
 # Example Games
 
