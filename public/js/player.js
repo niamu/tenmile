@@ -182,6 +182,7 @@ const fsm = new StateMachine({
           console.warn("Resetting after OOB while *watching*.");
           oob = false;
           fsm.restoreState(fsm.currentQuote.state);
+          iteration = 0;
         }
       };
 

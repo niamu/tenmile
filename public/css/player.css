@@ -23,7 +23,6 @@
   width: 320px;
   height: 288px;
   display: block;
-  padding: 5px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -41,7 +40,7 @@
 
 #status {
   font-size: smaller;
-  color: lightgray;
+  color: black;
 }
 
 .push {
@@ -51,22 +50,22 @@
 
 /* Border that indicates status: watching/riffing/etc. */
 .idle {
-  border: thin dashed gray;
+  border: thick dashed gray;
 }
 .watching {
-  border: thin dashed purple;
+  border: thick dashed purple;
 }
 .riffing {
-  border: thin dashed blue;
+  border: thick dashed blue;
 }
 .playing {
-  border: thin solid green;
+  border: thick solid green;
 }
 .recording {
-  border: thin solid red;
+  border: thick solid red;
 }
 .compiling {
-  border: thin solid yellow;
+  border: thick solid yellow;
 }
      
 /* Control pad */
