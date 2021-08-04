@@ -32,32 +32,47 @@ Our primary message: Quotes can enable several compelling use cases -- a new for
 
 Our secondary message: There's depth of skill to making a good quote / you have a lot of implicit control over what's included/excluded from the quote.
 
-## Tetris without Tetris
+Meta:
+- important to cover use cases (and hint at them in the comment text)
+- not important to cover many game types/genres
+
+
+### Tetris without Tetris
 
 Taste the core gameplay of Tetris. You can clear a few lines at a time, but you can't have the satisfaction of completing a Tetris (clearing 4 lines at once) because that's not included in the quote.
 
-## Alpha Metroid
+### Alpha Metroid
 
-Practice your technique in the first boss battle of Metroid II. You can beat the boss and refill your supplies, but you can't leave the room.
+Tune your technique in the first boss battle of Metroid II. You can beat the boss and refill your supplies, but you can't leave the room.
 
 
-## (a third example, a significant quote from well-known story)
+### (a third example, a significant quote from well-known story)
+
+Supposedly this game has a good plot: https://en.wikipedia.org/wiki/The_Legend_of_Zelda:_Oracle_of_Seasons_and_Oracle_of_Ages#Plot
+
+The quote might store the moment were you take the final action that leads to a significant plot point cut scene.
+
+### (additional example ideas)
+
+- a quote witnessing correct execution of a test ROM (use case: demonstrating correct implementation of a technical design)
+- a quote showing a creative game / tool like a paint program (use case: supporting a meme culture internal to a given game)
+- a quote sharing complete playback of interesting music (use case: showing specific game content in context)
 
 # Example Games
 
 Each should have:
 - title
-- screenshot (served from our assets bucket)
+- screenshot (served from our assets bucket, a clean 320x288 fat pixel view)
 - rom (direct link to gb/gbc)
-- comment
+- comment (including link )
 - reference (link to page with more detail)
 
 ## Tuff
 
-- title: Tuff
-- screenshot: (TODO)
-- rom: http://bonsaiden.github.io/Tuff.gb/roms/game.gb
-- reference: https://bonsaiden.github.io/Tuff.gb/
+![Tuff](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-screenshot.png?v=1628103261230)
+
+- ROM: http://bonsaiden.github.io/Tuff.gb/roms/game.gb
+- Reference: https://bonsaiden.github.io/Tuff.gb/
 
 A platformer with Metroidvania elements. We 
 

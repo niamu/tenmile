@@ -20,6 +20,9 @@
         opacity: 0.5;
       }
 
+      /* Related to creating and saving quotes ... the pics that show down below.
+         TODO: redesign? move this code elsewhere?
+      */
       #quotes div {
         display: inline-block;
         padding: 15px;
@@ -36,39 +39,6 @@
         display: block;
         clear: both;
       }
-
-      #sound-control {
-        float: right;
-      }
-
-      #upload {
-        float: right;
-        margin-right: 10px;
-      }
-
-      .iconbutton {
-        width: 15px;
-        padding: 5px;
-      }
-
-      input[type="checkbox"] + label {
-        font-family: fontello;
-        display: inline-block;
-      }
-
-      input[type="checkbox"] {
-        display: none;
-      }
-
-      input[type="checkbox"] + label:before {
-        content: "\e802";
-      }
-
-      input[type="checkbox"]:checked + label:before {
-        content: "\e803";
-      }
-
-      
     </style>
 
     <script src="lib/jszip.min.js" defer></script>
@@ -106,96 +76,51 @@
         <h1>
           Playable Quotes for Game Boy
         </h1>
-        <div id="explanation-overview" class="explanation">
-          <p>
-            In the same way that you can quote a book, or make a clip of a
-            video, this web page demonstrates a method to play, create, and
-            share small moments from any Game Boy game.
-          </p>
-          <p>
-            As an example, try loading <a href="https://bonsaiden.github.io/Tuff.gb/">Tuff</a> 
-            using the
-            <button
-              class="example-game"
-              onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
-            >
-              Example game
-            </button>
-            button.
-          </p>
-          <p>
-            Play Tuff for a bit, then try loading a quote of Tuff
-            using the
-            <button
-              class="example-quote"
-              onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
-            >
-              Example quote
-            </button>
-            button.
-          </p>
-          <p>
-            The example quote demonstrates a very small part of Tuff. 
-            Initally you will see a replay of the inputs used to create
-            the quote and if you press the <tt>Take control</tt> button, you'll
-            be able to play that quote yourself.
-          </p>
-          <p>
-            However! If you try doing anything that wasn't part of that Playable
-            Quote, the quote will reset.
-          </p>
+        <div>
+          <a href="explanation.html">Learn more!</a>
         </div>
-        <div id="explain-what-a-quote-is" class="explanation">
-          <p>
-            This is a Playable Quote. Right now you are watching the movements that were made when the
-            quote was created. However, if you <b>press the <tt>Take control</tt> button</b>,
-            you can play the game too. 
-            Since this is only a quote, the game will reset if you try to do something that wasn't done when
-            the quote was made.
-          </p>
-        </div>
-        <div id="explain-how-to-make-quotes" class="explanation">
-          <p>
-            <b>Making your own Playable Quote:</b> To make your own Playable
-            Quote, use the
-            <span class="icon-upload"></span> button to upload any Game Boy
-            game. 
-          </p>
-          <p>
-            Play until you are ready to start you Playable Quote,
-            then press the <tt>Record new quote</tt> button.
-            
-            Continue playing the game until you are ready to end your Playable
-            Quote, then press the <tt>Stop recording</tt> button.
-          </p>
-          <p>
-            Once that is done, an image will appear below the emulator. This is a Playable
-            Quote which you can download <span class="icon-download"></span> and
-            share <span class="icon-share"></span> as you like.
-          </p>
-        </div>
+        
+        
+        
         <div id="player">
-          <div id="container">
-            <canvas id="screen"></canvas>
-            <input id="button" type="button" value="..." />
-            <span id="status"></span>
-            <span id="upload" class="icon-upload iconbutton"></span>
-            <span id="sound-control" class="iconbutton">
-              <input type="checkbox" id="sound" />
-              <label for="sound"></label>
-            </span>
+          <div id="bezel">
+            
+            <div id="cartridgeStatus">
+              <span id="status">Nothing Loaded Yet!</span>
+              <div class="push"></div>
+              <span id="upload" class="ui tiny compact button"><span class="icon-upload"></span>Load</span>
+            </div>
+            
+            <div id="screenContainer">
+              <canvas id="screen"></canvas>
+            </div>
+            
+            <div id="controlStatus">
+              <input id="button" type="button" value="..." /> <!-- why is this a 'button' *screamy face* -->
+              <div class="push"></div>
+              <span id="sound-control" class="iconbutton">
+                <input type="checkbox" id="sound" />
+                <label for="sound"></label>
+              </span>
+            </div>
           </div>
+          
           <div id="control-pad">
-            <div id="d-pad"></div>
+            <div id="d-pad" title="Use Arrow Keys"></div>
             <div id="buttons">
-              <div id="button-b" class="button round up">B</div>
-              <div id="button-a" class="button round up">A</div>
-              <div id="button-select" class="button bar up">Select</div>
-              <div id="button-start" class="button bar up">Start</div>
+              <div id="button-b" class="button round up" title="Use Key: Z">B</div>
+              <div id="button-a" class="button round up" title="Use Key: X">A</div>
+              <div id="button-select" class="ui tiny black button" title="Use Key: Shift">Select</div>
+              <div id="button-start" class="ui tiny black button" title="Use Key: Enter">Start</div>
             </div>
             <div id="control-pad-end"></div>
           </div>
+          
         </div>
+        
+        
+        
+        
         <div id="instructions">
           Drop a game (<code>.gb</code>/<code>.gbc</code>) or quote (<code>.png</code>) on screen
           to play.<br />
