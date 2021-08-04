@@ -76,9 +76,23 @@ Each should have:
 
 http://bonsaiden.github.io/Tuff.gb/roms/game.gb
 
-[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project.
+[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. License: MIT.
 
-## uCity
+## µCity
 
-https://gbhh.avivace.com/game/ucity
+![µCity](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fucity-screenshot.png?v=1628104547469)
+
+
+https://github.com/AntonioND/ucity/releases/download/v1.2/ucity.gbc
+
+[*µCity* by AntonioND/SkyLyrac](https://gbhh.avivace.com/game/ucity) is an open-source city-building game for Game Boy Color. License: GPL v3+.
+
+## Soul Void
+
+![]()
+
+https://
+
+[*Soul Void* by Kadabura](https://kadabura.itch.io/soul-void) is a 1-2 hour interactive horror fiction.
+
 

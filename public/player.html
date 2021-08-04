@@ -71,25 +71,25 @@
   </head>
 
   <body>
-    <div class="ui middle aligned center aligned grid">
-      <div class="column">
-        <div class="ui segment">
-
-        </div>
-
-
+    <div class="ui center aligned top aligned grid">
+      <div class="sixteen wide column">
         <div class="ui basic segment">
           <h1>
             Playable Quotes for Game Boy
           </h1>
-          
+        </div>
+      </div>
+
+      <div class="eight wide column">
+        <div class="ui basic segment">
           <div id="player">
             <div id="bezel">
-
               <div id="cartridgeStatus">
                 <span id="status">Nothing Loaded Yet!</span>
                 <div class="push"></div>
-                <span id="upload" class="ui tiny compact button"><span class="icon-upload"></span>Load</span>
+                <span id="upload" class="ui tiny compact button"
+                  ><span class="icon-upload"></span>Load</span
+                >
               </div>
 
               <div id="screenContainer">
@@ -97,7 +97,8 @@
               </div>
 
               <div id="controlStatus">
-                <input id="button" type="button" value="..." /> <!-- why is this a 'button' *screamy face* -->
+                <input id="button" type="button" value="..." />
+                <!-- why is this a 'button' *screamy face* -->
                 <div class="push"></div>
                 <span id="sound-control" class="iconbutton">
                   <input type="checkbox" id="sound" />
@@ -109,24 +110,39 @@
             <div id="control-pad">
               <div id="d-pad" title="Use Arrow Keys"></div>
               <div id="buttons">
-                <div id="button-b" class="button round up" title="Use Key: Z">B</div>
-                <div id="button-a" class="button round up" title="Use Key: X">A</div>
-                <div id="button-select" class="ui tiny black button" title="Use Key: Shift">Select</div>
-                <div id="button-start" class="ui tiny black button" title="Use Key: Enter">Start</div>
+                <div id="button-b" class="button round up" title="Use Key: Z">
+                  B
+                </div>
+                <div id="button-a" class="button round up" title="Use Key: X">
+                  A
+                </div>
+                <div
+                  id="button-select"
+                  class="ui tiny black button"
+                  title="Use Key: Shift"
+                >
+                  Select
+                </div>
+                <div
+                  id="button-start"
+                  class="ui tiny black button"
+                  title="Use Key: Enter"
+                >
+                  Start
+                </div>
               </div>
               <div id="control-pad-end"></div>
             </div>
-
           </div>
         </div>
-        
-        
-        <div class="ui basic segment">
+      </div>
+      <div class="six wide column">
+        <div class="ui left aligned segment">
           <a href="explanation.html">Learn more!</a>
-      
+
           <div id="instructions">
-            Drop a game (<code>.gb</code>/<code>.gbc</code>) or quote (<code>.png</code>) on screen
-            to play.<br />
+            Drop a game (<code>.gb</code>/<code>.gbc</code>) or quote
+            (<code>.png</code>) on screen to play.<br />
             Game Boy controls: <span id="controls"></span><br />
             For more information, see <a href="README.md">README.md</a>.
             <br />
@@ -146,6 +162,9 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <div class="sixteen wide column">
         <div id="quotes"></div>
       </div>
     </div>
