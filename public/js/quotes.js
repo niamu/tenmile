@@ -214,7 +214,7 @@ async function compileQuote(trace) {
 
   ctx.fillStyle = "#888";
   ctx.fillText(
-    "[ 8bpp steg zip",
+    "playable quote, 8bpp steg zip",
     sw / 2 + BORDER_SIZE,
     sh + BORDER_SIZE + 0.75 * BORDER_SIZE
   );
@@ -242,7 +242,7 @@ async function compileQuote(trace) {
   let imgBytes = quoteImageData.data;
   let zipBytes = new Uint8Array(zipBuffer);
   if (zipBytes.length * 4 > imgBytes.length) {
-    alert("zip file too big to steganographically encode into image!");
+    alert("zip file too big to steganographically encode into image!" + ` ${zipBytes.length} bytes`);
   }
   let numBytes = zipBytes.length;
   for (let i = 0; i < numBytes; i++) {

@@ -8,7 +8,8 @@
     <script src="lib/UPNG.js"></script>
     <script src="lib/msgpack.js"></script>
     <script src="js/quotes.js"></script>
-    <style></style>
+    <style>
+    </style>
   </head>
   <body></body>
   <script defer>
@@ -16,7 +17,7 @@
 
     window.gtag = function() {};
 
-    (async function runAllTests() {
+    window.onload = async function runAllTests() {
       let trace = new Trace();
 
       trace.name = "EXAMPLE";
@@ -34,6 +35,6 @@
       let img = document.createElement("img");
       img.src = URL.createObjectURL(blob);
       document.body.appendChild(img);
-    })();
+    };
   </script>
 </html>
