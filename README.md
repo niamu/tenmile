@@ -3,6 +3,9 @@
 This project offers the ability to create and share **playable quotes** of [GameBoy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *delimited* reference to a 
 *specific* moment in a game along with a reference recording of how that moment plays out.
 
+## Running this project
+
+*TODO: add some text describing how to run this project if it weren't being served by Glitch. If the instructions are complex, refer to a section later on for more details. We dont't expect many to try running the server themselves.*
 
 ## Watching a Quote
 
@@ -42,8 +45,6 @@ A zip file containing this data is steganographically encoded in the quote file.
 ## "Is sharing playable quotes legal?"
 
 We aren't intellectual property laywers, but by the same reasoning that [Google can distribute delimited "snippets" of the books that they've scanned](https://www.theatlantic.com/technology/archive/2015/10/fair-use-transformative-leval-google-books/411058/), we think that sharing these playable quotes should be safe.
-
-
 
 ## Credits
 
