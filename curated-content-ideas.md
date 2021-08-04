@@ -52,6 +52,9 @@ Supposedly this game has a good plot: https://en.wikipedia.org/wiki/The_Legend_o
 
 The quote might store the moment were you take the final action that leads to a significant plot point cut scene.
 
+Other recommendations: https://www.reddit.com/r/Gameboy/comments/785tpl/gameboy_games_with_the_a_great_storynarrative/
+
+
 ### (additional example ideas)
 
 - a quote witnessing correct execution of a test ROM (use case: demonstrating correct implementation of a technical design)
@@ -71,10 +74,9 @@ Each should have:
 
 ![Tuff](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-screenshot.png?v=1628103261230)
 
-- ROM: http://bonsaiden.github.io/Tuff.gb/roms/game.gb
-- Reference: https://bonsaiden.github.io/Tuff.gb/
+http://bonsaiden.github.io/Tuff.gb/roms/game.gb
 
-A platformer with Metroidvania elements. We 
+[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project.
 
 ## uCity
 

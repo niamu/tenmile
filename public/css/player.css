@@ -1,7 +1,8 @@
 #player {
   background: #999a99;
-  //border-radius: 10px;
-  border-radius: 5px px 70px 15px;
+  border-radius: 10px 10px 60px 10px;
+  border: 2px solid #666;
+  box-shadow: 5px 5px 15px 2px #888888;
   width: 380px;
   margin: auto;
   padding: 15px;
@@ -36,6 +37,11 @@
   align-items: center;
   padding-top: 5px;
   padding-bottom: 5px;
+}
+
+#status {
+  font-size: smaller;
+  color: gray;
 }
 
 .push {
