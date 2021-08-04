@@ -74,7 +74,7 @@ Each should have:
 
 ![Tuff](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-screenshot.png?v=1628103261230)
 
-http://bonsaiden.github.io/Tuff.gb/roms/game.gb
+https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb?v=1628105208889
 
 [*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. License: MIT.
 
@@ -82,8 +82,7 @@ http://bonsaiden.github.io/Tuff.gb/roms/game.gb
 
 ![µCity](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fucity-screenshot.png?v=1628104547469)
 
-
-https://github.com/AntonioND/ucity/releases/download/v1.2/ucity.gbc
+https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fucity.gbc?v=1628105154650
 
 [*µCity* by AntonioND/SkyLyrac](https://gbhh.avivace.com/game/ucity) is an open-source city-building game for Game Boy Color. License: GPL v3+.
 
@@ -91,7 +90,7 @@ https://github.com/AntonioND/ucity/releases/download/v1.2/ucity.gbc
 
 ![]()
 
-https://
+https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fsoulvoid.gb?v=1628105155137
 
 [*Soul Void* by Kadabura](https://kadabura.itch.io/soul-void) is a 1-2 hour interactive horror fiction.
 
