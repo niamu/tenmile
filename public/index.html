@@ -19,6 +19,14 @@
         margin: auto;
         padding: 5px;
       }
+      
+      #explanation {
+        width: 370px;
+        text-align: left;
+        margin: auto;
+        padding-bottom: 20px;
+      }
+      
       #container {
         background: #f5f5f5;
         width: 350px;
@@ -47,11 +55,11 @@
         visibility: hidden;
       }
 
-      button#example-game {
+      button.example-game {
         background: #adeaad;
       }
 
-      button#example-quote {
+      button.example-quote {
         background: #b5e0ff;
       }
 
@@ -83,7 +91,7 @@
         display: block;
         margin: auto;
       }
-      
+
       #control-pad-end {
         clear: both;
       }
@@ -228,13 +236,45 @@
         <h1>
           Playable Quotes for Game Boy
         </h1>
-        <p>        
-          In the same way that you can quote a book, or make a clip of a video, 
-          this web page demonstrates a method to play, create, and share small moments from any Game Boy game.
+        <div id="explanation">          
+        <p>
+          In the same way that you can quote a book, or make a clip of a video,
+          this web page demonstrates a method to play, create, and share small
+          moments from any Game Boy game.
         </p>
         <p>
-          As an example, try loading an example game. Play the game for a bit, then try loading a quote of the same game that we have included below.
+          As an example, try loading an example game using the
+          <button
+            class="example-game"
+            onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
+          >
+            Example game
+          </button>
+          button.
+          </p>
+          <p>Play the game for a bit, then try loading a quote of the same
+          game using the
+          <button
+            class="example-quote"
+            onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
+          >
+            Example quote
+          </button>
+          button. 
+            
+          </p>
+          </p>
+          Note that the playable quote demonstrates a very small part of the game. 
+          Initally you will see a replay of the inputs used to create the quote and 
+          if you press the "Take control" button, you'll be able to play that quote yourself.
         </p>
+        <p>
+          However! If you try doing anything that wasn't part of that quote, the quote will reset.
+        </p>
+      <p>
+        <b>Making your own playable quote</b>
+      </p>
+        </div>
         <div id="player">
           <div id="container">
             <canvas id="screen"></canvas>
@@ -266,13 +306,13 @@
         </div>
         <div id="examples">
           <button
-            id="example-game"
+            class="example-game"
             onclick="dropGameByUrl('https://bonsaiden.github.io/Tuff.gb/roms/game.gb');"
           >
             Example game
           </button>
           <button
-            id="example-quote"
+            class="example-quote"
             onclick="dropQuoteByUrl('https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7fff56ec.png?v=1628024161680');"
           >
             Example quote
