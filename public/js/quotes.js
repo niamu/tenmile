@@ -182,7 +182,7 @@ async function compileQuote(trace) {
   let ctx = canvas.getContext("2d");
 
   ctx.fillStyle = "#ccc";
-  ctx.fillRect(0, 0, sw + 2 * BORDER_SIZE, sh + 2 * BORDER_SIZE);
+  ctx.fillRect(BORDER_SIZE, BORDER_SIZE, sw, sh);
 
   ctx.strokeStyle = "#444";
   ctx.strokeRect(0, 0, sw + 2 * BORDER_SIZE, sh + 2 * BORDER_SIZE);

@@ -3,31 +3,37 @@
   <head>
     <meta charset="utf-8" />
     <title>quote format preview</title>
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/pako.min.js"></script>
+    <script src="lib/UPNG.js"></script>
     <script src="lib/msgpack.js"></script>
     <script src="js/quotes.js"></script>
-    <style>
-    </style>
+    <style></style>
   </head>
-  <body>
-  </body>
-  <script>
+  <body></body>
+  <script defer>
     "use strict";
 
+    window.gtag = function() {};
+
     (async function runAllTests() {
+      let trace = new Trace();
+
+      trace.name = "EXAMPLE";
+      trace.initialState = [];
+
+      trace.initialState[SAVESTATE_ROM] = new Uint8Array();
+      trace.initialState[SAVESTATE_FRAMEBUFFER] = [];
+
+      trace.actions = [];
+      trace.romDependencies = new Set();
+
+      let {blob, filename} = await compileQuote(trace);
+      console.log(filename);
       
-      let quote = new Quote();
-      
-      quote.rom = null;
-      
-      class Quote {
-  contstructor() {
-    this.rom = null;
-    this.romMask = null;
-    this.state = null;
-    this.actions = null;
-  }
-}
-      
+      let img = document.createElement("img");
+      img.src = URL.createObjectURL(blob);
+      document.body.appendChild(img);
     })();
   </script>
 </html>
