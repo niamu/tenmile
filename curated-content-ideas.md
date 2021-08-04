@@ -76,7 +76,8 @@ Each should have:
 
 https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb?v=1628105208889
 
-[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. License: MIT.
+[*Tuff* by BonsaiDen](https://bonsaiden.github.io/Tuff.gb/) is based on a mix of Jump'n'Run and Metroidvania style game elements. We used Tuff extensively during the development of this project. The precise timing needed for 
+License: MIT.
 
 ## µCity
 
@@ -84,14 +85,14 @@ https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb?v=16281052
 
 https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fucity.gbc?v=1628105154650
 
-[*µCity* by AntonioND/SkyLyrac](https://gbhh.avivace.com/game/ucity) is an open-source city-building game for Game Boy Color. License: GPL v3+.
+[*µCity* by AntonioND/SkyLyrac](https://gbhh.avivace.com/game/ucity) is a city-building game. By sharing playble quotes (and using the original game to unlock play from the moments they reference), you might argue with a friend on the best way to manage your shared city.  License: GPL v3+.
 
 ## Soul Void
 
-![]()
+![Soul Void](https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fsoulvoid-screenshot.png?v=1628106145583)
 
 https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Fsoulvoid.gb?v=1628105155137
 
-[*Soul Void* by Kadabura](https://kadabura.itch.io/soul-void) is a 1-2 hour interactive horror fiction.
+[*Soul Void* by Kadabura](https://kadabura.itch.io/soul-void) is a 1-2 hour interactive horror fiction. The game has a [screenshots-and-text walkthrough](https://www.kadaburadraws.com/soul-void-walkthrough) that might be enriched with playable quotes. License: unspecified. 
 
 
