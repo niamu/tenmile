@@ -128,12 +128,18 @@ const fsm = new StateMachine({
       if (this.gameboy) {
         document.title = lifecycle.to + " " + this.gameboy.name;
         this.status.innerText = lifecycle.to + " " + this.gameboy.name;
-        
-        
+
         gtag("event", lifecycle.to, {
           event_category: lifecycle.transition,
           event_label: this.gameboy.name
         });
+      }
+    },
+    onAfterTransition: function(lifecycle) {
+      if (this.state != "idle") {
+        this.button.style.visibility = "visible";
+      } else {
+        this.button.style.visibility = "hidden";
       }
     },
 
@@ -456,8 +462,8 @@ function identicalArrays(a, b) {
 
   if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
-    gtag('event', 'hash url', {
-      event_label: url 
+    gtag("event", "hash url", {
+      event_label: url
     });
     dropByUrl(url, url);
     /*
