@@ -1,24 +1,3 @@
-# Landing page outline
-
-- # Playable Quotes for Game Boy
-- This project offers the ability to create and share **playable quotes** of [Game Boy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *durable*, *delimited* reference to a 
-*specific* moment in a game along with a reference *recording* of how that moment can play out.
-- ## Quotes
-- Quotes can allow players to share exciting moments and play styles from their favorite games, they can allow game publishers to tease content available in full games, and they can allow critics and educators to make convincing comparisons within and across the many moments in past games. These examples use commercial Game Boy games to illustrate potential use cases for playable quotes. Everything needed to reproduce each quote is contained within the `.png` files seen here. 
-- {carousel with curated quotes list, links open in player}
-- ## Games
-- To record a new quote, you need access to a full game (typically a `.gb` or `.gbc` file). Try playing these freely licensed, homebrew games:
-- {carousel with curated games list, links open in player}
-- ## What's in a Quote File?
-- The `.png` quote files used in this project also contain a `.zip` file. The zip contains a copy of the original game's ROM image with almost all entries (except those needed to play the quote) replaced by zeros. It also contains a state snapshot from our specially-repared Game Boy emulator along with a list of timed actions needed to reproduce the recorded gameplay. The zip file is steganographically encoded in the least significant bits of the image pixel data (8 bits per pixel) so that it is difficult for the informaiton about the ROM and savestate to become detached from the screenshot.
-- ## Help Needed
-- Robust playback: We need help further modifying an open-source Game Boy emulator in order to perfectly reproduce recorded gameplay given only the state snapshot and the recorded input events.
-- More platforms: We need help finding and modifying emulators for other game platforms.
-- Software organization: We need help refactoring the code of this prototype into a form that is easier to reuse. We want embedding quotes into a new webpage feel like using the existing HTML5 `<video>` tag.
-- ## Contact
-- {rig up contact@quote.games to email joel and adam}
-
-
 # Curated Quotes
 
 Each should have:
