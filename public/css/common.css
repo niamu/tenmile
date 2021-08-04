@@ -13,3 +13,11 @@ h2 {
   font-family: "Pixeboy";
   font-size: large;
 }
+
+button.example-game {
+  background: #adeaad;
+}
+
+button.example-quote {
+  background: #b5e0ff;
+}
