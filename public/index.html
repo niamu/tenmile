@@ -13,93 +13,109 @@
     <script src="lib/semantic.min.js"></script>
   </head>
   <body>
-    <h1 cla>Playable Quotes for Game Boy</h1>
-    <p>
-      This project offers the ability to create and share
-      <strong>playable quotes</strong> of
-      <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A
-      playable quote is a
-      <abbr title="everything needed to play the quote is embedded inside of it"
-        >durable</abbr
-      >,
-      <abbr title="only what's necessary to replay the quote is included"
-        >delimited</abbr
-      >
-      reference to a
-      <abbr
-        title="the quote captures a tiny piece of the possible space of interaction"
-        >specific</abbr
-      >
-      moment in a game along with a reference
-      <abbr
-        title="without actively playing, you can still see what might happen"
-        >recording</abbr
-      >
-      of how that moment can play out.
-    </p>
-    <h2>Quotes</h2>
-    <p>
-      Quotes can allow players to share exciting moments and play styles from
-      their favorite games, they can allow game publishers to tease content
-      available in full games, and they can allow critics and educators to make
-      convincing comparisons within and across the many moments in past games.
-      These examples use commercial Game Boy games to illustrate potential use
-      cases for playable quotes. Everything needed to reproduce each quote is
-      contained within the <code>.png</code> files seen here.
-    </p>
-    <p>
-      A placeholder quote for now:<br>
-      <a href="player.html#drop=https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7f509737.png"><img src="https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7f509737.png"></a>
-    </p>
+    <div class="ui container">
+      <div class="ui basic segment">
+        <h1>Playable Quotes for Game Boy</h1>
+        <p>
+          This project offers the ability to create and share
+          <strong>playable quotes</strong> of
+          <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A
+          playable quote is a
+          <abbr
+            title="everything needed to play the quote is embedded inside of it"
+            >durable</abbr
+          >,
+          <abbr title="only what's necessary to replay the quote is included"
+            >delimited</abbr
+          >
+          reference to a
+          <abbr
+            title="the quote captures a tiny piece of the possible space of interaction"
+            >specific</abbr
+          >
+          moment in a game along with a reference
+          <abbr
+            title="without actively playing, you can still see what might happen"
+            >recording</abbr
+          >
+          of how that moment can play out.
+        </p>
+      </div>
 
-    <h2>Games</h2>
-    <p>
-      To record a new quote, you need access to a full game (typically a
-      <code>.gb</code> or <code>.gbc</code> file). Try playing these freely
-      licensed, homebrew games:
-    </p>
-    <p>
-      A placeholder quote for now:<br>
-      <a href="player.html#drop=https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb"><img src="https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-screenshot.png"></a>
-    </p>
-    <p>
-      Find more homebrew games at the
-      <a href="https://gbhh.avivace.com/">Game Boy Homebrew Hub</a>.
-    </p>
+    <div class="ui basic segment">
+      <h2>Quotes</h2>
+      <p>
+        Quotes can allow players to share exciting moments and play styles from
+        their favorite games, they can allow game publishers to tease content
+        available in full games, and they can allow critics and educators to
+        make convincing comparisons within and across the many moments in past
+        games. These examples use commercial Game Boy games to illustrate
+        potential use cases for playable quotes. Everything needed to reproduce
+        each quote is contained within the <code>.png</code> files seen here.
+      </p>
+      <p>
+        A placeholder quote for now:<br />
+        <a
+          href="player.html#drop=https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7f509737.png"
+          ><img
+            src="https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2FTUFF-ca28-7f509737.png"
+        /></a>
+      </p>
 
-    <h2>What's in a Quote File?</h2>
-    <p>
-      The <code>.png</code> quote files used in this project also contain a
-      <code>.zip</code> file. The zip contains a copy of the original game's ROM
-      image with almost all entries (except those needed to play the quote)
-      replaced by zeros. It also contains a state snapshot from our
-      specially-repared Game Boy emulator along with a list of timed actions
-      needed to reproduce the recorded gameplay. The zip file is
-      steganographically encoded in the least significant bits of the image
-      pixel data (8 bits per pixel) so that it is difficult for the informaiton
-      about the ROM and savestate to become detached from the screenshot.
-    </p>
+      <h2>Games</h2>
+      <p>
+        To record a new quote, you need access to a full game (typically a
+        <code>.gb</code> or <code>.gbc</code> file). Try playing these freely
+        licensed, homebrew games:
+      </p>
+      <p>
+        A placeholder quote for now:<br />
+        <a
+          href="player.html#drop=https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff.gb"
+          ><img
+            src="https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Ftuff-screenshot.png"
+        /></a>
+      </p>
+      <p>
+        Find more homebrew games at the
+        <a href="https://gbhh.avivace.com/">Game Boy Homebrew Hub</a>.
+      </p>
 
-    <h2>Help Needed</h2>
-    <ul>
-      <li>
-        <strong>Robust playback</strong>: We need help further modifying an
-        open-source Game Boy emulator in order to perfectly reproduce recorded
-        gameplay given only the state snapshot and the recorded input events.
-      </li>
-      <li>
-        <strong>More platforms</strong>: We need help finding and modifying
-        emulators for other game platforms.
-      </li>
-      <li>
-        <strong>Software organization</strong>: We need help refactoring the
-        code of this prototype into a form that is easier to reuse. We want
-        embedding quotes into a new webpage feel like using the existing HTML5
-        <code>&lt;video&gt;</code> tag.
-      </li>
-    </ul>
+      <h2>What's in a Quote File?</h2>
+      <p>
+        The <code>.png</code> quote files used in this project also contain a
+        <code>.zip</code> file. The zip contains a copy of the original game's
+        ROM image with almost all entries (except those needed to play the
+        quote) replaced by zeros. It also contains a state snapshot from our
+        specially-repared Game Boy emulator along with a list of timed actions
+        needed to reproduce the recorded gameplay. The zip file is
+        steganographically encoded in the least significant bits of the image
+        pixel data (8 bits per pixel) so that it is difficult for the
+        informaiton about the ROM and savestate to become detached from the
+        screenshot.
+      </p>
 
-    <h2>Contact</h2>
-    <p>...</p>
+      <h2>Help Needed</h2>
+      <ul>
+        <li>
+          <strong>Robust playback</strong>: We need help further modifying an
+          open-source Game Boy emulator in order to perfectly reproduce recorded
+          gameplay given only the state snapshot and the recorded input events.
+        </li>
+        <li>
+          <strong>More platforms</strong>: We need help finding and modifying
+          emulators for other game platforms.
+        </li>
+        <li>
+          <strong>Software organization</strong>: We need help refactoring the
+          code of this prototype into a form that is easier to reuse. We want
+          embedding quotes into a new webpage feel like using the existing HTML5
+          <code>&lt;video&gt;</code> tag.
+        </li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>...</p>
+    </div>
   </body>
 </html>
