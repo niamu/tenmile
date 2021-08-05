@@ -449,9 +449,9 @@ function identicalArrays(a, b) {
   buttonsArray.forEach(function(element) {
     if (element.id.startsWith("button-")) {
       // "pointer" events encapsulate touch, mouse, etc
-      element.addEventListener("pointerdown", handleTouch);
-      element.addEventListener("pointerup", handleTouch);
-      element.addEventListener("pointedrcancel", handleTouch);
+      element.addEventListener("pointerdown", handleButton);
+      element.addEventListener("pointerup", handleButton);
+      element.addEventListener("pointedrcancel", handleButton);
       console.log("listening to:", element);
     }
   });
@@ -460,12 +460,6 @@ function identicalArrays(a, b) {
   function dPadClosure(event) {
     handleDPad(event, dPadRect);
   }
-  /*
-  dPad.addEventListener("touchstart", dPadClosure);
-  dPad.addEventListener("touchmove", dPadClosure);
-  dPad.addEventListener("touchend", dPadClosure);
-  dPad.addEventListener("touchcancel", dPadClosure);
-  /* */
   dPad.addEventListener("pointerdown", dPadClosure);
   dPad.addEventListener("pointermove", dPadClosure);
   dPad.addEventListener("pointerup", dPadClosure);
@@ -494,63 +488,52 @@ function dropByUrl(name, url) {
   }
 }
 
-function handleKey(event) {
+function pressButton(name, down) {
+  console.log("Button pressed:", name, down ? "down" : "up");
   if (fsm.gameboy) {
-    let key = event.key;
-    if (key in keyToButton) {
-      let keycode = buttonToKeycode[keyToButton[key]];
-      fsm.gameboy.JoyPadEvent(keycode, event.type == "keydown");
-      try {
-        event.preventDefault();
-      } catch (error) {
-        console.log("handleKey", error);
-      }
-    }
+    fsm.gameboy.JoyPadEvent(buttonToKeycode[name], down);
+  }
+}
+
+function handleKey(event) {
+  event.preventDefault();
+  let key = event.key;
+  if (key in keyToButton) {
+    pressButton(keyToButton[key], event.type == "keydown");
   }
 }
 
 function handleDPad(event, rect) {
   event.preventDefault();
-  function getDirection(touch, rect) {
-    let x = touch.clientX - rect.left;
-    let y = touch.clientY - rect.top;
-    let a = y / x < 1.0 ? true : false;
-    let b = x / (rect.height - y) < 1.0 ? true : false;
-    let direction = "";
-    if (a == b) {
-      direction = a ? "up" : "down";
-    } else {
-      direction = a ? "right" : "left";
-    }
-    return direction;
-  }
-  function sendDirection(dpadDirection, buttonDown) {
-    console.log("D-Pad:", dpadDirection, "Down?", buttonDown);
-    if(fsm.gameboy) {
-          fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], buttonDown);
-    }
+  let x = event.clientX - rect.left;
+  let y = event.clientY - rect.top;
+  let a = y / x < 1.0 ? true : false;
+  let b = x / (rect.height - y) < 1.0 ? true : false;
+  let direction = "";
+  if (a == b) {
+    direction = a ? "up" : "down";
+  } else {
+    direction = a ? "right" : "left";
   }
 
-  let direction = getDirection(event, rect);
   if (event.type == "pointerdown" && dpadDirection == null) {
     dpadDirection = direction;
-    sendDirection(dpadDirection, true);
+    pressButton(dpadDirection, true);
   } else if (event.type == "pointerup" && dpadDirection) {
-    sendDirection(dpadDirection, false);
+    pressButton(dpadDirection, false);
     dpadDirection = null;
-  } else if (event.type == "pointermove" && dpadDirection) {
-    if (dpadDirection && dpadDirection != direction) {
-      fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
-    }
-    console.log("D-Pad:", direction);
-    fsm.gameboy.JoyPadEvent(buttonToKeycode[direction], true);
+  } else if (
+    event.type == "pointermove" &&
+    dpadDirection &&
+    dpadDirection != direction
+  ) {
+    pressButton(dpadDirection, false);
+    pressButton(direction, true);
     dpadDirection = direction;
-  } else {
-    console.log("Unexpected error");
   }
 }
 
-function handleTouch(event) {
+function handleButton(event) {
   let div = event.target;
   let buttonName = div.id.split("-")[1];
   let buttonDown = event.type == "pointerdown" ? true : false;
@@ -568,10 +551,7 @@ function handleTouch(event) {
     console.log("handleTouch", error);
   }
 
-  if (fsm.gameboy) {
-    let keycode = buttonToKeycode[buttonName];
-    fsm.gameboy.JoyPadEvent(keycode, buttonDown);
-  }
+  pressButton(buttonToKeycode[buttonName], buttonDown);
 }
 
 async function dropGameByUrl(url) {
