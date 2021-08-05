@@ -72,6 +72,8 @@
 #control-pad {
   display: block;
   margin: auto;
+  touch-action: none;
+  
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -94,6 +96,8 @@
   display: inline-block;
   background-color: black;
   color: white;
+    touch-action: none;
+  
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
