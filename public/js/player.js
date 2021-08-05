@@ -505,12 +505,12 @@ function handleKey(event) {
 
 function handleDPad(event, rect) {
   event.preventDefault();
-  let x = event.clientX; // - rect.left;
-  let y = event.clientY; // - rect.top;
+  let x = event.offsetX; //clientX; // - rect.left;
+  let y = event.offsetY; //clientY; // - rect.top;
   console.log("x", x, "y", y);
   let a = y / x < 1.0 ? true : false;
-  // let b = x / (rect.height - y) < 1.0 ? true : false;
-  let b = x / (event.height - y) < 1.0 ? true : false;
+  let b = x / (rect.height - y) < 1.0 ? true : false;
+  // let b = x / (event.height - y) < 1.0 ? true : false;
   let direction = "";
   if (a == b) {
     direction = a ? "up" : "down";
