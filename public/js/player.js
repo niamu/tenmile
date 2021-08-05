@@ -64,14 +64,6 @@ const fsm = new StateMachine({
       this.gameboy.JoyPad = state[208];
       this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
     },
-    installElementProxies: function() {
-      this.gameboy._unproxiedElements = {};
-      this.gameboy._elementHandlers = {};
-      for(let [e,spec] of Object.entries(SLICED_ELEMENTS)) {
-        this.gameboy._unproxiedElements[e] = this.gameboy[e];
-        this.gameboy[e] = new Proxy(this.gameboy[e], this._elementHandlers[e]);
-      }
-    },
     onTransition: function(lifecycle, ...args) {
       console.info(
         "transition:",
@@ -129,6 +121,7 @@ const fsm = new StateMachine({
         );
 
         this.gameboy.run = new Proxy(this.gameboy.run, this.handleRun);
+
         this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
       }
 
