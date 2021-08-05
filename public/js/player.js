@@ -534,6 +534,7 @@ function handleDPad(event, rect) {
 }
 
 function handleButton(event) {
+  event.preventDefault();
   let div = event.target;
   let buttonName = div.id.split("-")[1];
   let buttonDown = event.type == "pointerdown" ? true : false;
@@ -545,13 +546,7 @@ function handleButton(event) {
     div.classList.add("up");
   }
 
-  try {
-    event.preventDefault();
-  } catch (error) {
-    console.log("handleTouch", error);
-  }
-
-  pressButton(buttonToKeycode[buttonName], buttonDown);
+  pressButton(buttonName, buttonDown);
 }
 
 async function dropGameByUrl(url) {
