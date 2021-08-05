@@ -59,6 +59,9 @@
       for (let i = 0; i < 125 * 10; i++) {
         gameboy.run();
       }
+      
+      s = gameboy.saveState();
+      gameboy.returnFromState(s);
 
       // initialize hitmaps
       let hitmaps = {};

@@ -64,6 +64,9 @@ const fsm = new StateMachine({
       this.gameboy.JoyPad = state[208];
       this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
     },
+    installMemorySpies: function() {
+      
+    },
     onTransition: function(lifecycle, ...args) {
       console.info(
         "transition:",

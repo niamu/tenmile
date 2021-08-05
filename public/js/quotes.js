@@ -13,7 +13,7 @@ const SLICED_ELEMENTS = {
   "MBCRam": {
     state_slot: 20,
   },
-  /* Can't reliably slice `VRAM` because many reads are skipped (cached internally)
+  /* VRAM reads reported by Proxy don't look reliable, not save to slice.
   "VRAM": {
     state_slot: 21
   },
