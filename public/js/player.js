@@ -452,7 +452,6 @@ function identicalArrays(a, b) {
       element.addEventListener("pointerdown", handleButton);
       element.addEventListener("pointerup", handleButton);
       element.addEventListener("pointedrcancel", handleButton);
-      console.log("listening to:", element);
     }
   });
   let dPad = document.getElementById("d-pad");
@@ -489,7 +488,8 @@ function dropByUrl(name, url) {
 }
 
 function sendButtonPress(name, down) {
-  console.log("Button pressed:", name, down ? "down" : "up");
+  /* This is very useful for debugging: */
+  // console.log("Button pressed:", name, down ? "down" : "up");
   if (fsm.gameboy) {
     fsm.gameboy.JoyPadEvent(buttonToKeycode[name], down);
   }
@@ -505,12 +505,10 @@ function handleKey(event) {
 
 function handleDPad(event, rect) {
   event.preventDefault();
-  let x = event.offsetX; //clientX; // - rect.left;
-  let y = event.offsetY; //clientY; // - rect.top;
-  console.log("x", x, "y", y);
+  let x = event.offsetX;
+  let y = event.offsetY;
   let a = y / x < 1.0 ? true : false;
   let b = x / (rect.height - y) < 1.0 ? true : false;
-  // let b = x / (event.height - y) < 1.0 ? true : false;
   let direction = "";
   if (a == b) {
     direction = a ? "up" : "down";
@@ -519,15 +517,9 @@ function handleDPad(event, rect) {
   }
 
   if (event.type == "pointerdown" && dpadDirection == null) {
-    console.log(event);
-    console.log(rect);
-
     dpadDirection = direction;
     sendButtonPress(dpadDirection, true);
   } else if (event.type == "pointerup" && dpadDirection) {
-    console.log(event);
-    console.log(rect);
-
     sendButtonPress(dpadDirection, false);
     dpadDirection = null;
   } else if (
@@ -535,9 +527,6 @@ function handleDPad(event, rect) {
     dpadDirection &&
     dpadDirection != direction
   ) {
-    console.log(event);
-    console.log(rect);
-
     sendButtonPress(dpadDirection, false);
     sendButtonPress(direction, true);
     dpadDirection = direction;
