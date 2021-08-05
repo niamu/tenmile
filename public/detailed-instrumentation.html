@@ -11,7 +11,7 @@
     <canvas id="screen" width="160" height="144"></canvas>
   </body>
   <script>
-              const keyToButton = {
+    const keyToButton = {
       ArrowRight: "right",
       ArrowLeft: "left",
       ArrowUp: "up",
@@ -33,82 +33,94 @@
       start: 7
     };
 
-    const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
+    const elements = ["ROM", "memory", "MBCRam", "VRAM", "GBCMemory"];
 
-        (async function() {
-          let buffer = await (await fetch(
-            "https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
-          )).arrayBuffer();
+    (async function() {
+      let buffer = await (await fetch(
+        //"https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
+        "https://cdn.glitch.com/80f5a65b-f7e3-4b40-b639-8e2c014de0ca%2Finfinity.gb?v=1628111377657"
+      )).arrayBuffer();
 
-          window.debug = () => {};
+      window.debug = () => {};
 
-          let canvas = document.getElementById("screen");
-          let gameboy = window.gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
+      let canvas = document.getElementById("screen");
+      let gameboy = (window.gameboy = GameBoyCore(
+        canvas,
+        new Uint8Array(buffer),
+        {}
+      ));
 
-          gameboy.stopEmulator = 1; // required for some reason
-          gameboy.start();
+      gameboy.stopEmulator = 1; // required for some reason
+      gameboy.start();
 
-          // skip startup
-          for(let i = 0; i < 125*10; i++) {
-            gameboy.run();
+      // skip startup
+      for (let i = 0; i < 125 * 10; i++) {
+        gameboy.run();
+      }
+
+      // initialize hitmaps
+      let hitmaps = {};
+      let unproxied = {};
+
+      function resetHitmaps() {
+        console.log("resetting hitmaps");
+        for (let e of elements) {
+          hitmaps[e] = new Set();
+        }
+      }
+
+      function dumpHitmaps() {
+        let report = {};
+        for (let e of elements) {
+          let nz = 0;
+          for (let v of Object.values(unproxied[e])) {
+            nz += v != 0;
           }
+          report[e] = `${hitmaps[e].size} / ${unproxied[e].length} / ${nz}`;
+        }
+        console.log(report);
+      }
 
-          // initialize hitmaps
-          let hitmaps = {};
-          
-          function resetHitmaps() {
-            console.log('resetting hitmaps');
-            for(let e of elements) {
-              hitmaps[e] = new Set();
-            }  
-          }
-          
-          function dumpHitmaps() {
-            let report = {}
-            for (let e of elements) {
-              report[e] = `${hitmaps[e].size}/${gameboy[e].length}`;
+      resetHitmaps();
+
+      // install spies
+      for (let e of elements) {
+        unproxied[e] = gameboy[e];
+        gameboy[e] = new Proxy(gameboy[e], {
+          get: function(target, prop) {
+            if (prop != "length" && !hitmaps[e].has(prop)) {
+              hitmaps[e].add(prop);
+              //console.count(e);
             }
-            console.log(report);
+            return target[prop];
           }
-          
-          resetHitmaps();
-          
-          
-          // install spies
-          for(let e of elements) {
-            gameboy[e] = new Proxy(gameboy[e], {
-              get: function(target, prop) {
-                if(!hitmaps[e].has(prop)) {
-                  hitmaps[e].add(prop);
-                  //console.count(e);
-                }
-                return target[prop];
-              }
-            });
+        });
+      }
+
+      // schedule continuous running
+      setInterval(function() {
+        gameboy.run();
+      }, 8);
+
+      // handle keys
+      function handleKey(event) {
+        event.preventDefault();
+        let down = event.type == "keydown";
+        let key = event.key;
+        if (down) {
+          if (key == "r") {
+            resetHitmaps();
+          } else if (key == "d") {
+            dumpHitmaps();
           }
+        }
 
-          // schedule continuous running
-          setInterval(function() {
-            gameboy.run();
-          }, 8);
-
-          // handle keys
-          function handleKey(event) {
-            event.preventDefault();
-            let key = event.key;
-            if (key == "r") {
-              resetHitmaps();
-            } else if (key == "d") {
-              dumpHitmaps();
-            }
-            if (key in keyToButton) {
-              let down = event.type == "keydown";
-              gameboy.JoyPadEvent(buttonToKeycode[keyToButton[key]], down);
-            }
-          }
-          document.addEventListener("keydown", handleKey, false);
-          document.addEventListener("keyup", handleKey, false);
-
-        })();
+        if (key in keyToButton) {
+          gameboy.JoyPadEvent(buttonToKeycode[keyToButton[key]], down);
+        }
+      }
+      document.addEventListener("keydown", handleKey, false);
+      document.addEventListener("keyup", handleKey, false);
+    })();
   </script>
 </html>
