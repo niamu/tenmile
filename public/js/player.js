@@ -488,7 +488,7 @@ function dropByUrl(name, url) {
   }
 }
 
-function pressButton(name, down) {
+function sendButtonPress(name, down) {
   console.log("Button pressed:", name, down ? "down" : "up");
   if (fsm.gameboy) {
     fsm.gameboy.JoyPadEvent(buttonToKeycode[name], down);
@@ -499,7 +499,7 @@ function handleKey(event) {
   event.preventDefault();
   let key = event.key;
   if (key in keyToButton) {
-    pressButton(keyToButton[key], event.type == "keydown");
+    sendButtonPress(keyToButton[key], event.type == "keydown");
   }
 }
 
@@ -518,17 +518,17 @@ function handleDPad(event, rect) {
 
   if (event.type == "pointerdown" && dpadDirection == null) {
     dpadDirection = direction;
-    pressButton(dpadDirection, true);
+    sendButtonPress(dpadDirection, true);
   } else if (event.type == "pointerup" && dpadDirection) {
-    pressButton(dpadDirection, false);
+    sendButtonPress(dpadDirection, false);
     dpadDirection = null;
   } else if (
     event.type == "pointermove" &&
     dpadDirection &&
     dpadDirection != direction
   ) {
-    pressButton(dpadDirection, false);
-    pressButton(direction, true);
+    sendButtonPress(dpadDirection, false);
+    sendButtonPress(direction, true);
     dpadDirection = direction;
   }
 }
@@ -546,7 +546,7 @@ function handleButton(event) {
     div.classList.add("up");
   }
 
-  pressButton(buttonName, buttonDown);
+  sendButtonPress(buttonName, buttonDown);
 }
 
 async function dropGameByUrl(url) {
