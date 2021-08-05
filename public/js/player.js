@@ -511,17 +511,7 @@ function handleKey(event) {
 
 function handleDPad(event, rect) {
   event.preventDefault();
-  if (dpadDirection && event.type == "touchend") {
-    fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
-    dpadDirection = null;
-    return;
-  }
-  let buttonDown = event.type == "pointerdown" ? true : false;
-  console.log(event);
-  //for (var i = 0; i < event.changedTouches.length; i++) {
-  //  let touch = event.changedTouches[i];
-    console.log(event.type);
-  let touch = event;
+  function getDirection(touch, rect) {
     let x = touch.clientX - rect.left;
     let y = touch.clientY - rect.top;
     let a = y / x < 1.0 ? true : false;
@@ -532,13 +522,32 @@ function handleDPad(event, rect) {
     } else {
       direction = a ? "right" : "left";
     }
+    return direction;
+  }
+  function sendDirection(dpadDirection, buttonDown) {
+    console.log("D-Pad:", dpadDirection, "Down?", buttonDown);
+    if(fsm.gameboy) {
+          fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], buttonDown);
+    }
+  }
+
+  let direction = getDirection(event, rect);
+  if (event.type == "pointerdown" && dpadDirection == null) {
+    dpadDirection = direction;
+    sendDirection(dpadDirection, true);
+  } else if (event.type == "pointerup" && dpadDirection) {
+    sendDirection(dpadDirection, false);
+    dpadDirection = null;
+  } else if (event.type == "pointermove" && dpadDirection) {
     if (dpadDirection && dpadDirection != direction) {
       fsm.gameboy.JoyPadEvent(buttonToKeycode[dpadDirection], false);
     }
     console.log("D-Pad:", direction);
     fsm.gameboy.JoyPadEvent(buttonToKeycode[direction], true);
     dpadDirection = direction;
-  // }
+  } else {
+    console.log("Unexpected error");
+  }
 }
 
 function handleTouch(event) {
