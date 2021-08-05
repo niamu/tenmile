@@ -7,20 +7,18 @@ const SLICED_ELEMENTS = {
   "ROM": {
     state_slot: 0,
   },
-  "memory": {
-    state_slot: 19,
-  },
-  "MBCRam": {
-    state_slot: 20,
-  },
-  /* VRAM reads reported by Proxy don't look reliable, not save to slice.
-  "VRAM": {
-    state_slot: 21
-  },
-  */
-  "GBCMemory": {
-    state_slot: 23
-  },
+  // "memory": {
+  //   state_slot: 19,
+  // },
+  // "MBCRam": {
+  //   state_slot: 20,
+  // },
+  // "VRAM": {
+  //   state_slot: 21
+  // },
+  // "GBCMemory": {
+  //   state_slot: 23
+  // },
 };
 
 
