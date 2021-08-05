@@ -541,7 +541,7 @@ function handleButton(event) {
   sendButtonPress(buttonName, buttonDown);
 }
 
-async function dropByUrl(name, url) {
+async function dropByUrl(url) {
   await processFile(await fetch(url));
 }
 
