@@ -3,7 +3,7 @@
 /* global JSZip, UPNG, msgpack */
 /* global gtag */
 
-const SLICED_ELEMENTS = {
+const SLICED_MEMORIES = {
   "ROM": {
     state_slot: 0,
   },
@@ -36,7 +36,7 @@ class Trace {
     this.name = null;
     this.initialState = null;
     this.actions = null;
-    this.romDependencies = null;
+    this.elementDependencies = null;
   }
 }
 
@@ -69,9 +69,9 @@ DETAILS_GO_HERE
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
-function generateMaskedROM(rom, dependencies) {
-  let maskedROM = new Uint8Array(rom.length);
-  let mask = new Uint8Array(rom.length);
+function generateMaskedMemory(memory, dependencies) {
+  let maskedMemory = new Uint8Array(memory.length);
+  let mask = new Uint8Array(memory.length);
 
   // include any byte of a memory page associated with an address in dependencies
   let pages = new Set();
@@ -82,32 +82,32 @@ function generateMaskedROM(rom, dependencies) {
     let startAddress = page * PAGE_SIZE;
     for (let i = 0; i < PAGE_SIZE; i++) {
       let address = startAddress + i;
-      maskedROM[address] = rom[address];
+      maskedMemory[address] = memory[address];
       mask[address] = 1;
     }
   }
 
   // always remove entry point and logo (never needed for a quote of a specific moment)
   for (let i = 0x100; i < ROM_HEADER_START; i++) {
-    maskedROM[i] = 0;
+    maskedMemory[i] = 0;
     mask[i] = 0;
   }
 
   // always include header (title + ROM/RAM size + etc.)
   for (let i = ROM_HEADER_START; i < ROM_HEADER_END; i++) {
-    maskedROM[i] = rom[i];
+    maskedMemory[i] = memory[i];
     mask[i] = 1;
   }
 
-  return { maskedROM, mask };
+  return { maskedMemory, mask };
 }
 
 async function compileQuote(trace) {
   let originalROM = trace.initialState[SAVESTATE_ROM];
 
-  let { maskedROM, mask } = generateMaskedROM(
+  let { maskedMemory: maskedROM, mask } = generateMaskedMemory(
     originalROM,
-    trace.romDependencies
+    trace.elementDependencies["ROM"]
   );
 
   let originalBytes = originalROM.length;

@@ -1,6 +1,6 @@
 "use strict";
 /* global GameBoyCore, XAudioServer, StateMachine */
-/* global loadQuote, compileQuote, Quote, Trace, SLICED_ELEMENTS */
+/* global loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES */
 /* global gtag */
 
 // used by gameboy.js
@@ -37,9 +37,9 @@ const fsm = new StateMachine({
     currentROM: null,
     currentQuote: null,
     currentTrace: null,
-    handleJoyPadEvent: {},
-    handleRun: {},
-    handleROM: {},
+    onJoyPadEvent: null,
+    onRun: null,
+    onMemoryAccess: null,
     runInterval: null,
     recordingStatusInterval: null,
     gameboy: null
@@ -53,7 +53,9 @@ const fsm = new StateMachine({
     },
     saveState: function() {
       let state = Array.from(this.gameboy.saveState());
-      state[0] = this.gameboy._unproxiedROM;
+      for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
+        state[state_slot] = this.gameboy._unproxiedMemory[e];
+      }
       state[207] = this.gameboy.CPUCyclesTotalCurrent;
       state[208] = this.gameboy.JoyPad;
       return state;
@@ -62,7 +64,17 @@ const fsm = new StateMachine({
       this.gameboy.returnFromState(state);
       this.gameboy.CPUCyclesTotalCurrent = state[207];
       this.gameboy.JoyPad = state[208];
-      this.gameboy.ROM = new Proxy(this.gameboy._unproxiedROM, this.handleROM);
+      for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
+        this.gameboy._unproxiedMemory[e] = state[state_slot];
+        this.gameboy[e] = new Proxy(this.gameboy[e], {
+          get: (target, prop) => {
+            if (this.onMemoryAccess) {
+              this.onMemoryAccess(e, prop);
+            }
+            return target[prop];
+          }
+        });
+      }
     },
     onTransition: function(lifecycle, ...args) {
       console.info(
@@ -84,7 +96,7 @@ const fsm = new StateMachine({
 
       if (
         this.gameboy != null &&
-        !identicalArrays(this.gameboy._unproxiedROM, this.currentROM)
+        !identicalArrays(this.gameboy._unproxiedMemory["ROM"], this.currentROM)
       ) {
         // need to rebuild for new ROM
         console.log("rebuilding gameboy");
@@ -104,25 +116,51 @@ const fsm = new StateMachine({
         this.gameboy.start();
 
         const EMULATOR_LOOP_INTERVAL = 8;
-        this.runInterval = setInterval(function() {
+
+        this.runInterval = setInterval(() => {
           try {
-            fsm.gameboy.run();
+            this.gameboy.run();
           } catch (exception) {
             console.warn("Exception during gameboy.run():", exception);
           }
         }, EMULATOR_LOOP_INTERVAL);
 
-        this.gameboy._unproxiedROM = this.gameboy.ROM;
         this.gameboy._unproxiedJoyPadEvent = this.gameboy.JoyPadEvent;
+        this.gameboy.JoyPadEvent = new Proxy(this.gameboy.JoyPadEvent, {
+          apply: (target, thisArg, argumentsList) => {
+            if (this.onJoyPadEvent) {
+              this.onJoyPadEvent(argumentsList);
+            }
+            return this.gameboy._unproxiedJoyPadEvent.apply(
+              thisArg,
+              argumentsList
+            );
+          }
+        });
 
-        this.gameboy.JoyPadEvent = new Proxy(
-          this.gameboy.JoyPadEvent,
-          this.handleJoyPadEvent
-        );
+        this.gameboy._unproxiedRun = this.gameboy.run;
+        this.gameboy.run = new Proxy(this.gameboy.run, {
+          apply: (target, thisArg, argumentsList) => {
+            if (this.onRun) {
+              this.onRun();
+            }
+            this.gameboy._unproxiedRun.apply(thisArg, argumentsList);
+          }
+        });
 
-        this.gameboy.run = new Proxy(this.gameboy.run, this.handleRun);
+        this.gameboy._unproxiedMemory = {};
 
-        this.gameboy.ROM = new Proxy(this.gameboy.ROM, this.handleROM);
+        for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
+          this.gameboy._unproxiedMemory[e] = this.gameboy[e];
+          this.gameboy[e] = new Proxy(this.gameboy[e], {
+            get: (target, prop) => {
+              if (this.onMemoryAccess) {
+                this.onMemoryAccess(e, prop);
+              }
+              return target[prop];
+            }
+          });
+        }
       }
 
       if (this.gameboy) {
@@ -155,16 +193,15 @@ const fsm = new StateMachine({
 
       let oob = false;
 
-      this.handleROM.get = function(target, prop) {
+      this.onMemoryAccess = (e, prop) => {
         if (fsm.currentQuote.romMask[prop] != 1) {
           oob = true;
         }
-        return target[prop];
       };
 
       let iteration = 0;
 
-      this.handleRun.apply = function() {
+      this.onRun = () => {
         if (iteration >= fsm.currentQuote.actions.length) {
           console.log("Resetting after end of recorded actions.");
           fsm.restoreState(fsm.currentQuote.state);
@@ -176,8 +213,6 @@ const fsm = new StateMachine({
           iteration++;
         }
 
-        Reflect.apply(...arguments);
-
         if (oob) {
           console.warn("Resetting after OOB while *watching*.");
           oob = false;
@@ -186,16 +221,16 @@ const fsm = new StateMachine({
         }
       };
 
-      this.handleJoyPadEvent.apply = function() {
+      this.onJoyPadEvent = () => {
         // Don't apply event but instead interpret input as trying to grab control
         fsm.tap();
       };
     },
 
     onLeaveWatching: function() {
-      delete this.handleRun.apply;
-      delete this.handleJoyPadEvent.apply;
-      delete this.handleROM.get;
+      this.onMemoryAccess = null;
+      this.onRun = null;
+      this.onJoyPadEvent = null;
     },
 
     onBeforeDropGame: function(lifecycle, rom) {
@@ -213,11 +248,15 @@ const fsm = new StateMachine({
           this.currentQuote = null;
           this.currentROM = rom;
           // hack to continue play with complete ROM
-          this.gameboy._unproxiedROM = rom;
-          this.gameboy.ROM = new Proxy(
-            this.gameboy._unproxiedROM,
-            this.handleROM
-          );
+          this.gameboy._unproxiedMemory["ROM"] = rom;
+          this.gameboy.ROM = new Proxy(rom, {
+            get: (target, prop) => {
+              if (this.onMemoryAccess) {
+                this.onMemoryAccess("ROM", prop);
+              }
+              return target[prop];
+            }
+          });
           return;
         }
       }
@@ -257,14 +296,16 @@ const fsm = new StateMachine({
       this.currentTrace.initialState = this.saveState();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
-      this.currentTrace.romDependencies = new Set();
+      this.currentTrace.elementDependencies = {};
+      for (let e of Object.keys(SLICED_MEMORIES)) {
+        this.currentTrace.elementDependencies[e] = new Set();
+      }
 
       let actionsSinceLastIteration = [];
 
-      this.handleRun.apply = function() {
-        fsm.currentTrace.actions.push(actionsSinceLastIteration);
+      this.onRun = () => {
+        this.currentTrace.actions.push(actionsSinceLastIteration);
         actionsSinceLastIteration = [];
-        return Reflect.apply(...arguments);
       };
 
       // [jf] Adam, observing the TICKTable should get us clock accurate replays. For example:
@@ -285,19 +326,18 @@ const fsm = new StateMachine({
       });
       /* */
 
-      this.handleJoyPadEvent.apply = function(target, thisArg, args) {
+      this.onJoyPadEvent = args => {
         actionsSinceLastIteration.push(args);
-        return Reflect.apply(...arguments);
       };
 
-      this.handleROM.get = function(target, prop) {
-        fsm.currentTrace.romDependencies.add(prop);
-        return target[prop];
+      this.onMemoryAccess = (e, prop) => {
+        this.currentTrace.elementDependencies[e].add(prop);
       };
 
       function updateRecordingStatus() {
         let percentage =
-          fsm.currentTrace.romDependencies.size / fsm.currentROM.length;
+          fsm.currentTrace.elementDependencies["ROM"].size /
+          fsm.currentROM.length;
         fsm.status.innerText =
           Number(percentage).toLocaleString(undefined, {
             style: "percent",
@@ -312,9 +352,9 @@ const fsm = new StateMachine({
     onLeaveRecording: function() {
       this.status.innerText = "";
       clearInterval(this.recordingStatusInterval);
-      delete this.handleRun.apply;
-      delete this.handleJoyPadEvent.apply;
-      delete this.handleROM.get;
+      this.onRun = null;
+      this.onJoyPadEvent = null;
+      this.onMemoryAccess = null;
     },
 
     onEnterCompiling: function() {
@@ -337,26 +377,24 @@ const fsm = new StateMachine({
 
       let oob = false;
 
-      this.handleROM.get = function(target, prop) {
-        if (fsm.currentQuote.romMask[prop] != 1) {
+      this.onMemoryAccess = (e, prop) => {
+        if (this.currentQuote.romMask[prop] != 1) {
           oob = true;
         }
-        return target[prop];
       };
 
-      this.handleRun.apply = function() {
-        Reflect.apply(...arguments);
+      this.onRun = () => {
         if (oob) {
           console.log("Resetting after OOB.");
           oob = false;
-          fsm.restoreState(fsm.currentQuote.state);
+          this.restoreState(this.currentQuote.state);
         }
       };
     },
 
     onLeaveRiffing: function() {
-      delete this.handleROM.get;
-      delete this.handleRun.apply;
+      this.onMemoryAccess = null;
+      this.onRun = null;
     }
   }
 });
