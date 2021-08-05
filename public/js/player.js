@@ -423,7 +423,7 @@ function identicalArrays(a, b) {
       let file = e.target.files[0];
       const blob = new Blob([file], { type: file.type });
       const blobUrl = URL.createObjectURL(blob);
-      dropByUrl(file.name, blobUrl);
+      dropByUrl(blobUrl);
     };
     input.click();
   };
@@ -469,7 +469,7 @@ function identicalArrays(a, b) {
     gtag("event", "hash url", {
       event_label: url
     });
-    dropByUrl(url, url);
+    dropByUrl(url);
     /*
     document.getElementById("explanation-overview").style.display = "none";
     document.getElementById("explain-what-a-quote-is").style.display = "block";
@@ -478,14 +478,6 @@ function identicalArrays(a, b) {
     document.getElementById("examples").style.visibility = "visible";
   }
 })();
-
-function dropByUrl(name, url) {
-  if (name.toLowerCase().endsWith(".gb")) {
-    dropGameByUrl(url);
-  } else if (name.toLowerCase().endsWith(".png")) {
-    dropQuoteByUrl(url);
-  }
-}
 
 function sendButtonPress(name, down) {
   /* This is very useful for debugging: */
@@ -549,15 +541,8 @@ function handleButton(event) {
   sendButtonPress(buttonName, buttonDown);
 }
 
-async function dropGameByUrl(url) {
-  let buffer = await (await fetch(url)).arrayBuffer();
-  fsm.dropGame(new Uint8Array(buffer));
-}
-
-async function dropQuoteByUrl(url) {
-  let buffer = await (await fetch(url)).arrayBuffer();
-  let quote = await loadQuote(buffer);
-  fsm.dropQuote(quote);
+async function dropByUrl(name, url) {
+  await processFile(await fetch(url));
 }
 
 async function processFile(file) {
@@ -617,7 +602,7 @@ async function displayQuote({ blob, filename }) {
   let play = document.createElement("span");
   play.classList.add("icon-play");
   play.onclick = async e => {
-    dropQuoteByUrl(img.src);
+    dropByUrl(img.src);
   };
 
   let trash = document.createElement("span");
