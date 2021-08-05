@@ -11,55 +11,71 @@
     <canvas id="screen" width="160" height="144"></canvas>
   </body>
   <script>
+          const keyToButton = {
+  ArrowRight: "right",
+  ArrowLeft: "left",
+  ArrowUp: "up",
+  ArrowDown: "down",
+  x: "a",
+  z: "b",
+  Shift: "select",
+  Enter: "start"
+};
+
+const buttonToKeycode = {
+  right: 0,
+  left: 1,
+  up: 2,
+  down: 3,
+  a: 4,
+  b: 5,
+  select: 6,
+  start: 7
+};
+    
+const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
+    
     (async function() {
       let buffer = await (await fetch(
         "https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
       )).arrayBuffer();
 
       window.debug = () => {};
-      
+
       let canvas = document.getElementById("screen");
       let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
 
-      /* Big saveState elements size (compressed size after booting to main menu)
-        - gameboy.ROM: 64KB (17KB)
-        - gameboy.memory: 64KB (10KB)
-        - gameboy.MBCRam: 128KB (149bytes)
-        - gameboy.VRAM: 8KB (31bytes)
-        - gameboy.GBCMemory: 28KB (51bytes)
-        - gameboy.frameBuffer: 90KB (1.5KB)
-      */
-      
       gameboy.stopEmulator = 1; // required for some reason
       gameboy.start();
-      
+
       // skip startup
-      for(let i = 0; i < 60*10; i++) {
+      for(let i = 0; i < 125*10; i++) {
         gameboy.run();
       }
-      
-      const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
-      
+
+      let hitmaps = {};
+
+      // install spies
       for(let e of elements) {
-        let hitmap = new Set();
+        let hitmap[e] = new Set();
         gameboy[e] = new Proxy(gameboy[e], {
           get: function(target, prop) {
-            if(!hitmap.has(prop)) {
+            if(!hitmap[e].has(prop)) {
               hitmap.add(prop);
               console.count(e);
             }
             return target[prop];
           }
-        });  
+        });
       }
-      
+
       window.gameboy = gameboy;
 
       setInterval(function() {
         gameboy.run();
       }, 8);
-      
-      
+
+
     })();
   </script>
 </html>
