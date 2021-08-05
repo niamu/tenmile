@@ -11,71 +11,104 @@
     <canvas id="screen" width="160" height="144"></canvas>
   </body>
   <script>
-          const keyToButton = {
-  ArrowRight: "right",
-  ArrowLeft: "left",
-  ArrowUp: "up",
-  ArrowDown: "down",
-  x: "a",
-  z: "b",
-  Shift: "select",
-  Enter: "start"
-};
+              const keyToButton = {
+      ArrowRight: "right",
+      ArrowLeft: "left",
+      ArrowUp: "up",
+      ArrowDown: "down",
+      x: "a",
+      z: "b",
+      Shift: "select",
+      Enter: "start"
+    };
 
-const buttonToKeycode = {
-  right: 0,
-  left: 1,
-  up: 2,
-  down: 3,
-  a: 4,
-  b: 5,
-  select: 6,
-  start: 7
-};
-    
-const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
-    
-    (async function() {
-      let buffer = await (await fetch(
-        "https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
-      )).arrayBuffer();
+    const buttonToKeycode = {
+      right: 0,
+      left: 1,
+      up: 2,
+      down: 3,
+      a: 4,
+      b: 5,
+      select: 6,
+      start: 7
+    };
 
-      window.debug = () => {};
+    const elements = ['ROM', 'memory', 'MBCRam', 'VRAM', 'GBCMemory'];
 
-      let canvas = document.getElementById("screen");
-      let gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
+        (async function() {
+          let buffer = await (await fetch(
+            "https://bonsaiden.github.io/Tuff.gb/roms/game.gb"
+          )).arrayBuffer();
 
-      gameboy.stopEmulator = 1; // required for some reason
-      gameboy.start();
+          window.debug = () => {};
 
-      // skip startup
-      for(let i = 0; i < 125*10; i++) {
-        gameboy.run();
-      }
+          let canvas = document.getElementById("screen");
+          let gameboy = window.gameboy = GameBoyCore(canvas, new Uint8Array(buffer), {});
 
-      let hitmaps = {};
+          gameboy.stopEmulator = 1; // required for some reason
+          gameboy.start();
 
-      // install spies
-      for(let e of elements) {
-        let hitmap[e] = new Set();
-        gameboy[e] = new Proxy(gameboy[e], {
-          get: function(target, prop) {
-            if(!hitmap[e].has(prop)) {
-              hitmap.add(prop);
-              console.count(e);
-            }
-            return target[prop];
+          // skip startup
+          for(let i = 0; i < 125*10; i++) {
+            gameboy.run();
           }
-        });
-      }
 
-      window.gameboy = gameboy;
+          // initialize hitmaps
+          let hitmaps = {};
+          
+          function resetHitmaps() {
+            console.log('resetting hitmaps');
+            for(let e of elements) {
+              hitmaps[e] = new Set();
+            }  
+          }
+          
+          function dumpHitmaps() {
+            let report = {}
+            for (let e of elements) {
+              report[e] = `${hitmaps[e].size}/${gameboy[e].length}`;
+            }
+            console.log(report);
+          }
+          
+          resetHitmaps();
+          
+          
+          // install spies
+          for(let e of elements) {
+            gameboy[e] = new Proxy(gameboy[e], {
+              get: function(target, prop) {
+                if(!hitmaps[e].has(prop)) {
+                  hitmaps[e].add(prop);
+                  //console.count(e);
+                }
+                return target[prop];
+              }
+            });
+          }
 
-      setInterval(function() {
-        gameboy.run();
-      }, 8);
+          // schedule continuous running
+          setInterval(function() {
+            gameboy.run();
+          }, 8);
 
+          // handle keys
+          function handleKey(event) {
+            event.preventDefault();
+            let key = event.key;
+            if (key == "r") {
+              resetHitmaps();
+            } else if (key == "d") {
+              dumpHitmaps();
+            }
+            if (key in keyToButton) {
+              let down = event.type == "keydown";
+              gameboy.JoyPadEvent(buttonToKeycode[keyToButton[key]], down);
+            }
+          }
+          document.addEventListener("keydown", handleKey, false);
+          document.addEventListener("keyup", handleKey, false);
 
-    })();
+        })();
   </script>
 </html>
