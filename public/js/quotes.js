@@ -3,6 +3,22 @@
 /* global JSZip, UPNG, msgpack */
 /* global gtag */
 
+const SLICED_ELEMENTS = {
+  "ROM": {
+    state_slot: 0,
+  },
+  "memory": {
+    state_slot: 19,
+  },
+  "MBCRam": {
+    state_slot: 20,
+  },
+  "GBCMemory": {
+    state_slot: undefined
+  },
+};
+
+
 class Quote {
   contstructor() {
     this.rom = null;
