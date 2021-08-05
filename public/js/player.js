@@ -447,9 +447,13 @@ function identicalArrays(a, b) {
   let buttons = document.querySelectorAll(".button");
   let buttonsArray = Array.prototype.slice.call(buttons);
   buttonsArray.forEach(function(element) {
-    element.addEventListener("touchstart", handleTouch);
-    element.addEventListener("touchend", handleTouch);
-    element.addEventListener("touchcancel", handleTouch);
+    if (element.id.startsWith("button-")) {
+      element.addEventListener("touchstart", handleTouch);
+      element.addEventListener("touchend", handleTouch);
+      element.addEventListener("touchcancel", handleTouch);
+            console.log("listening to:", element)
+
+    }
   });
   let dPad = document.getElementById("d-pad");
   const dPadRect = dPad.getBoundingClientRect();
@@ -532,6 +536,7 @@ function handleDPad(event, rect) {
 function handleTouch(event) {
   let div = event.target;
   let buttonName = div.id.split("-")[1];
+  console.log("button pressed:", buttonName);
   let buttonDown = event.type == "touchstart" ? true : false;
   if (buttonDown) {
     div.classList.remove("up");
