@@ -448,11 +448,11 @@ function identicalArrays(a, b) {
   let buttonsArray = Array.prototype.slice.call(buttons);
   buttonsArray.forEach(function(element) {
     if (element.id.startsWith("button-")) {
-      element.addEventListener("touchstart", handleTouch);
-      element.addEventListener("touchend", handleTouch);
-      element.addEventListener("touchcancel", handleTouch);
-            console.log("listening to:", element)
-
+      // "pointer" events encapsulate touch, mouse, etc
+      element.addEventListener("pointerdown", handleTouch);
+      element.addEventListener("pointerup", handleTouch);
+      element.addEventListener("pointedrcancel", handleTouch);
+      console.log("listening to:", element);
     }
   });
   let dPad = document.getElementById("d-pad");
@@ -460,10 +460,16 @@ function identicalArrays(a, b) {
   function dPadClosure(event) {
     handleDPad(event, dPadRect);
   }
+  /*
   dPad.addEventListener("touchstart", dPadClosure);
   dPad.addEventListener("touchmove", dPadClosure);
   dPad.addEventListener("touchend", dPadClosure);
   dPad.addEventListener("touchcancel", dPadClosure);
+  /* */
+  dPad.addEventListener("pointerdown", dPadClosure);
+  dPad.addEventListener("pointermove", dPadClosure);
+  dPad.addEventListener("pointerup", dPadClosure);
+  dPad.addEventListener("pointercancel", dPadClosure);
 
   if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
@@ -510,10 +516,12 @@ function handleDPad(event, rect) {
     dpadDirection = null;
     return;
   }
-  // let buttonDown = event.type == "touchstart" ? true : false;
-  for (var i = 0; i < event.changedTouches.length; i++) {
-    let touch = event.changedTouches[i];
+  let buttonDown = event.type == "pointerdown" ? true : false;
+  console.log(event);
+  //for (var i = 0; i < event.changedTouches.length; i++) {
+  //  let touch = event.changedTouches[i];
     console.log(event.type);
+  let touch = event;
     let x = touch.clientX - rect.left;
     let y = touch.clientY - rect.top;
     let a = y / x < 1.0 ? true : false;
@@ -530,14 +538,13 @@ function handleDPad(event, rect) {
     console.log("D-Pad:", direction);
     fsm.gameboy.JoyPadEvent(buttonToKeycode[direction], true);
     dpadDirection = direction;
-  }
+  // }
 }
 
 function handleTouch(event) {
   let div = event.target;
   let buttonName = div.id.split("-")[1];
-  console.log("button pressed:", buttonName);
-  let buttonDown = event.type == "touchstart" ? true : false;
+  let buttonDown = event.type == "pointerdown" ? true : false;
   if (buttonDown) {
     div.classList.remove("up");
     div.classList.add("down");
