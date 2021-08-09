@@ -183,7 +183,7 @@ const fsm = new StateMachine({
 
     onBeforeDropQuote: function(lifecycle, quote) {
       this.currentQuote = quote;
-      this.currentROM = fsm.currentQuote.rom;
+      this.currentROM = quote.initialState[0];
     },
 
     onEnterWatching: function() {
@@ -194,10 +194,8 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.onMemoryAccess = (e, prop) => {
-        if (e == "ROM") {
-          if (fsm.currentQuote.romMask[prop] != 1) {
-            oob = true;
-          }
+        if (fsm.currentQuote.masks[e][prop] != 1) {
+          oob = true;
         }
       };
 
@@ -240,7 +238,7 @@ const fsm = new StateMachine({
         let match = true;
         for (let i = 0; i < rom.length; i++) {
           if (
-            this.currentQuote.romMask[i] == 1 &&
+            this.currentQuote.masks["ROM"][i] == 1 &&
             this.currentROM[i] != rom[i]
           ) {
             match = false;
@@ -380,10 +378,8 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.onMemoryAccess = (e, prop) => {
-        if (e == "ROM") {
-          if (this.currentQuote.romMask[prop] != 1) {
-            oob = true;
-          }
+        if (this.currentQuote.masks[e][prop] != 1) {
+          oob = true;
         }
       };
 

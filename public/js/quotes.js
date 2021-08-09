@@ -13,6 +13,7 @@ const SLICED_MEMORIES = {
 
 class Quote {
   constructor() {
+    this.readme = null;
     this.masks = null;
     this.state = null;
     this.actions = null;
@@ -351,9 +352,8 @@ async function loadQuote(buffer) {
     await zip.file("actions.msgpack").async("uint8array")
   );
 
-  let readme = await zip.file("README.md").async("text");
-  console.info("QUOTE README:\n" + readme);
-
+  quote.readme = await zip.file("README.md").async("text");
+  
   return quote;
 }
 
