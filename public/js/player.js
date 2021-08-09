@@ -194,8 +194,10 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.onMemoryAccess = (e, prop) => {
-        if (fsm.currentQuote.romMask[prop] != 1) {
-          oob = true;
+        if (e == "ROM") {
+          if (fsm.currentQuote.romMask[prop] != 1) {
+            oob = true;
+          }
         }
       };
 
@@ -378,8 +380,10 @@ const fsm = new StateMachine({
       let oob = false;
 
       this.onMemoryAccess = (e, prop) => {
-        if (this.currentQuote.romMask[prop] != 1) {
-          oob = true;
+        if (e == "ROM") {
+          if (this.currentQuote.romMask[prop] != 1) {
+            oob = true;
+          }
         }
       };
 

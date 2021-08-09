@@ -7,18 +7,18 @@ const SLICED_MEMORIES = {
   "ROM": {
     state_slot: 0,
   },
-  // "memory": {
-  //   state_slot: 19,
-  // },
-  // "MBCRam": {
-  //   state_slot: 20,
-  // },
-  // "VRAM": {
-  //   state_slot: 21
-  // },
-  // "GBCMemory": {
-  //   state_slot: 23
-  // },
+  "memory": {
+    state_slot: 19,
+  },
+  "MBCRam": {
+    state_slot: 20,
+  },
+  "VRAM": {
+    state_slot: 21
+  },
+  "GBCMemory": {
+    state_slot: 23
+  },
 };
 
 
@@ -103,6 +103,13 @@ function generateMaskedMemory(memory, dependencies) {
 }
 
 async function compileQuote(trace) {
+  let res = {};
+  for (let [e,{state_slot}] of Object.entries(SLICED_MEMORIES)) {
+    console.log('>>', e, state_slot, trace.initialState[state_slot]);
+    res[e] = generateMaskedMemory(trace.initialState[state_slot], trace.elementDependencies[e]);
+  }
+  console.log(res);
+  
   let originalROM = trace.initialState[SAVESTATE_ROM];
 
   let { maskedMemory: maskedROM, mask } = generateMaskedMemory(
