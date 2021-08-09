@@ -52,6 +52,10 @@ app.post("/upload", async function(req, res) {
   );
 });
 
+app.get("/play", async function(req, res) {
+  res.sendFile(__dirname + "/public/player.html");
+});
+
 let mdRouter = expressMd({
   dir: __dirname + "/public",
   url: "/"
