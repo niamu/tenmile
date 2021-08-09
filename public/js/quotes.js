@@ -4,23 +4,22 @@
 /* global gtag */
 
 const SLICED_MEMORIES = {
-  "ROM": {
-    state_slot: 0,
+  ROM: {
+    state_slot: 0
   },
-  "memory": {
-    state_slot: 19,
+  memory: {
+    state_slot: 19
   },
-  "MBCRam": {
-    state_slot: 20,
+  MBCRam: {
+    state_slot: 20
   },
-  "VRAM": {
+  VRAM: {
     state_slot: 21
   },
-  "GBCMemory": {
+  GBCMemory: {
     state_slot: 23
-  },
+  }
 };
-
 
 class Quote {
   contstructor() {
@@ -40,7 +39,6 @@ class Trace {
   }
 }
 
-const SAVESTATE_ROM = 0;
 const SAVESTATE_FRAMEBUFFER = 71;
 
 const ROM_HEADER_START = 0x134;
@@ -55,9 +53,9 @@ This archive represents a *playable quote* of a Game Boy game.
 
 Playable quotes are delimited references to specific moments in a game along with a reference recording of how that moment of interactivity can play out.
 
-* \`rom.bin\`: A Game Boy ROM image (comparable to many \`.gb\` files) with many bytes zeroed out. While the format of this file mostly matches that used by menu emulators, this ROM image *cannot* be used to boot the game.
+* \`ROM.bin\`: A Game Boy ROM image (comparable to many \`.gb\` files) with many bytes zeroed out. While the format of this file mostly matches that used by menu emulators, this ROM image *cannot* be used to boot the game.
 
-* \`romMask.bin\`: This file is the same size as \`rom.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses.
+* \`ROM.mask\`: This file is the same size as \`rom.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses.
 
 * \`initialState.msgpack\`: A [MessagePack](https://github.com/msgpack/msgpack-javascript) encoded savestate for a [specific Game Boy emulator](https://github.com/rauchg/gameboy). After decoding, entry 0 of the resulting array should be replaced with a reference to the contents of the ROM image above. Additionally, entry 71 should be replaced with a reference to a 160 * 144 entry Int32Array with the decoded contents of the encoding PNG file (representing the screen visible at the start of the recorded actions). There are some additional state variables stored in here that we should document as well. We are in the process of adding more to make replay more deterministic.
 
@@ -69,7 +67,11 @@ DETAILS_GO_HERE
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
-function generateMaskedMemory(memory, dependencies) {
+function generateMaskedMemory(
+  memory,
+  dependencies,
+  useRomForcingPattern = false
+) {
   let maskedMemory = new Uint8Array(memory.length);
   let mask = new Uint8Array(memory.length);
 
@@ -87,40 +89,40 @@ function generateMaskedMemory(memory, dependencies) {
     }
   }
 
-  // always remove entry point and logo (never needed for a quote of a specific moment)
-  for (let i = 0x100; i < ROM_HEADER_START; i++) {
-    maskedMemory[i] = 0;
-    mask[i] = 0;
+  if (useRomForcingPattern) {
+    // always remove entry point and logo (never needed for a quote of a specific moment)
+    for (let i = 0x100; i < ROM_HEADER_START; i++) {
+      maskedMemory[i] = 0;
+      mask[i] = 0;
+    }
+
+    // always include header (title + ROM/RAM size + etc.)
+    for (let i = ROM_HEADER_START; i < ROM_HEADER_END; i++) {
+      maskedMemory[i] = memory[i];
+      mask[i] = 1;
+    }
   }
 
-  // always include header (title + ROM/RAM size + etc.)
-  for (let i = ROM_HEADER_START; i < ROM_HEADER_END; i++) {
-    maskedMemory[i] = memory[i];
-    mask[i] = 1;
-  }
-
-  return { maskedMemory, mask };
+  return { bin: maskedMemory, mask, original: memory };
 }
 
 async function compileQuote(trace) {
-  let res = {};
-  for (let [e,{state_slot}] of Object.entries(SLICED_MEMORIES)) {
-    console.log('>>', e, state_slot, trace.initialState[state_slot]);
-    res[e] = generateMaskedMemory(trace.initialState[state_slot], trace.elementDependencies[e]);
+  let sliced = {};
+  for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
+    sliced[e] = generateMaskedMemory(
+      trace.initialState[state_slot],
+      trace.elementDependencies[e],
+      e == "ROM"
+    );
   }
-  console.log(res);
-  
-  let originalROM = trace.initialState[SAVESTATE_ROM];
+  console.log(sliced);
 
-  let { maskedMemory: maskedROM, mask } = generateMaskedMemory(
-    originalROM,
-    trace.elementDependencies["ROM"]
-  );
+  let originalBytes = sliced["ROM"].original.length;
+  let includedBytes = sliced["ROM"].mask
+    .map(e => e == 1)
+    .reduce((a, b) => a + b, 0);
 
-  let originalBytes = originalROM.length;
-  let includedBytes = originalROM.map(e => e == 1).reduce((a, b) => a + b, 0);
-
-  let romDigest = await digest256(originalROM);
+  let romDigest = await digest256(sliced["ROM"].original);
 
   let details = "";
   details +=
@@ -145,36 +147,41 @@ async function compileQuote(trace) {
     "DETAILS_GO_HERE",
     details
   );
-  
+
   gtag("event", "inclusion percent", {
-          event_category: "quote compilation",
-          event_label: trace.name,
-          value: Math.floor(100*includedBytes/originalBytes),
-  });
-  
-  gtag("event", "inclusion bytes", {
-          event_category: "quote compilation",
-          event_label: trace.name,
-          value: Math.floor(includedBytes),
-  });
-  
-  gtag("event", "actions length", {
-          event_category: "quote compilation",
-          event_label: trace.name,
-          value: trace.actions.length,
+    event_category: "quote compilation",
+    event_label: trace.name,
+    value: Math.floor((100 * includedBytes) / originalBytes)
   });
 
-  let state = trace.initialState.slice();
-  state[SAVESTATE_ROM] = null; // rom stored in a separate zip entry
+  gtag("event", "inclusion bytes", {
+    event_category: "quote compilation",
+    event_label: trace.name,
+    value: Math.floor(includedBytes)
+  });
+
+  gtag("event", "actions length", {
+    event_category: "quote compilation",
+    event_label: trace.name,
+    value: trace.actions.length
+  });
+
+  let state = trace.initialState.slice(); // slice is used to do a shallow copy here, different from notion of slicing above
+  for (let [e, { state_slot }] of Object.keys(SLICED_MEMORIES)) {
+    state[state_slot] = null; // this entry will be rebuilt from zip entries
+  }
   state[SAVESTATE_FRAMEBUFFER] = null; // recoverable from outer png
 
   let zip = new JSZip();
-  zip.file("rom.bin", maskedROM);
-  zip.file("romMask.bin", mask);
+  for (let [e,{bin,mask}] of Object.entries(sliced)) {
+    zip.file(e+".bin", bin);
+    zip.file(e+".mask", mask);
+  }
   zip.file("initialState.msgpack", msgpack.serialize(state));
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
 
   zip.file("README.md", readme);
+  console.log(zip);
 
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
@@ -199,29 +206,34 @@ async function compileQuote(trace) {
 
   let canvas = document.createElement("canvas");
 
-  const sw = 160*2;
-  const sh = 144*2;
+  const sw = 160 * 2;
+  const sh = 144 * 2;
 
   canvas.setAttribute("width", sw + 2 * BORDER_SIZE);
   canvas.setAttribute("height", sh + 2 * BORDER_SIZE);
-  canvas.style.fontSmooth = 'never';
-  canvas.style.webkitFontSmoothing = 'none';
+  canvas.style.fontSmooth = "never";
+  canvas.style.webkitFontSmoothing = "none";
 
   let ctx = canvas.getContext("2d");
 
   ctx.strokeStyle = "#444";
-  ctx.fillStyle = '#ccc';
-  ctx.arc(BORDER_SIZE,BORDER_SIZE,BORDER_SIZE-1,-Math.PI,-Math.PI/2);
-  ctx.arc(sw+BORDER_SIZE,BORDER_SIZE,BORDER_SIZE-1,-Math.PI/2,0);
-  ctx.arc(sw,sh,2*BORDER_SIZE-1,0,Math.PI/2);
-  ctx.arc(BORDER_SIZE,sh+BORDER_SIZE,BORDER_SIZE-1,Math.PI/2,-Math.PI);
-  ctx.lineTo(1,BORDER_SIZE);
-  
+  ctx.fillStyle = "#ccc";
+  ctx.arc(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE - 1, -Math.PI, -Math.PI / 2);
+  ctx.arc(sw + BORDER_SIZE, BORDER_SIZE, BORDER_SIZE - 1, -Math.PI / 2, 0);
+  ctx.arc(sw, sh, 2 * BORDER_SIZE - 1, 0, Math.PI / 2);
+  ctx.arc(
+    BORDER_SIZE,
+    sh + BORDER_SIZE,
+    BORDER_SIZE - 1,
+    Math.PI / 2,
+    -Math.PI
+  );
+  ctx.lineTo(1, BORDER_SIZE);
+
   ctx.stroke();
   ctx.fill();
-  
 
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = "#000";
   ctx.strokeRect(BORDER_SIZE, BORDER_SIZE, sw, sh);
 
   let screenshotimageData = ctx.createImageData(160, 144);
@@ -268,7 +280,10 @@ async function compileQuote(trace) {
   let imgBytes = quoteImageData.data;
   let zipBytes = new Uint8Array(zipBuffer);
   if (zipBytes.length * 4 > imgBytes.length) {
-    alert("zip file too big to steganographically encode into image!" + ` ${zipBytes.length} bytes`);
+    alert(
+      "zip file too big to steganographically encode into image!" +
+        ` ${zipBytes.length} bytes`
+    );
   }
   let numBytes = zipBytes.length;
   for (let i = 0; i < numBytes; i++) {
