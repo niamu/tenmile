@@ -167,6 +167,7 @@ async function compileQuote(trace) {
   for (let [e, { bin, mask }] of Object.entries(sliced)) {
     zip.file(e + ".bin", bin);
     zip.file(e + ".mask", mask);
+    console.log(e, bin.length, mask.length);
   }
   zip.file("initialState.msgpack", msgpack.serialize(state));
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
@@ -318,9 +319,11 @@ async function loadQuote(buffer) {
       ((rgba[4 * i + 3] & 0x3) << 0);
     decodedBytes.push(byte);
 
-    let x = Math.floor((i % (160*2 + 2 * BORDER_SIZE))/2);
-    let y = Math.floor((i / (160*2 + 2 * BORDER_SIZE))/2);
+    let x = Math.floor(i % (160*2 + 2 * BORDER_SIZE))/2;
+    let y = Math.floor(i / (160*2 + 2 * BORDER_SIZE))/2;
     if (
+      x == Math.floor(x) &&
+      y == Math.floor(y) &&
       x >= BORDER_SIZE &&
       x < 160 + BORDER_SIZE &&
       y >= BORDER_SIZE &&

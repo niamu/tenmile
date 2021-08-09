@@ -222,7 +222,7 @@ const fsm = new StateMachine({
       };
 
       this.onJoyPadEvent = () => {
-        // Don't apply event but instead interpret input as trying to grab control
+        // interpret input as trying to grab control
         fsm.tap();
       };
     },
