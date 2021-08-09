@@ -5,7 +5,7 @@
 
 const SLICED_MEMORIES = {
   ROM: { state_slot: 0 },
-  memory: { state_slot: 19 },
+  //memory: { state_slot: 19 },
   //MBCRam: { state_slot: 20 },
   //VRAM: { state_slot: 21 },
   //GBCMemory: { state_slot: 23 }
@@ -318,8 +318,8 @@ async function loadQuote(buffer) {
       ((rgba[4 * i + 3] & 0x3) << 0);
     decodedBytes.push(byte);
 
-    let x = Math.floor(i % (160 + 2 * BORDER_SIZE));
-    let y = Math.floor(i / (160 + 2 * BORDER_SIZE));
+    let x = Math.floor((i % (160*2 + 2 * BORDER_SIZE))/2);
+    let y = Math.floor((i / (160*2 + 2 * BORDER_SIZE))/2);
     if (
       x >= BORDER_SIZE &&
       x < 160 + BORDER_SIZE &&
