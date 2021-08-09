@@ -6,9 +6,9 @@
 const SLICED_MEMORIES = {
   ROM: { state_slot: 0 },
   memory: { state_slot: 19 },
-  MBCRam: { state_slot: 20 },
+  //MBCRam: { state_slot: 20 },
   //VRAM: { state_slot: 21 },
-  GBCMemory: { state_slot: 23 }
+  //GBCMemory: { state_slot: 23 }
 };
 
 class Quote {

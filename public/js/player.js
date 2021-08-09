@@ -244,7 +244,7 @@ const fsm = new StateMachine({
             match = false;
           }
         }
-        if (match && confirm("Continue play with inserted ROM?")) {
+        if (match && confirm("Continue play with inserted ROM? Play may be unreliable.")) {
           this.currentQuote = null;
           this.currentROM = rom;
           // hack to continue play with complete ROM
