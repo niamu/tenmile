@@ -158,7 +158,7 @@ async function compileQuote(trace) {
   });
 
   let state = trace.initialState.slice(); // slice is used to do a shallow copy here, different from notion of slicing above
-  for (let [e, { state_slot }] of Object.keys(SLICED_MEMORIES)) {
+  for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
     state[state_slot] = null; // this entry will be rebuilt from zip entries
   }
   state[SAVESTATE_FRAMEBUFFER] = null; // recoverable from outer png
@@ -167,11 +167,11 @@ async function compileQuote(trace) {
   for (let [e, { bin, mask }] of Object.entries(sliced)) {
     zip.file(e + ".bin", bin);
     zip.file(e + ".mask", mask);
-    console.log(e, bin.length, mask.length);
   }
   zip.file("initialState.msgpack", msgpack.serialize(state));
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   zip.file("README.md", readme);
+  
 
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
