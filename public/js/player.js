@@ -1,5 +1,5 @@
 "use strict";
-/* global GameBoyCore, XAudioServer, StateMachine */
+/* global GameBoyCore, XAudioServer, StateMachine, msgpack */
 /* global loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES */
 /* global gtag */
 
@@ -58,7 +58,7 @@ const fsm = new StateMachine({
       }
       state[207] = this.gameboy.CPUCyclesTotalCurrent;
       state[208] = this.gameboy.JoyPad;
-      return state;
+      return msgpack.deserialize(msgpack.serialize(state)); // deep copy to avoid others changing this data after the fact
     },
     restoreState: function(state) {
       this.gameboy.returnFromState(state);
@@ -298,9 +298,9 @@ const fsm = new StateMachine({
       this.currentTrace.initialState = this.saveState();
       this.currentTrace.initialFrameBuffer = this.gameboy.frameBuffer.slice(0);
       this.currentTrace.actions = [];
-      this.currentTrace.elementDependencies = {};
+      this.currentTrace.memoryDependencies = {};
       for (let e of Object.keys(SLICED_MEMORIES)) {
-        this.currentTrace.elementDependencies[e] = new Set();
+        this.currentTrace.memoryDependencies[e] = new Set();
       }
 
       let actionsSinceLastIteration = [];
@@ -333,12 +333,12 @@ const fsm = new StateMachine({
       };
 
       this.onMemoryAccess = (e, prop) => {
-        this.currentTrace.elementDependencies[e].add(prop);
+        this.currentTrace.memoryDependencies[e].add(prop);
       };
 
       function updateRecordingStatus() {
         let percentage =
-          fsm.currentTrace.elementDependencies["ROM"].size /
+          fsm.currentTrace.memoryDependencies["ROM"].size /
           fsm.currentROM.length;
         fsm.status.innerText =
           Number(percentage).toLocaleString(undefined, {

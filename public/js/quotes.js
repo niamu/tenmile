@@ -23,8 +23,7 @@ const SLICED_MEMORIES = {
 
 class Quote {
   contstructor() {
-    this.rom = null;
-    this.romMask = null;
+    this.masks = null;
     this.state = null;
     this.actions = null;
   }
@@ -35,7 +34,7 @@ class Trace {
     this.name = null;
     this.initialState = null;
     this.actions = null;
-    this.elementDependencies = null;
+    this.memoryDependencies = null;
   }
 }
 
@@ -55,11 +54,13 @@ Playable quotes are delimited references to specific moments in a game along wit
 
 * \`ROM.bin\`: A Game Boy ROM image (comparable to many \`.gb\` files) with many bytes zeroed out. While the format of this file mostly matches that used by menu emulators, this ROM image *cannot* be used to boot the game.
 
-* \`ROM.mask\`: This file is the same size as \`rom.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses.
+* \`ROM.mask\`: This file is the same size as \`ROM.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses.
 
-* \`initialState.msgpack\`: A [MessagePack](https://github.com/msgpack/msgpack-javascript) encoded savestate for a [specific Game Boy emulator](https://github.com/rauchg/gameboy). After decoding, entry 0 of the resulting array should be replaced with a reference to the contents of the ROM image above. Additionally, entry 71 should be replaced with a reference to a 160 * 144 entry Int32Array with the decoded contents of the encoding PNG file (representing the screen visible at the start of the recorded actions). There are some additional state variables stored in here that we should document as well. We are in the process of adding more to make replay more deterministic.
+* \`_.bin\` and \`_.mask\`: Similar to the files above, these contain information about various dynamic memories.
 
-* \`actions.msgpack\`: A MessagePack-encoded array of instructions of which values to pass to \`gameboy.JoyPadEvent\` based on the number of previous calls to \`gameboy.run\`. Allowing the game to continue execution past the end of recorded actions (or attempting alternate actions) might result in reads to invalided ROM addresses. When this happens, it might be a good idea to return to the provided initial state.
+* \`initialState.msgpack\`: A [MessagePack](https://github.com/msgpack/msgpack-javascript) encoded savestate for a [specific Game Boy emulator](https://github.com/rauchg/gameboy). After decoding, entry 0 of the resulting array should be replaced with a reference to the contents of the ROM image above. Additionally, entry 71 should be replaced with a reference to a 160 * 144 entry Int32Array with the decoded contents of the encoding PNG file (representing the screen visible at the start of the recorded actions). Other memories should be replaced from their respective bin/mask files.
+
+* \`actions.msgpack\`: A MessagePack-encoded array of instructions of which values to pass to \`gameboy.JoyPadEvent\` based on the number of previous calls to \`gameboy.run\`. Allowing the game to continue execution past the end of recorded actions (or attempting alternate actions) might result in reads to invalided memory addresses. When this happens, it might be a good idea to return to the provided initial state.
 
 Details about this specific quote:
 DETAILS_GO_HERE
@@ -111,12 +112,11 @@ async function compileQuote(trace) {
   for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
     sliced[e] = generateMaskedMemory(
       trace.initialState[state_slot],
-      trace.elementDependencies[e],
+      trace.memoryDependencies[e],
       e == "ROM"
     );
   }
-  console.log(sliced);
-
+  
   let originalBytes = sliced["ROM"].original.length;
   let includedBytes = sliced["ROM"].mask
     .map(e => e == 1)
@@ -181,8 +181,7 @@ async function compileQuote(trace) {
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
 
   zip.file("README.md", readme);
-  console.log(zip);
-
+  
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
     compression: "DEFLATE",
@@ -349,14 +348,16 @@ async function loadQuote(buffer) {
     fileArrays[filename] = await zip.file(filename).async("uint8array");
   }
 
-  quote.rom = fileArrays["rom.bin"];
-  quote.romMask = fileArrays["romMask.bin"];
+  
+  
+  quote.masks = {};
+  for (let [e)
 
-  quote.state = msgpack.deserialize(fileArrays["initialState.msgpack"]);
+  quote.state = msgpack.deserialize(await zip.file("initialState.msgpack").async("uint8array"));
   quote.state[SAVESTATE_ROM] = quote.rom;
   quote.state[SAVESTATE_FRAMEBUFFER] = frameBuffer;
 
-  quote.actions = msgpack.deserialize(fileArrays["actions.msgpack"]);
+  quote.actions = mskpack.deserialize(await zip.file("actions.msgpack").async("uint8array"));
 
   return quote;
 }
