@@ -183,7 +183,7 @@ const fsm = new StateMachine({
 
     onBeforeDropQuote: function(lifecycle, quote) {
       this.currentQuote = quote;
-      this.currentROM = quote.initialState[0];
+      this.currentROM = quote.state[0];
     },
 
     onEnterWatching: function() {
@@ -195,7 +195,7 @@ const fsm = new StateMachine({
 
       this.onMemoryAccess = (e, prop) => {
         if (fsm.currentQuote.masks[e][prop] != 1) {
-          oob = true;
+          oob = e;
         }
       };
 
@@ -214,7 +214,7 @@ const fsm = new StateMachine({
         }
 
         if (oob) {
-          console.warn("Resetting after OOB while *watching*.");
+          console.warn("Resetting after OOB while *watching*. "+oob);
           oob = false;
           fsm.restoreState(fsm.currentQuote.state);
           iteration = 0;
@@ -379,13 +379,13 @@ const fsm = new StateMachine({
 
       this.onMemoryAccess = (e, prop) => {
         if (this.currentQuote.masks[e][prop] != 1) {
-          oob = true;
+          oob = e;
         }
       };
 
       this.onRun = () => {
         if (oob) {
-          console.log("Resetting after OOB.");
+          console.log("Resetting after OOB. "+oob);
           oob = false;
           this.restoreState(this.currentQuote.state);
         }
