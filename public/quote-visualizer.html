@@ -320,12 +320,36 @@
       }
     }
 
-    async function drawROM(rom) {
+    async function drawROM_orig(rom) {
       // debugger;
 
       let w = 512;
       let h = rom.length / w;
 
+      let data = [];
+      rom.forEach(x => data.push(...colormap[x]));
+
+      let png = UPNG.encode([data], w, h);
+      let blob = new Blob([png], { type: "image/png" });
+
+      let img = document.createElement("img");
+      img.src = URL.createObjectURL(blob);
+
+      document.getElementById("images").appendChild(img);
+    }
+    
+    async function drawROM(rom) {
+      
+      let pages = Math.ceiling(rom.length/(32*512));
+      let w = 512;
+      let h = 32*pages;
+
+      let data = new Uint8Array(w*h*4);
+      rom.forEach(x,i => {
+        let j = 4*i
+        data[]
+      })
+      
       let data = [];
       rom.forEach(x => data.push(...colormap[x]));
 
