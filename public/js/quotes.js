@@ -4,7 +4,7 @@
 /* global gtag */
 
 const SLICED_MEMORIES = {
-  ROM: { state_slot: 0 },
+  ROM: { state_slot: 0 }
   //memory: { state_slot: 19 },
   //MBCRam: { state_slot: 20 },
   //VRAM: { state_slot: 21 },
@@ -59,20 +59,41 @@ DETAILS_GO_HERE
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
-/* Safari and Edge polyfill for createImageBitmap
- * From: https://dev.to/nektro/createimagebitmap-polyfill-for-safari-and-edge-228
+/*
+ * Safari and Edge polyfill for createImageBitmap
  * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
+ *
+ * Support source image types Blob and ImageData.
+ *
+ * From: https://dev.to/nektro/createimagebitmap-polyfill-for-safari-and-edge-228
+ * Updated by Yoan Tournade <yoan@ytotech.com>
+ * https://gist.github.com/dearcoco/b6e81cb678378e1d3c29646287d7d205
  */
-if (!('createImageBitmap' in window)) {
-    window.createImageBitmap = async function(blob) {
-        return new Promise((resolve,reject) => {
-            let img = document.createElement('img');
-            img.addEventListener('load', function() {
-                resolve(this);
-            });
-            img.src = URL.createObjectURL(blob);
-        });
-    }
+if (!("createImageBitmap" in window)) {
+  window.createImageBitmap = async function(data) {
+    return new Promise((resolve, reject) => {
+      let dataURL;
+      if (data instanceof Blob) {
+        dataURL = URL.createObjectURL(data);
+      } else if (data instanceof ImageData) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = data.width;
+        canvas.height = data.height;
+        ctx.putImageData(data, 0, 0);
+        dataURL = canvas.toDataURL();
+      } else {
+        throw new Error(
+          "createImageBitmap does not handle the provided image source type"
+        );
+      }
+      const img = document.createElement("img");
+      img.addEventListener("load", function() {
+        resolve(this);
+      });
+      img.src = dataURL;
+    });
+  };
 }
 
 function generateMaskedMemory(
@@ -187,7 +208,6 @@ async function compileQuote(trace) {
   zip.file("initialState.msgpack", msgpack.serialize(state));
   zip.file("actions.msgpack", msgpack.serialize(trace.actions));
   zip.file("README.md", readme);
-  
 
   let zipBuffer = await zip.generateAsync({
     type: "arraybuffer",
@@ -335,8 +355,8 @@ async function loadQuote(buffer) {
       ((rgba[4 * i + 3] & 0x3) << 0);
     decodedBytes.push(byte);
 
-    let x = Math.floor(i % (160*2 + 2 * BORDER_SIZE))/2;
-    let y = Math.floor(i / (160*2 + 2 * BORDER_SIZE))/2;
+    let x = Math.floor(i % (160 * 2 + 2 * BORDER_SIZE)) / 2;
+    let y = Math.floor(i / (160 * 2 + 2 * BORDER_SIZE)) / 2;
     if (
       x == Math.floor(x) &&
       y == Math.floor(y) &&
@@ -372,7 +392,7 @@ async function loadQuote(buffer) {
   );
 
   quote.readme = await zip.file("README.md").async("text");
-  
+
   return quote;
 }
 
