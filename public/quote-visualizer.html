@@ -319,46 +319,30 @@
         alert("Unsupported file");
       }
     }
-
-    async function drawROM_orig(rom) {
-      // debugger;
-
-      let w = 512;
-      let h = rom.length / w;
-
-      let data = [];
-      rom.forEach(x => data.push(...colormap[x]));
-
-      let png = UPNG.encode([data], w, h);
-      let blob = new Blob([png], { type: "image/png" });
-
-      let img = document.createElement("img");
-      img.src = URL.createObjectURL(blob);
-
-      document.getElementById("images").appendChild(img);
-    }
     
     async function drawROM(rom) {
       
-      let pages = Math.ceiling(rom.length/(32*512));
+      let pages = Math.ceil(rom.length/(32*512));
       let w = 512;
       let h = 32*pages;
 
       let data = new Uint8Array(w*h*4);
-      rom.forEach(x,i => {
-        let j = 4*i
-        data[]
+      rom.forEach((x,i) => {
+        let j = 512*(Math.floor(i/(32*512))+i%32)+Math.floor(i/32);
+        let color = colormap[x];
+        data[4*j+0] = color[0];
+        data[4*j+1] = color[1];
+        data[4*j+2] = color[2];
+        data[4*j+3] = color[3];
       })
       
-      let data = [];
-      rom.forEach(x => data.push(...colormap[x]));
-
       let png = UPNG.encode([data], w, h);
       let blob = new Blob([png], { type: "image/png" });
 
       let img = document.createElement("img");
       img.src = URL.createObjectURL(blob);
 
+      document.getElementById("images").innerHTML = '';
       document.getElementById("images").appendChild(img);
     }
 
@@ -370,6 +354,10 @@
           processFile(item);
         }
       };
+      if(window.location.hash.startsWith("#drop=")) {
+        let url = window.location.hash.split("=")[1];
+        processFile(await fetch(url));
+      }
     };
   </script>
 </html>
