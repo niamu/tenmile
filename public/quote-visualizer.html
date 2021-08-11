@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>format preview</title>
+    <title>Quote Visualizer</title>
     <script src="lib/jszip-3.6.0.min.js"></script>
     <script src="lib/pako-2.0.3.min.js"></script>
     <script src="lib/UPNG-2.2.0.js"></script>
@@ -23,7 +23,7 @@
   </head>
   <body>
     <h1>
-      Playable Quote Visualizer
+      Quote Visualizer
     </h1>
     <div id="dropzone">Drag a ROM or Playable Quote Here</div>
     
@@ -313,6 +313,10 @@
       if (isPNG) {
         let quote = await loadQuote(buffer);
         drawROM(quote.state[0]);
+        let readmeDiv = document.createElement("div");
+        readmeDiv.style.fontFamily = "monospace";
+        readmeDiv.innerText = quote.readme;
+        document.getElementById("images").append(readmeDiv);
       } else if (isGB) {
         drawROM(new Uint8Array(buffer));
       } else {
