@@ -8,34 +8,29 @@
     <script src="lib/UPNG-2.2.0.js"></script>
     <script src="lib/msgpack-1.0.3.js"></script>
     <script src="js/quotes.js"></script>
-    <style>
-    </style>
+    <style></style>
   </head>
   <body></body>
   <script defer>
     "use strict";
 
     window.gtag = function() {};
-    
+
     let quoteUrl = "https://tenmile.s3.amazonaws.com/ZELDA-ed42-67fdbb51.png";
 
+    async function urlToQuote(url) {
+      let file = await fetch(url);
+      let buffer = await file.arrayBuffer();
+      console.log(buffer);
+      let quote = await loadQuote(buffer);
+      return quote;
+    }
+    
+    let quote = null;
+    
     window.onload = async function runAllTests() {
-      let trace = new Trace();
-
-      trace.name = "EXAMPLE";
-      trace.initialState = [];
-      trace.initialState[SAVESTATE_ROM] = new Uint8Array();
-      trace.initialState[SAVESTATE_FRAMEBUFFER] = [];
-
-      trace.actions = [];
-      trace.romDependencies = new Set();
-
-      let {blob, filename} = await compileQuote(trace);
-      console.log(filename);
-      
-      let img = document.createElement("img");
-      img.src = URL.createObjectURL(blob);
-      document.body.appendChild(img);
+      quote = await urlToQuote(quoteUrl);
+      console.log("Ready");
     };
   </script>
 </html>
