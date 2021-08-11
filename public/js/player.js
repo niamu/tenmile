@@ -171,6 +171,8 @@ const fsm = new StateMachine({
           event_category: lifecycle.transition,
           event_label: this.gameboy.name
         });
+      } else {
+        this.status.innerText = "Nothing loaded yet.";
       }
     },
     onAfterTransition: function(lifecycle) {
@@ -580,10 +582,13 @@ function handleButton(event) {
 }
 
 async function dropByUrl(url) {
-  await processFile(await fetch(url));
+  fsm.status.innerText = "Fetching data...";
+  let file = await fetch(url);
+  await processFile(file);
 }
 
 async function processFile(file) {
+  fsm.status.innerText = "Decoding data...";
   let buffer = await file.arrayBuffer();
   let dataView = new DataView(buffer);
   let isPNG = dataView.getUint32(0) == 0x89504e47;
