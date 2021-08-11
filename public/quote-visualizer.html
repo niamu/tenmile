@@ -9,8 +9,11 @@
     <script src="lib/msgpack-1.0.3.js"></script>
     <script src="js/quotes.js"></script>
     <style>
-      img {
-        border: 1px solid green;
+      #images {
+        min-height: 200px;
+        min-width: 200px;
+        width: min-content;
+                border: 1px solid green;
       }
     </style>
   </head>
@@ -24,7 +27,7 @@
     window.gtag = function() {};
 
     const colormap = [
-      [0, 0, 0, 255],
+      [255, 255, 255, 255],
       [0, 2, 132, 255],
       [0, 4, 133, 255],
       [0, 6, 135, 255],
@@ -284,65 +287,32 @@
 
     let quoteUrl = "https://tenmile.s3.amazonaws.com/ZELDA-ed42-67fdbb51.png";
 
-    async function urlToQuote(url) {
+    async function urlToROM(url) {
       let file = await fetch(url);
       let buffer = await file.arrayBuffer();
       let quote = await loadQuote(buffer);
-      return quote;
+      return quote.state[0];
     }
 
-    let quote = null;
-    let dta = null;
-    let png = null;
-
-    function makePixel(value) {
-      return colormap[value];
-    }
-
-    window.onload = async function runAllTests() {
-      quote = await urlToQuote(quoteUrl);
+    window.onload = async function visualize() {
+      let rom = await urlToROM(quoteUrl);
       console.log("Ready");
 
-      let h = 1024;
+      // debugger;
+      
       let w = 512;
-      let blackPixel = [0, 0, 0, 255];
-      let whitePixel = [255, 255, 255, 255];
-      /*
-      let custom = [];
-      for (let x = 0; x < w * h; x++) {
-        let pixel = blackPixel;
-        custom.push(...pixel);
-      }
-      */
-      let maskView = [];
-      quote.masks.ROM.forEach(x => {
-        if(x > 0) {
-          console.log(x);
-        }
-        let pixel = colormap[x];
-        maskView.push(...pixel);
-      });
-      /* */
-      /*
-      let falseColor = [];
-      for (let x = 0; x < h; x++) {
-        for (let y = 0; y < w; y++) {
-          let pixel = colormap[y];
-          falseColor.push(...pixel);
-        }
-      }
-      /* */
+      let h = rom.length / w;
 
-      dta = maskView;
-      png = UPNG.encode([dta], w, h);
+      let data = [];
+      rom.forEach(x => data.push(...colormap[x]));
+
+      let png = UPNG.encode([data], w, h);
       let blob = new Blob([png], { type: "image/png" });
 
       let img = document.createElement("img");
       img.src = URL.createObjectURL(blob);
 
       document.getElementById("images").appendChild(img);
-
-      // images.appendChild(img);
     };
   </script>
 </html>
