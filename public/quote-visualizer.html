@@ -36,6 +36,10 @@
     let dta = null;
     let png = null;
 
+    function makePixel(value) {
+      return [0, 0, 0, 255];
+    }
+    
     window.onload = async function runAllTests() {
       quote = await urlToQuote(quoteUrl);
       console.log("Ready");
@@ -63,12 +67,15 @@
       /* */
       let falseColor = [];
       for(let x = 0; x < h; x++) {
-        for(let y = 0; y < w; w++) {
-          
+        console.log("x", x);
+        for(let y = 0; y < w; y++) {
+          console.log("y", y);
+          let pixel = makePixel(y);
+          falseColor.push(...pixel);
         }
       }
       
-      dta = maskView;
+      dta = falseColor;
       png = UPNG.encode([dta], w, h);
       let blob = new Blob([png], { type: "image/png" });
 
