@@ -10,7 +10,11 @@
     <script src="js/quotes.js"></script>
     <style></style>
   </head>
-  <body></body>
+  <body>
+    Hello world
+    <div id="images" style="border: solid black;">
+    </div>
+  </body>
   <script defer>
     "use strict";
 
@@ -27,11 +31,23 @@
     }
     
     let quote = null;
+    let dta = null;
     
     window.onload = async function runAllTests() {
       quote = await urlToQuote(quoteUrl);
       console.log("Ready");
+      
+      let white = new Uint8Array(200 * 300 * 4);
+      dta = white.map(x => 255);
+      let png = UPNG.encode([dta], 200, 300, 0);
+      let blob = new Blob([png], { type: "image/png" });
+
+      let img = document.createElement("img");
+      img.src = URL.createObjectURL(blob);
+
+        document.getElementById("images").appendChild(img);
+
+      // images.appendChild(img);
     };
   </script>
-  
 </html>
