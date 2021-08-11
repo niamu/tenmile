@@ -59,6 +59,22 @@ DETAILS_GO_HERE
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021.
 `;
 
+/* Safari and Edge polyfill for createImageBitmap
+ * From: https://dev.to/nektro/createimagebitmap-polyfill-for-safari-and-edge-228
+ * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
+ */
+if (!('createImageBitmap' in window)) {
+    window.createImageBitmap = async function(blob) {
+        return new Promise((resolve,reject) => {
+            let img = document.createElement('img');
+            img.addEventListener('load', function() {
+                resolve(this);
+            });
+            img.src = URL.createObjectURL(blob);
+        });
+    }
+}
+
 function generateMaskedMemory(
   memory,
   dependencies,
