@@ -8,11 +8,15 @@
     <script src="lib/UPNG-2.2.0.js"></script>
     <script src="lib/msgpack-1.0.3.js"></script>
     <script src="js/quotes.js"></script>
-    <style></style>
+    <style>
+      img {
+        border: dotted green;
+      }
+    </style>
   </head>
   <body>
     Hello world
-    <div id="images" style="border: solid black;">
+    <div id="images">
     </div>
   </body>
   <script defer>
@@ -25,21 +29,29 @@
     async function urlToQuote(url) {
       let file = await fetch(url);
       let buffer = await file.arrayBuffer();
-      console.log(buffer);
       let quote = await loadQuote(buffer);
       return quote;
     }
     
     let quote = null;
     let dta = null;
+    let png = null;
     
     window.onload = async function runAllTests() {
       quote = await urlToQuote(quoteUrl);
       console.log("Ready");
       
       let white = new Uint8Array(200 * 300 * 4);
-      dta = white.map(x => 255);
-      let png = UPNG.encode([dta], 200, 300, 0);
+      let pixel = [0, 0, 0, 255];
+      let custom = [];
+      for(let x = 0; x < 200*300; x++)  {
+        custom.push(pixel[0]);
+        custom.push(pixel[1]);
+        custom.push(pixel[2]);
+        custom.push(pixel[3]);
+      }
+      dta = custom;
+      png = UPNG.encode([dta], 200, 300);
       let blob = new Blob([png], { type: "image/png" });
 
       let img = document.createElement("img");
