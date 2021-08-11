@@ -9,16 +9,21 @@
     <script src="lib/msgpack-1.0.3.js"></script>
     <script src="js/quotes.js"></script>
     <style>
-      #images {
+      #dropzone {
         min-height: 200px;
         min-width: 200px;
         width: min-content;
-                border: 1px solid green;
+        border: 3px solid green;
+      }
+      
+      img {
+        border: 1px solid black;
       }
     </style>
   </head>
   <body>
-    Hello world
+    ROM and Playable Quote Visualizer
+    <div id="dropzone">Drag a ROM or Playable Quote Here</div>
     <div id="images"></div>
   </body>
   <script defer>
@@ -294,12 +299,27 @@
       return quote.state[0];
     }
 
-    window.onload = async function visualize() {
-      let rom = await urlToROM(quoteUrl);
-      console.log("Ready");
+    async function processFile(file) {
+      let buffer = await file.arrayBuffer();
+      let dataView = new DataView(buffer);
+      let isPNG = dataView.getUint32(0) == 0x89504e47;
+      let isGB =
+        dataView.getUint32(0x104) == 0xceed6666 &&
+        dataView.getUint32(0x108) == 0xcc0d000b;
 
+      if (isPNG) {
+        let quote = await loadQuote(buffer);
+        drawROM(quote.state[0]);
+      } else if (isGB) {
+        drawROM(new Uint8Array(buffer));
+      } else {
+        alert("Unsupported file");
+      }
+    }
+
+    async function drawROM(rom) {
       // debugger;
-      
+
       let w = 512;
       let h = rom.length / w;
 
@@ -313,6 +333,16 @@
       img.src = URL.createObjectURL(blob);
 
       document.getElementById("images").appendChild(img);
+    }
+
+    window.onload = async function visualize() {
+      document.getElementById("dropzone").ondragover = ev => ev.preventDefault();
+      document.getElementById("dropzone").ondrop = ev => {
+        ev.preventDefault();
+        for (let item of ev.dataTransfer.files) {
+          processFile(item);
+        }
+      };
     };
   </script>
 </html>
