@@ -321,15 +321,19 @@
     }
     
     async function drawROM(rom) {
-      console.log(rom);
       let pages = Math.ceil(rom.length/(32*512));
       let w = 512;
       let h = 32*pages;
 
       let data = new Uint8Array(w*h*4);
       rom.forEach((v,i) => {
-        //let j = 512*(Math.floor(i/(32*512))*32+i%32)+(Math.floor(i/32)%512);
-        let j = 512*
+        //let x = Math.floor(i/32)%512;
+        //let y = (Math.floor(i/(32*512))*32+i%32);
+        
+        let x = (i%32)+(32*Math.floor(i/(32*32)))%512;
+        let y = Math.floor(i/32)%32+32*Math.floor(i/(32*512));
+        
+        let j = 512*y+x;
         let color = colormap[v];
         data[4*j+0] = color[0];
         data[4*j+1] = color[1];
