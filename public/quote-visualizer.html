@@ -327,7 +327,8 @@
     async function drawROM(rom) {
       const WIDTH = 512;
       const BANK_SIZE = 16*1024; // one switchable bank of GB memory
-      const LINE_SIZE = 32; // a single strip
+      const STRIP_SIZE = 16; // a single strip
+      const BLOCK_HEIGHT = BANK_SIZE/WIDTH;
       
       let banks = Math.ceil(rom.length/BANK_SIZE);
       let w = WIDTH;
@@ -336,8 +337,8 @@
       let data = new Uint8Array(w*h*4);
       rom.forEach((v,i) => {
         
-        let x = (i%LINE_SIZE)+(LINE_SIZE*Math.floor(i/LINE_SIZE))%WIDTH;
-        let y = Math.floor(i/LINE_SIZE)%32+32*Math.floor(i/BANK_SIZE);
+        let x = (i%LINE_SIZE)+(LINE_SIZE*Math.floor(i/LINE_SIZE/LINE_HEIGHT))%WIDTH;
+        let y = Math.floor(i/LINE_SIZE)%LINE_HEIGHT+LINE_HEIGHT*Math.floor(i/BANK_SIZE);
         
         let j = 512*y+x;
         let color = colormap[v];
