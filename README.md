@@ -3,6 +3,8 @@
 This project offers the ability to create and share **playable quotes** of [GameBoy](https://en.wikipedia.org/wiki/Game_Boy) games. A playable quote is a *delimited* reference to a 
 *specific* moment in a game along with a reference recording of how that moment plays out.
 
+Check out the public deployment of the project here: [https://tenmile.quote.games/](https://tenmile.quote.games/)
+
 ## Watching a Quote
 
 Drag a compatible `.png` file onto the player to get started. Once it loads, you'll see a looping animation of the reference recording from that moment of play.
