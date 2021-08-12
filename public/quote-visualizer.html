@@ -42,8 +42,13 @@
     
     const buttonNames = ["Right", "Left", "Up", "Down", "A", "B", "Select", "Start"]
     
-    const colormap = [
-      [255, 255, 255, 255], // 0 is special, white, others are rainbow
+    const maskColormap = [
+      [0,0,0,255],
+      [255,255,255,255]
+    ];
+    
+    const romColormap = [
+      [0, 0, 0, 255],
       [0, 2, 132, 255],
       [0, 4, 133, 255],
       [0, 6, 135, 255],
@@ -324,13 +329,16 @@
         let romH = document.createElement("h2");
         romH.innerText = "Sliced ROM";
         analysis.appendChild(romH);
-        drawROM(quote.state[0]);
+        drawROM(quote.state[0], romColormap);
 
-        let maskH = document.createElement("h2");
-        maskH.innerText = "ROM validity mask";
-        analysis.appendChild(maskH);
-        drawROM(quote.masks["ROM"]);
+        for (let [name, mask] of Object.entries(quote.masks)) {
+          let maskH = document.createElement("h2");
+          maskH.innerText = `${name} validity mask`;
+          analysis.appendChild(maskH);
+          drawROM(mask, maskColormap);
 
+        }
+        
         let readmeH = document.createElement("h2");
         readmeH.innerText = "Readme";
         analysis.appendChild(readmeH);
@@ -340,15 +348,19 @@
 
         let actionsH = document.createElement("h2");
         actionsH.innerText = "Actions";
+        analysis.appendChild(actionsH);
         let actionsDiv = document.createElement("div");
-        debugger;
+        let durationDiv = document.createElement("strong");
+        durationDiv.innerText = `Play for ${quote.actions.length} emulator steps.`;
+        analysis.appendChild(durationDiv);
         quote.actions.forEach((actions,i) => {
-          if(actions) {
+          if(actions.length > 0) {
             let row = document.createElement("div");
-            row.innerText = "@"+i;
+            row.innerText = "Before step "+i;
             for(let [button,down] of actions) {
-              row.innerText += " "+(["press","release"][down|0])+ buttonNames[button];
+              row.innerText += " "+(["release","press"][down|0])+" "+ buttonNames[button];
             }
+            row.innerText += ".";
             actionsDiv.appendChild(row);
           }
         })
@@ -357,13 +369,13 @@
         let romH = document.createElement("h2");
         romH.innerText = "ROM";
         analysis.appendChild(romH);
-        drawROM(new Uint8Array(buffer));
+        drawROM(new Uint8Array(buffer), romColormap);
       } else {
         alert("Unsupported file");
       }
     }
 
-    async function drawROM(rom) {
+    async function drawROM(rom, colormap) {
       const WIDTH = 512;
       const BANK_SIZE = 16 * 1024; // one switchable bank of GB memory
       const STRIP_SIZE = 16; // a single strip
