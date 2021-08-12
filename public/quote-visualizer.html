@@ -325,8 +325,12 @@
     }
     
     async function drawROM(rom) {
+      const WIDTH = 512;
+      const BANK_SIZE = 16*1024; // one switchable bank of GB memory
+      const LINE_SIZE = 32; // a single strip
+      
       let pages = Math.ceil(rom.length/(32*512));
-      let w = 512;
+      let w = WIDTH;
       let h = 32*pages;
 
       let data = new Uint8Array(w*h*4);
