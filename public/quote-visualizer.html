@@ -10,15 +10,10 @@
     <script src="lib/marked-2.1.3.min.js"></script>
     <script src="js/quotes.js"></script>
     <style>
-      #dropzone {
-        min-height: 200px;
-        min-width: 200px;
-        width: min-content;
-        border: 3px solid green;
-      }
 
-      img {
-        border: 1px solid black;
+      .dump {
+        padding: 1ex;
+        background: lightgray;
       }
     </style>
   </head>
@@ -343,6 +338,7 @@
         readmeH.innerText = "Readme";
         analysis.appendChild(readmeH);
         let readmeDiv = document.createElement("div");
+        readmeDiv.classList.add("dump");
         readmeDiv.innerHTML = marked(quote.readme);
         analysis.appendChild(readmeDiv);
 
@@ -350,13 +346,14 @@
         actionsH.innerText = "Actions";
         analysis.appendChild(actionsH);
         let actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("dump");
         let durationDiv = document.createElement("strong");
         durationDiv.innerText = `Play for ${quote.actions.length} emulator steps.`;
         analysis.appendChild(durationDiv);
         quote.actions.forEach((actions,i) => {
           if(actions.length > 0) {
             let row = document.createElement("div");
-            row.innerText = "Before step "+i;
+            row.innerText = "Before step "+i+", ";
             for(let [button,down] of actions) {
               row.innerText += " "+(["release","press"][down|0])+" "+ buttonNames[button];
             }
