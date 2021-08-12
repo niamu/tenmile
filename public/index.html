@@ -338,13 +338,16 @@
           The <code>.png</code> quote files used in this project also contain a
           <code>.zip</code> file. The zip contains a copy of the original game's
           ROM image with almost all entries (except those needed to play the
-          quote) replaced by zeros. It also contains a state snapshot from our
-          specially-repared Game Boy emulator along with a list of timed actions
-          needed to reproduce the recorded gameplay. The zip file is
+          quote) masked out. It also contains a state snapshot from our
+          specially-prepared Game Boy emulator along with a list of timed actions
+          needed to (approximately) reproduce the recorded gameplay. The zip file is
           steganographically encoded in the least significant bits of the image
           pixel data (8 bits per pixel) so that it is difficult for the
-          informaiton about the ROM and savestate to become detached from the
+          information about the ROM and savestate to become detached from the
           screenshot.
+        </p>
+        <p>
+          For more technical information, check out the project source on Glitch: <a href="https://glitch.com/~tenmile">https://glitch.com/~tenmile</a>
         </p>
       </div>
       <div class="ui basic segment">
@@ -358,7 +361,7 @@
           </li>
           <li>
             <strong>More platforms</strong>: We need help finding and modifying
-            emulators for other game platforms.
+            emulators for other game platforms. Can you help us get quotes for PC games working on top of the <a href="https://copy.sh/v86/">v86</a> emulator?
           </li>
           <li>
             <strong>Software organization</strong>: We need help refactoring the
