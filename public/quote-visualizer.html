@@ -16,7 +16,7 @@
         width: min-content;
         border: 3px solid green;
       }
-      
+
       img {
         border: 1px solid black;
       }
@@ -27,22 +27,23 @@
       Quote Visualizer
     </h1>
     <div id="inputWidget">
-      <label for="fileUpload">Select a ROM or playable quote file:</label>
-      <input id="fileUpload" type="file" name="select quote or ROM file" />
+      <label for="fileUpload"
+        >Select playable quote file (or plain ROM file):</label
+      >
+      <input id="fileUpload" type="file" />
     </div>
-    
-    <h2>
-      Analysis
-    </h2>
+
     <div id="analysis"></div>
   </body>
   <script defer>
     "use strict";
 
     window.gtag = function() {};
-
+    
+    const buttonNames = ["Right", "Left", "Up", "Down", "A", "B", "Select", "Start"]
+    
     const colormap = [
-      [255, 255, 255, 255],
+      [255, 255, 255, 255], // 0 is special, white, others are rainbow
       [0, 2, 132, 255],
       [0, 4, 133, 255],
       [0, 6, 135, 255],
@@ -308,8 +309,8 @@
     }
 
     async function processFile(file) {
-      document.getElementById("analysis").innerHTML = '';
-      
+      analysis.innerHTML = "";
+
       let buffer = await file.arrayBuffer();
       let dataView = new DataView(buffer);
       let isPNG = dataView.getUint32(0) == 0x89504e47;
@@ -319,42 +320,76 @@
 
       if (isPNG) {
         let quote = await loadQuote(buffer);
+
+        let romH = document.createElement("h2");
+        romH.innerText = "Sliced ROM";
+        analysis.appendChild(romH);
         drawROM(quote.state[0]);
+
+        let maskH = document.createElement("h2");
+        maskH.innerText = "ROM validity mask";
+        analysis.appendChild(maskH);
         drawROM(quote.masks["ROM"]);
+
+        let readmeH = document.createElement("h2");
+        readmeH.innerText = "Readme";
+        analysis.appendChild(readmeH);
         let readmeDiv = document.createElement("div");
         readmeDiv.innerHTML = marked(quote.readme);
-        document.getElementById("analysis").append(readmeDiv);
+        analysis.appendChild(readmeDiv);
+
+        let actionsH = document.createElement("h2");
+        actionsH.innerText = "Actions";
+        let actionsDiv = document.createElement("div");
+        debugger;
+        quote.actions.forEach((actions,i) => {
+          if(actions) {
+            let row = document.createElement("div");
+            row.innerText = "@"+i;
+            for(let [button,down] of actions) {
+              row.innerText += " "+(["press","release"][down|0])+ buttonNames[button];
+            }
+            actionsDiv.appendChild(row);
+          }
+        })
+        analysis.appendChild(actionsDiv);
       } else if (isGB) {
+        let romH = document.createElement("h2");
+        romH.innerText = "ROM";
+        analysis.appendChild(romH);
         drawROM(new Uint8Array(buffer));
       } else {
         alert("Unsupported file");
       }
     }
-    
+
     async function drawROM(rom) {
       const WIDTH = 512;
-      const BANK_SIZE = 16*1024; // one switchable bank of GB memory
+      const BANK_SIZE = 16 * 1024; // one switchable bank of GB memory
       const STRIP_SIZE = 16; // a single strip
-      const BLOCK_HEIGHT = BANK_SIZE/WIDTH;
-      
-      let banks = Math.ceil(rom.length/BANK_SIZE);
-      let w = WIDTH;
-      let h = (BANK_SIZE/WIDTH)*banks;
+      const BLOCK_HEIGHT = BANK_SIZE / WIDTH;
 
-      let data = new Uint8Array(w*h*4);
-      rom.forEach((v,i) => {
-        
-        let x = (i%STRIP_SIZE)+(STRIP_SIZE*Math.floor(i/STRIP_SIZE/BLOCK_HEIGHT))%WIDTH;
-        let y = Math.floor(i/STRIP_SIZE)%BLOCK_HEIGHT+BLOCK_HEIGHT*Math.floor(i/BANK_SIZE);
-        
-        let j = 512*y+x;
+      let banks = Math.ceil(rom.length / BANK_SIZE);
+      let w = WIDTH;
+      let h = (BANK_SIZE / WIDTH) * banks;
+
+      let data = new Uint8Array(w * h * 4);
+      rom.forEach((v, i) => {
+        let x =
+          (i % STRIP_SIZE) +
+          ((STRIP_SIZE * Math.floor(i / STRIP_SIZE / BLOCK_HEIGHT)) % WIDTH);
+        let y =
+          (Math.floor(i / STRIP_SIZE) % BLOCK_HEIGHT) +
+          BLOCK_HEIGHT * Math.floor(i / BANK_SIZE);
+
+        let j = 512 * y + x;
         let color = colormap[v];
-        data[4*j+0] = color[0];
-        data[4*j+1] = color[1];
-        data[4*j+2] = color[2];
-        data[4*j+3] = color[3];
-      })
-      
+        data[4 * j + 0] = color[0];
+        data[4 * j + 1] = color[1];
+        data[4 * j + 2] = color[2];
+        data[4 * j + 3] = color[3];
+      });
+
       let png = UPNG.encode([data], w, h);
       let blob = new Blob([png], { type: "image/png" });
 
@@ -364,14 +399,13 @@
     }
 
     window.onload = async function visualize() {
-      
       document.getElementById("fileUpload").onchange = ev => {
         for (let item of ev.target.files) {
           processFile(item);
         }
-      }
-      
-      if(window.location.hash.startsWith("#drop=")) {
+      };
+
+      if (window.location.hash.startsWith("#drop=")) {
         let url = window.location.hash.split("=")[1];
         processFile(await fetch(url));
       }
