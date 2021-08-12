@@ -329,17 +329,15 @@
       const BANK_SIZE = 16*1024; // one switchable bank of GB memory
       const LINE_SIZE = 32; // a single strip
       
-      let pages = Math.ceil(rom.length/(32*512));
+      let banks = Math.ceil(rom.length/BANK_SIZE);
       let w = WIDTH;
-      let h = 32*pages;
+      let h = (BANK_SIZE/WIDTH)*banks;
 
       let data = new Uint8Array(w*h*4);
       rom.forEach((v,i) => {
-        //let x = Math.floor(i/32)%512;
-        //let y = (Math.floor(i/(32*512))*32+i%32);
         
-        let x = (i%32)+(32*Math.floor(i/(32*32)))%512;
-        let y = Math.floor(i/32)%32+32*Math.floor(i/(32*512));
+        let x = (i%LINE_SIZE)+(LINE_SIZE*Math.floor(i/LINE_SIZE))%WIDTH;
+        let y = Math.floor(i/LINE_SIZE)%32+32*Math.floor(i/BANK_SIZE);
         
         let j = 512*y+x;
         let color = colormap[v];
