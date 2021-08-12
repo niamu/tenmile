@@ -26,9 +26,11 @@
     <h1>
       Quote Visualizer
     </h1>
+    <label for="fileUpload">Select a ROM or playable quote file here:</label>
+    <input id="fileUpload" type="file" name="select quote or ROM file" />
     <div id="dropzone">Drag a ROM or Playable Quote Here</div>
     
-    <div id="images"></div>
+    <div id="analysis"></div>
   </body>
   <script defer>
     "use strict";
@@ -294,8 +296,6 @@
       [128, 0, 0, 255]
     ];
 
-    let quoteUrl = "https://tenmile.s3.amazonaws.com/ZELDA-ed42-67fdbb51.png";
-
     async function urlToROM(url) {
       let file = await fetch(url);
       let buffer = await file.arrayBuffer();
@@ -316,7 +316,7 @@
         drawROM(quote.state[0]);
         let readmeDiv = document.createElement("div");
         readmeDiv.innerHTML = marked(quote.readme);
-        document.getElementById("images").append(readmeDiv);
+        document.getElementById("analysis").append(readmeDiv);
       } else if (isGB) {
         drawROM(new Uint8Array(buffer));
       } else {
@@ -337,8 +337,8 @@
       let data = new Uint8Array(w*h*4);
       rom.forEach((v,i) => {
         
-        let x = (i%LINE_SIZE)+(LINE_SIZE*Math.floor(i/LINE_SIZE/LINE_HEIGHT))%WIDTH;
-        let y = Math.floor(i/LINE_SIZE)%LINE_HEIGHT+LINE_HEIGHT*Math.floor(i/BANK_SIZE);
+        let x = (i%STRIP_SIZE)+(STRIP_SIZE*Math.floor(i/STRIP_SIZE/BLOCK_HEIGHT))%WIDTH;
+        let y = Math.floor(i/STRIP_SIZE)%BLOCK_HEIGHT+BLOCK_HEIGHT*Math.floor(i/BANK_SIZE);
         
         let j = 512*y+x;
         let color = colormap[v];
@@ -354,8 +354,8 @@
       let img = document.createElement("img");
       img.src = URL.createObjectURL(blob);
 
-      document.getElementById("images").innerHTML = '';
-      document.getElementById("images").appendChild(img);
+      document.getElementById("analysis").innerHTML = '';
+      document.getElementById("analysis").appendChild(img);
     }
 
     window.onload = async function visualize() {
