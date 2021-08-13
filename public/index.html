@@ -49,7 +49,7 @@
     <script defer src="lib/semantic-2.4.1.min.js"></script>
   </head>
   <body>
-    <div class="ui container">
+    <article class="ui container">
       <div class="ui basic segment">
         <h1>Playable Quotes for Game Boy</h1>
         <!-- To investigate: https://www.sitepoint.com/accessible-footnotes-css/ -->
@@ -58,23 +58,28 @@
           <strong>playable quotes</strong> of
           <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A
           playable quote is a
-          <abbr
-            title="Unlike a page number that only works when you have the original book, we want quotes to be self-contained. A quote file shouldn’t break down sometime in the future."
-            >durable</abbr
+          <a href="#durable" aria-describedby="footnote-label" id="durable-ref"
+            >durable</a
           >,
-          <abbr
-            title="Both in file size and in human experience, the quote should only include a small piece of the original work (in relation to Fair Use)."
-            >delimited</abbr
+          <a
+            href="#delimited"
+            aria-describedby="footnote-label"
+            id="delimited-ref"
+            >delimited</a
           >
           reference to a
-          <abbr
-            title="A playable quote is a specific pathway through a specific point the space of experiences possible for that game (a transformative use of the original work), and it allows you to talk about specific moments rather than entire games (a audible reading of specific sentence versus the text of book containing it)."
-            >specific</abbr
+          <a
+            href="#specific"
+            aria-describedby="footnote-label"
+            id="specific-ref"
+            >specific</a
           >
           moment in a game along with a reference
-          <abbr
-            title="Without actively playing, you can still see what might happen. However you are invited to interactively riff on the quote if you like."
-            >recording</abbr
+          <a
+            href="#recording"
+            aria-describedby="footnote-label"
+            id="recording-ref"
+            >recording</a
           >
           of how that moment can play out.
         </p>
@@ -337,21 +342,28 @@
         <h2>What's in a Quote File?</h2>
         <p>
           The <code>.png</code> quote files used in this project also contain a
-          <code>.zip</code> file. We chose PNG because it's a familiar file format that people already 
-          know is easy to share online. 
-        </p><p>
-          The ZIP inside of the PNG contains a copy of the original game's
-          ROM image with almost all entries (except those needed to play the
-          quote) masked out. It also contains a state snapshot from our
-          specially-prepared Game Boy emulator along with a list of timed actions
-          needed to (approximately) reproduce the recorded gameplay. The ZIP file is
-          <a href="https://en.wikipedia.org/wiki/Steganography">steganographically</a> encoded in the least significant bits of the image
-          pixel data (8 bits per pixel) so that it is difficult for the
-          information about the ROM and savestate to become detached from the
-          screenshot.
+          <code>.zip</code> file. We chose PNG because it's a familiar file
+          format that people already know is easy to share online.
         </p>
         <p>
-          But how do we know just which parts of the game to slice out in order to make a playable quote? We're working on a technical writeup that would explain this. For now, check out the project source on Glitch: <a href="https://glitch.com/~tenmile">https://glitch.com/~tenmile</a>
+          The ZIP inside of the PNG contains a copy of the original game's ROM
+          image with almost all entries (except those needed to play the quote)
+          masked out. It also contains a state snapshot from our
+          specially-prepared Game Boy emulator along with a list of timed
+          actions needed to (approximately) reproduce the recorded gameplay. The
+          ZIP file is
+          <a href="https://en.wikipedia.org/wiki/Steganography"
+            >steganographically</a
+          >
+          encoded in the least significant bits of the image pixel data (8 bits
+          per pixel) so that it is difficult for the information about the ROM
+          and savestate to become detached from the screenshot.
+        </p>
+        <p>
+          But how do we know just which parts of the game to slice out in order
+          to make a playable quote? We're working on a technical writeup that
+          would explain this. For now, check out the project source on Glitch:
+          <a href="https://glitch.com/~tenmile">https://glitch.com/~tenmile</a>
         </p>
       </div>
       <div class="ui basic segment">
@@ -359,7 +371,16 @@
           Insert ROM to Continue
         </h2>
         <p>
-          If you happen to have access to the original game associated with a given playable quote, you can load/drop the <code>.gb</code>/<code>.gbc</code> onto the quote player to resume <i>unrestricted</i> play from the moment captured in the quote. From there, you can record and share new quotes. Use this feature to re-record improvements on the gameplay in the original quote, share your progress in the game with a friend, or requests someone else's help getting through a difficult part of a game that you both play.
+          If you happen to have access to the original game associated with a
+          given playable quote, you can load/drop the <code>.gb</code>/<code
+            >.gbc</code
+          >
+          onto the quote player to resume <i>unrestricted</i> play from the
+          moment captured in the quote. From there, you can record and share new
+          quotes. Use this feature to re-record improvements on the gameplay in
+          the original quote, share your progress in the game with a friend, or
+          requests someone else's help getting through a difficult part of a
+          game that you both play.
         </p>
       </div>
       <div class="ui basic segment">
@@ -373,7 +394,9 @@
           </li>
           <li>
             <strong>More platforms</strong>: We need help finding and modifying
-            emulators for other game platforms. Can you help us get quotes for PC games working on top of the <a href="https://copy.sh/v86/">v86</a> emulator?
+            emulators for other game platforms. Can you help us get quotes for
+            PC games working on top of the
+            <a href="https://copy.sh/v86/">v86</a> emulator?
           </li>
           <li>
             <strong>Software organization</strong>: We need help refactoring the
@@ -383,7 +406,8 @@
           </li>
           <li>
             <strong>Funding</strong>: Want to see playable quotes built out for
-            your platform/ecosystem? Want to see a prototype application of playable quotes for your market? Contact
+            your platform/ecosystem? Want to see a prototype application of
+            playable quotes for your market? Contact
             <a href="mailto:amsmith@ucsc.edu">Dr. Adam Smith</a> of the
             <a href="http://designreasoning.org/">Design Reasoning Lab</a> at UC
             Santa Cruz to find out about donating research funds.
@@ -402,45 +426,39 @@
             >Give us feedback directly.</a
           >
         </p>
-      </div>      
-      <div class="ui basic segment">
-        <h2>Footnotes</h2>
-        <p>
-<ol>
-  
-  <li>
-                title="Unlike a page number that only works when you have the original book, we want quotes to be self-contained. A quote file shouldn’t break down sometime in the future."
-            >durable</abbr
-
-  </li>
-        </ol>
-          
-                    This project offers the ability to create and share
-          <strong>playable quotes</strong> of
-          <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A
-          playable quote is a
-          <abbr
-            title="Unlike a page number that only works when you have the original book, we want quotes to be self-contained. A quote file shouldn’t break down sometime in the future."
-            >durable</abbr
-          >,
-          <abbr
-            title="Both in file size and in human experience, the quote should only include a small piece of the original work (in relation to Fair Use)."
-            >delimited</abbr
-          >
-          reference to a
-          <abbr
-            title="A playable quote is a specific pathway through a specific point the space of experiences possible for that game (a transformative use of the original work), and it allows you to talk about specific moments rather than entire games (a audible reading of specific sentence versus the text of book containing it)."
-            >specific</abbr
-          >
-          moment in a game along with a reference
-          <abbr
-            title="Without actively playing, you can still see what might happen. However you are invited to interactively riff on the quote if you like."
-            >recording</abbr
-          >
-          of how that moment can play out.
-          
-        </p>
       </div>
-    </div>
+
+      <footer>
+        <h2 class="visually-hidden" id="footnote-label">Footnotes</h2>
+        <ol>
+          <li id="durable">
+            <b>Durable</b>: Unlike a page number that only works when you have
+            the original book, we want quotes to be self-contained. A quote file
+            shouldn’t break down sometime in the future.
+            <a href="#durable-ref" aria-label="Back to content">↩</a>
+          </li>
+          <li id="delimited">
+            <b>Delimited</b>: Both in file size and in human experience, the
+            quote should only include a small piece of the original work (in
+            relation to Fair Use).
+            <a href="#delimited-ref" aria-label="Back to content">↩</a>
+          </li>
+          <li id="specific">
+            <b>Specific</b>: A playable quote is a specific pathway through a
+            specific point the space of experiences possible for that game (a
+            transformative use of the original work), and it allows you to talk
+            about specific moments rather than entire games (a audible reading
+            of specific sentence versus the text of book containing it).
+            <a href="#specific-ref" aria-label="Back to content">↩</a>
+          </li>
+          <li id="recording">
+            <b>Recording</b>: Without actively playing, you can still see what
+            might happen. However you are invited to interactively riff on the
+            quote if you like.
+            <a href="#recording-ref" aria-label="Back to content">↩</a>
+          </li>
+        </ol>
+      </footer>
+    </article>
   </body>
 </html>
