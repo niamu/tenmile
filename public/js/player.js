@@ -510,10 +510,6 @@ function identicalArrays(a, b) {
       event_label: url
     });
     dropByUrl(url);
-    /*
-    document.getElementById("explanation-overview").style.display = "none";
-    document.getElementById("explain-what-a-quote-is").style.display = "block";
-    */
   } else {
     document.getElementById("examples").style.visibility = "visible";
   }
