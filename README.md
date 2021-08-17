@@ -44,6 +44,10 @@ A zip file containing this data is steganographically encoded in the quote file.
 
 We aren't intellectual property laywers, but by the same reasoning that [Google can distribute delimited "snippets" of the books that they've scanned](https://www.theatlantic.com/technology/archive/2015/10/fair-use-transformative-leval-google-books/411058/), we think that sharing these playable quotes should be safe.
 
+## Why is it called `tenmile`?
+
+It's a reference to [Ten Mile Campground](https://www.recreation.gov/camping/campgrounds/251363), we we planned out some key aspects of the project.
+
 ## Running this project from source
 
 If you are browsing this project on Glitch, there's nothing special needed to run the project.
