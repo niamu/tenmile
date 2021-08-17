@@ -510,8 +510,6 @@ function identicalArrays(a, b) {
       event_label: url
     });
     dropByUrl(url);
-  } else {
-    document.getElementById("examples").style.visibility = "visible";
   }
 })();
 
