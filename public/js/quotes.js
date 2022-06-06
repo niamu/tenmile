@@ -43,7 +43,7 @@ This archive represents a *playable quote* of a Game Boy game.
 
 Playable quotes are durable, delimited references to specific moments in a game along with a reference recording of how that moment of interactivity can play out.
 
-* \`ROM.bin\`: A Game Boy ROM image (comparable to many \`.gb\` or \`.gbc\` files) with many bytes zeroed out. While the format of this file mostly matches that used by meny emulators, this ROM image intentionally *cannot* be used to boot the game.
+* \`ROM.bin\`: A Game Boy ROM image (comparable to many \`.gb\` or \`.gbc\` files) with many bytes zeroed out. While the format of this file mostly matches that used by many emulators, this ROM image intentionally *cannot* be used to boot the game.
 
 * \`ROM.mask\`: This file is the same size as \`ROM.bin\`, but it uses values 1 (valid) and 0 (invalid) to indicate which bytes of the ROM image are included in the quote. It should be possible to play back the recorded actions in the quote without ever reading from one of the invalid ROM addresses. Because replay is not perfectly deterministic at the time this quote was made, this is not always the case.
 
