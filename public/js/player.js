@@ -1,7 +1,6 @@
 "use strict";
 /* global GameBoyCore, XAudioServer, StateMachine, msgpack */
-/* global loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES */
-import { loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES } from "./js/quotes.js";
+import { loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES } from "./quotes.js";
 /* global gtag */
 
 // used by gameboy.js
@@ -663,3 +662,7 @@ async function displayQuote({ blob, filename }) {
 
   document.getElementById("quotes").appendChild(container);
 }
+
+window.addEventListener('DOMContentLoaded', (event) => {
+  onPageLoad();
+});
