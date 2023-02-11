@@ -1,6 +1,7 @@
 "use strict";
 /* global GameBoyCore, XAudioServer, StateMachine, msgpack */
 /* global loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES */
+import { loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES } from "./js/quotes.js";
 /* global gtag */
 
 // used by gameboy.js
@@ -436,7 +437,7 @@ function identicalArrays(a, b) {
   }
 }
 
-(async function onPageLoad() {
+async function onPageLoad() {
   // keydown and keyup are what we use to get key events into the Game Boy
   document.addEventListener("keydown", handleKey, false);
   document.addEventListener("keyup", handleKey, false);
@@ -511,7 +512,7 @@ function identicalArrays(a, b) {
     });
     dropByUrl(url);
   }
-})();
+}
 
 function sendButtonPress(name, down) {
   /* This is very useful for debugging: */
