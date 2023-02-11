@@ -405,3 +405,5 @@ async function digest256(data) {
   }
   return digest;
 }
+
+export { loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES };
