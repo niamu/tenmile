@@ -8,7 +8,6 @@
     <script src="lib/UPNG-2.2.0.js"></script>
     <script src="lib/msgpack-1.0.3.js"></script>
     <script src="lib/marked-2.1.3.min.js"></script>
-    <script src="js/quotes.js"></script>
     <style>
       .dump {
         padding: 1ex;
@@ -29,8 +28,10 @@
 
     <div id="analysis"></div>
   </body>
-  <script defer>
+  <script type="module" defer>
     "use strict";
+    
+    import { loadQuote } from "./js/quotes.js";
 
     window.gtag = function() {};
 
