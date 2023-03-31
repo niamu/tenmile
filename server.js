@@ -57,7 +57,7 @@ app.get("/play", async function(req, res) {
 });
 
 app.get("/view", async function(req, res) {
-  res.sendFile(__dirname + "/public/player.html");
+  res.sendFile(__dirname + "/public/quote-visualizer.html");
 });
 
 let mdRouter = expressMd({
