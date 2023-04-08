@@ -55,32 +55,10 @@
         <p>
           This project offers the ability to create and share
           <strong>playable quotes</strong> of
-          <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A
-          playable quote is a
-          <a href="#durable" aria-describedby="footnote-label" id="durable-ref"
-            >durable</a
-          >,
-          <a
-            href="#delimited"
-            aria-describedby="footnote-label"
-            id="delimited-ref"
-            >delimited</a
-          >
-          reference to a
-          <a
-            href="#specific"
-            aria-describedby="footnote-label"
-            id="specific-ref"
-            >specific</a
-          >
-          moment in a game along with a reference
-          <a
-            href="#recording"
-            aria-describedby="footnote-label"
-            id="recording-ref"
-            >recording</a
-          >
-          of how that moment can play out.
+          <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> games. A playable quote is a self-contained slice of an original creative work that points to a specific moment in the space of play along with a reference performance of how that moment can play out. The reader of a quote can replay their own variations on the quoted moment to see how the game responds.
+        </p>
+        <p>
+          For a deeper understanding of playable quotes (including the <a href="#properties" aria-describedby="footnote-label" id="properties-ref">key properties</a> of being playable, partitioned, permanent, performative), check out our award-winning paper <a href="https://adamsmith.as/papers/fdg2023_tenmile.pdf">Playable Quotes for Game Boy Games</a>, presented at the 2023 Foundations of Digital Games Conference.
         </p>
       </div>
 
@@ -438,42 +416,37 @@
           <a href="https://twitter.com/playablequotes">
             <span class="icon-twitter"></span> @playablequotes
           </a>
-          <br /><br />
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSeFa_Gy_1gEY0wDbTaozHmPJ6YB1krH-L7TyrWoUUJpVhgpOQ/viewform?usp=sf_link"
-            >Give us feedback directly.</a
-          >
+        </p>
+      </div>
+      <div class="ui basic segment">
+        <h2>Citing</h2>
+        <p>
+          <pre>
+@inproceedings{franusic2023quotes,
+  title={<a href="https://adamsmith.as/papers/fdg2023_tenmile.pdf"></a>Playable Quotes for Game Boy Games</a>},
+  author={Fanusic, Jo\"{e}l and Tuite, Kathleen and Smith, Adam M.},
+  booktitle={The 18th International Conference on the Foundations of Digital Games (FDG)},
+  year={2023}
+}
+          </pre>
         </p>
       </div>
 
       <footer>
         <h2 class="visually-hidden" id="footnote-label">Footnotes</h2>
         <ol>
-          <li id="durable">
-            <b>Durable</b>: Unlike a page number that only works when you have
-            the original book, we want quotes to be self-contained. A quote file
-            shouldn’t break down sometime in the future.
-            <a href="#durable-ref" aria-label="Back to content">↩</a>
-          </li>
-          <li id="delimited">
-            <b>Delimited</b>: Both in file size and in human experience, the
-            quote should only include a small piece of the original work (in
-            relation to Fair Use).
-            <a href="#delimited-ref" aria-label="Back to content">↩</a>
-          </li>
-          <li id="specific">
-            <b>Specific</b>: A playable quote is a specific pathway through a
-            specific point the space of experiences possible for that game (a
-            transformative use of the original work), and it allows you to talk
-            about specific moments rather than entire games (a audible reading
-            of specific sentence versus the text of book containing it).
-            <a href="#specific-ref" aria-label="Back to content">↩</a>
-          </li>
-          <li id="recording">
-            <b>Recording</b>: Without actively playing, you can still see what
-            might happen. However you are invited to interactively riff on the
-            quote if you like.
-            <a href="#recording-ref" aria-label="Back to content">↩</a>
+          <li id="properties">
+            <dl>
+              <dt>Playable</dt>
+              <dd>Unlike a textual review or video recording, playable quotes are directly playable. You can grab the controls and try out your own style of play.</dd>
+              <dt>Partitioned</dt>
+              <dd>Playable quotes include only a small and intentionally selected piece of the original game's code and data. This leads to small file sizes and avoids accidental conveyance of larger parts of the original work.</dd>
+              <dt>Permanent</dt>
+              <dd>A quote is still readable after the original work is lost (unlike a page number or web URL). Every piece of the original work needed to recreate the quoted moment is contained within the quote.</dd>
+              <dt>Performative</dt>
+              <dd>A playable quote also contains a recording of play over time, documenting a particular style of action relevant to the quoted moment. In some cases, the quoted performance may be far more interesting than the game in which the performance was captured.</dd>
+            </dl>
+            <a href="#properties-ref" aria-label="Back to content">↩</a>
           </li>
         </ol>
       </footer>
