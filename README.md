@@ -61,3 +61,14 @@ If you are trying to run the service for yourself, simply...
 ## Credits
 
 By Adam Smith (adam@adamsmith.as) and Joël Franusic (joel@franusic.com) in the year 2021. `gameboy.js` is [Guillermo Rauch's cleanup](https://github.com/rauchg/gameboy) of [Grant Galitz's GameBoy-Online](https://github.com/taisel/GameBoy-Online). A few bugs in it have been fixed here but not upstreamed. We could use more help making replays deterministic.
+
+## Citing
+
+  [https://adamsmith.as/papers/fdg2023_tenmile.pdf](https://adamsmith.as/papers/fdg2023_tenmile.pdf)
+
+    @inproceedings{franusic2023quotes,
+      title={Playable Quotes for Game Boy Games},
+      author={Fanusic, Jo\"{e}l and Tuite, Kathleen and Smith, Adam M.},
+      booktitle={The 18th International Conference on the Foundations of Digital Games (FDG)},
+      year={2023}
+    }
