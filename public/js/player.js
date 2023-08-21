@@ -124,7 +124,11 @@ const fsm = new StateMachine({
         const EMULATOR_LOOP_INTERVAL = 8;
 
         this.runInterval = setInterval(() => {
-          pollGamepad();
+          try {
+            pollGamepad();
+          } catch (exception) {
+            console.warn("Exception during pollGamepad():", exception);
+          }
           try {
             this.gameboy.run();
           } catch (exception) {
@@ -694,13 +698,8 @@ function pollGamepad() {
       };
       for (let [k, vs] of Object.entries(defaultMapping)) {
         const pressed = vs.map(v => gamepad.buttons[v].pressed).includes(true);
-        if (pressed && !lastGamepadState[k]) {
+        if ((pressed && !lastGamepadState[k]) || (!pressed && lastGamepadState[k])) {
           sendButtonPress(k, pressed);
-          console.log(k, pressed);
-        }
-        if (!pressed && lastGamepadState[k]) {
-          sendButtonPress(k, pressed);
-          console.log(k, pressed);
         }
         lastGamepadState[k] = pressed;
       }
