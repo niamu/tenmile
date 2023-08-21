@@ -682,13 +682,13 @@ window.addEventListener("DOMContentLoaded", (event) => {
 });
 
 
-let lastGamepadState = {};
+let lastGamepadState = {start: true};
 function pollGamepad() {
   for (let gamepad of navigator.getGamepads()) {
     if (gamepad && gamepad.mapping == "standard") {
       const defaultMapping = {
-        a: [0,2],
-        b: [1,3],
+        a: [1,3],
+        b: [0,2],
         select: [8,10,4,6],
         start: [9,11,5,7],
         up: [12],
