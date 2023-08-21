@@ -1,10 +1,16 @@
 "use strict";
 /* global GameBoyCore, XAudioServer, StateMachine, msgpack */
-import { loadQuote, compileQuote, Quote, Trace, SLICED_MEMORIES } from "./quotes.js";
+import {
+  loadQuote,
+  compileQuote,
+  Quote,
+  Trace,
+  SLICED_MEMORIES,
+} from "./quotes.js";
 /* global gtag */
 
 // used by gameboy.js
-window.debug = function() {
+window.debug = function () {
   //console.log("debug:", ...arguments);
 };
 
@@ -16,18 +22,18 @@ const fsm = new StateMachine({
     {
       name: "dropGame",
       from: ["idle", "watching", "riffing", "playing"],
-      to: "playing"
+      to: "playing",
     },
     {
       name: "dropQuote",
       from: ["idle", "watching", "riffing", "playing"],
-      to: "watching"
+      to: "watching",
     },
     { name: "tap", from: "watching", to: "riffing" },
     { name: "tap", from: "riffing", to: "watching" },
     { name: "tap", from: "playing", to: "recording" },
     { name: "tap", from: "recording", to: "compiling" },
-    { name: "complete", from: "compiling", to: "playing" }
+    { name: "complete", from: "compiling", to: "playing" },
   ],
   data: {
     canvas: document.getElementById("screen"),
@@ -42,16 +48,16 @@ const fsm = new StateMachine({
     onMemoryAccess: null,
     runInterval: null,
     recordingStatusInterval: null,
-    gameboy: null
+    gameboy: null,
   },
   methods: {
-    updateVolume: function() {
+    updateVolume: function () {
       if (this.gameboy) {
         this.gameboy.opts.volume = this.sound.checked ? 1 : 0;
         this.gameboy.changeVolume();
       }
     },
-    saveState: function() {
+    saveState: function () {
       let state = Array.from(this.gameboy.saveState());
       for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
         state[state_slot] = this.gameboy._unproxiedMemory[e];
@@ -60,7 +66,7 @@ const fsm = new StateMachine({
       state[208] = this.gameboy.JoyPad;
       return msgpack.deserialize(msgpack.serialize(state)); // deep copy to avoid others changing this data after the fact
     },
-    restoreState: function(state) {
+    restoreState: function (state) {
       this.gameboy.returnFromState(state);
       this.gameboy.CPUCyclesTotalCurrent = state[207];
       this.gameboy.JoyPad = state[208];
@@ -72,11 +78,11 @@ const fsm = new StateMachine({
               this.onMemoryAccess(e, prop);
             }
             return target[prop];
-          }
+          },
         });
       }
     },
-    onTransition: function(lifecycle, ...args) {
+    onTransition: function (lifecycle, ...args) {
       console.info(
         "transition:",
         lifecycle.transition,
@@ -88,7 +94,7 @@ const fsm = new StateMachine({
 
       gtag("event", "screen_view", {
         app_name: "tenmile",
-        screen_name: lifecycle.to
+        screen_name: lifecycle.to,
       });
 
       this.canvas.classList.remove(lifecycle.from);
@@ -136,7 +142,7 @@ const fsm = new StateMachine({
               thisArg,
               argumentsList
             );
-          }
+          },
         });
 
         this.gameboy._unproxiedRun = this.gameboy.run;
@@ -146,7 +152,7 @@ const fsm = new StateMachine({
               this.onRun();
             }
             this.gameboy._unproxiedRun.apply(thisArg, argumentsList);
-          }
+          },
         });
 
         this.gameboy._unproxiedMemory = {};
@@ -159,7 +165,7 @@ const fsm = new StateMachine({
                 this.onMemoryAccess(e, prop);
               }
               return target[prop];
-            }
+            },
           });
         }
       }
@@ -170,13 +176,13 @@ const fsm = new StateMachine({
 
         gtag("event", lifecycle.to, {
           event_category: lifecycle.transition,
-          event_label: this.gameboy.name
+          event_label: this.gameboy.name,
         });
       } else {
         this.status.innerText = "Nothing loaded yet.";
       }
     },
-    onAfterTransition: function(lifecycle) {
+    onAfterTransition: function (lifecycle) {
       if (this.state != "idle") {
         this.button.style.visibility = "visible";
       } else {
@@ -184,12 +190,12 @@ const fsm = new StateMachine({
       }
     },
 
-    onBeforeDropQuote: function(lifecycle, quote) {
+    onBeforeDropQuote: function (lifecycle, quote) {
       this.currentQuote = quote;
       this.currentROM = quote.state[0];
     },
 
-    onEnterWatching: function() {
+    onEnterWatching: function () {
       this.button.value = "Take control";
 
       this.restoreState(this.currentQuote.state);
@@ -217,7 +223,7 @@ const fsm = new StateMachine({
         }
 
         if (oob) {
-          console.warn("Resetting after OOB while *watching*. "+oob);
+          console.warn("Resetting after OOB while *watching*. " + oob);
           oob = false;
           fsm.restoreState(fsm.currentQuote.state);
           iteration = 0;
@@ -230,13 +236,13 @@ const fsm = new StateMachine({
       };
     },
 
-    onLeaveWatching: function() {
+    onLeaveWatching: function () {
       this.onMemoryAccess = null;
       this.onRun = null;
       this.onJoyPadEvent = null;
     },
 
-    onBeforeDropGame: function(lifecycle, rom) {
+    onBeforeDropGame: function (lifecycle, rom) {
       if (this.currentQuote) {
         let match = true;
         for (let i = 0; i < rom.length; i++) {
@@ -247,7 +253,10 @@ const fsm = new StateMachine({
             match = false;
           }
         }
-        if (match && confirm("Continue play with inserted ROM? Play may be unreliable.")) {
+        if (
+          match &&
+          confirm("Continue play with inserted ROM? Play may be unreliable.")
+        ) {
           this.currentQuote = null;
           this.currentROM = rom;
           // hack to continue play with complete ROM
@@ -258,7 +267,7 @@ const fsm = new StateMachine({
                 this.onMemoryAccess("ROM", prop);
               }
               return target[prop];
-            }
+            },
           });
           return;
         }
@@ -266,7 +275,7 @@ const fsm = new StateMachine({
       this.currentROM = rom;
     },
 
-    onEnterPlaying: function() {
+    onEnterPlaying: function () {
       this.button.value = "Record new quote";
 
       // [jf] this ... sort of works? Investigate more later
@@ -288,12 +297,12 @@ const fsm = new StateMachine({
       */
     },
 
-    onLeavePlaying: function() {
+    onLeavePlaying: function () {
       // [jf] this ... sort of works? Investigate more later
       // this.gameboy.memory = this.gameboy._unproxiedMemory;
     },
 
-    onEnterRecording: function() {
+    onEnterRecording: function () {
       this.currentTrace = new Trace();
       this.currentTrace.name = this.gameboy.name;
       this.currentTrace.initialState = this.saveState();
@@ -329,7 +338,7 @@ const fsm = new StateMachine({
       });
       /* */
 
-      this.onJoyPadEvent = args => {
+      this.onJoyPadEvent = (args) => {
         actionsSinceLastIteration.push(args);
       };
 
@@ -344,7 +353,7 @@ const fsm = new StateMachine({
         fsm.status.innerText =
           Number(percentage).toLocaleString(undefined, {
             style: "percent",
-            minimumFractionDigits: 2
+            minimumFractionDigits: 2,
           }) + " of ROM accessed.";
       }
 
@@ -352,7 +361,7 @@ const fsm = new StateMachine({
       this.recordingStatusInterval = setInterval(updateRecordingStatus, 500);
     },
 
-    onLeaveRecording: function() {
+    onLeaveRecording: function () {
       this.status.innerText = "";
       clearInterval(this.recordingStatusInterval);
       this.onRun = null;
@@ -360,22 +369,22 @@ const fsm = new StateMachine({
       this.onMemoryAccess = null;
     },
 
-    onEnterCompiling: function() {
+    onEnterCompiling: function () {
       this.button.value = "Compiling...";
       this.button.disabled = true;
-      compileQuote(this.currentTrace).then(res => {
+      compileQuote(this.currentTrace).then((res) => {
         displayQuote(res);
         fsm.complete();
       });
     },
 
-    onLeaveCompiling: function() {
+    onLeaveCompiling: function () {
       this.button.disabled = false;
       this.restoreState(this.currentTrace.initialState);
       this.currentTrace = null;
     },
 
-    onEnterRiffing: function() {
+    onEnterRiffing: function () {
       this.button.value = "Watch pre-recorded play";
 
       let oob = false;
@@ -388,18 +397,18 @@ const fsm = new StateMachine({
 
       this.onRun = () => {
         if (oob) {
-          console.log("Resetting after OOB. "+oob);
+          console.log("Resetting after OOB. " + oob);
           oob = false;
           this.restoreState(this.currentQuote.state);
         }
       };
     },
 
-    onLeaveRiffing: function() {
+    onLeaveRiffing: function () {
       this.onMemoryAccess = null;
       this.onRun = null;
-    }
-  }
+    },
+  },
 });
 
 const keyToButton = {
@@ -410,7 +419,7 @@ const keyToButton = {
   x: "a",
   z: "b",
   Shift: "select",
-  Enter: "start"
+  Enter: "start",
 };
 
 const buttonToKeycode = {
@@ -421,7 +430,7 @@ const buttonToKeycode = {
   a: 4,
   b: 5,
   select: 6,
-  start: 7
+  start: 7,
 };
 
 function identicalArrays(a, b) {
@@ -445,22 +454,22 @@ async function onPageLoad() {
   document.getElementById("button").onclick = () => fsm.can("tap") && fsm.tap();
 
   // enable drag & drop operations onto the emulator
-  document.getElementById("screen").ondragover = ev => ev.preventDefault();
-  document.getElementById("screen").ondrop = ev => {
+  document.getElementById("screen").ondragover = (ev) => ev.preventDefault();
+  document.getElementById("screen").ondrop = (ev) => {
     ev.preventDefault();
     for (let item of ev.dataTransfer.files) {
       processFile(item);
     }
   };
 
-  document.getElementById("sound").onchange = checkbox => {
+  document.getElementById("sound").onchange = (checkbox) => {
     fsm.updateVolume();
   };
 
-  document.getElementById("upload").onclick = e => {
+  document.getElementById("upload").onclick = (e) => {
     let input = document.createElement("input");
     input.type = "file";
-    input.onchange = e => {
+    input.onchange = (e) => {
       let file = e.target.files[0];
       const blob = new Blob([file], { type: file.type });
       const blobUrl = URL.createObjectURL(blob);
@@ -471,7 +480,7 @@ async function onPageLoad() {
 
   // print out the buttons based on the value of the buttonToKey mapping
   let buttonToKey = {};
-  Object.keys(keyToButton).forEach(key => {
+  Object.keys(keyToButton).forEach((key) => {
     buttonToKey[keyToButton[key]] = key;
   });
 
@@ -481,13 +490,13 @@ async function onPageLoad() {
       buttonToKey["a"],
       buttonToKey["b"],
       buttonToKey["start"],
-      buttonToKey["select"]
+      buttonToKey["select"],
     ].join("/");
   document.getElementById("controls").textContent = controls;
 
   let buttons = document.querySelectorAll(".button");
   let buttonsArray = Array.prototype.slice.call(buttons);
-  buttonsArray.forEach(function(element) {
+  buttonsArray.forEach(function (element) {
     if (element.id.startsWith("button-")) {
       // "pointer" events encapsulate touch, mouse, etc
       element.addEventListener("pointerdown", handleButton);
@@ -508,7 +517,7 @@ async function onPageLoad() {
   if (window.location.hash.startsWith("#drop=")) {
     let url = window.location.hash.split("=")[1];
     gtag("event", "hash url", {
-      event_label: url
+      event_label: url,
     });
     dropByUrl(url);
   }
@@ -606,7 +615,7 @@ async function displayQuote({ blob, filename }) {
 
   let download = document.createElement("span");
   download.classList.add("icon-download");
-  download.onclick = async e => {
+  download.onclick = async (e) => {
     let a = document.createElement("a");
     a.href = img.src;
     a.download = filename;
@@ -617,7 +626,7 @@ async function displayQuote({ blob, filename }) {
 
   let share = document.createElement("span");
   share.classList.add("icon-share");
-  share.onclick = async e => {
+  share.onclick = async (e) => {
     console.log("uploading file");
     share.classList.remove("icon-share");
     share.classList.add("icon-spin");
@@ -639,13 +648,13 @@ async function displayQuote({ blob, filename }) {
 
   let play = document.createElement("span");
   play.classList.add("icon-play");
-  play.onclick = async e => {
+  play.onclick = async (e) => {
     dropByUrl(img.src);
   };
 
   let trash = document.createElement("span");
   trash.classList.add("icon-trash");
-  trash.onclick = async e => {
+  trash.onclick = async (e) => {
     e.target.parentElement.parentElement.outerHTML = "";
   };
 
@@ -664,27 +673,37 @@ async function displayQuote({ blob, filename }) {
   document.getElementById("quotes").appendChild(container);
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
+window.addEventListener("DOMContentLoaded", (event) => {
   onPageLoad();
 });
 
 
-let lastGamepadState;
+let lastGamepadState = {};
 function pollGamepad() {
-  for (let gamepad of navigator.getGamepad()) {
-    if (gamepad && gamepad.mapping == 'standard') {
+  for (let gamepad of navigator.getGamepads()) {
+    if (gamepad && gamepad.mapping == "standard") {
       const defaultMapping = {
-    "a": 0,
-    "b": 1,
-    "select": 8,
-    "start": 9,
-    "up": 12,
-    "down": 13,
-    "left": 14,
-    "right": 15,
-  };
-      for (let [k,v] of Object.entries(defaultMapping)) {
-    console.log(k,gamepad.buttons[v].pressed,v);
-  }
+        a: [0,2],
+        b: [1,3],
+        select: [8,10,4,6],
+        start: [9,11,5,7],
+        up: [12],
+        down: [13],
+        left: [14],
+        right: [15],
+      };
+      for (let [k, vs] of Object.entries(defaultMapping)) {
+        const pressed = vs.map(v => gamepad.buttons[v].pressed).includes(true);
+        if (pressed && !lastGamepadState[k]) {
+          sendButtonPress(k, pressed);
+          console.log(k, pressed);
+        }
+        if (!pressed && lastGamepadState[k]) {
+          sendButtonPress(k, pressed);
+          console.log(k, pressed);
+        }
+        lastGamepadState[k] = pressed;
+      }
     }
   }
+}
