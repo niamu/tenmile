@@ -118,9 +118,7 @@ const fsm = new StateMachine({
         const EMULATOR_LOOP_INTERVAL = 8;
 
         this.runInterval = setInterval(() => {
-          if(gamepad) {
-            pollGamepad();
-          }
+          pollGamepad();
           try {
             this.gameboy.run();
           } catch (exception) {
@@ -670,26 +668,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
   onPageLoad();
 });
 
-let gamepad;
-window.addEventListener('gamepadconnected', (event) => {
-  const g = navigator.getGamepads()[0];
-  if (g.mapping == 'standard') {
-    gamepad = g;
-    window.gamepad = gamepad; // XXX
-  } else {
-    console.log('Detected gamepad with non-standard button mapping, ignoring.');
-  }
-});
 
+let lastGamepadState;
 function pollGamepad() {
-  const defaultMapping = {
-    "A": 0,
-    "B": 1,
-    "SELECT": 8,
-    "START": 9,
-    "UP": 12,
-    "DOWN": 13,
-    "LEFT": 14,
-    "RIGHT": 15,
+  for (let gamepad of navigator.getGamepad()) {
+    if (gamepad && gamepad.mapping == 'standard') {
+      const defaultMapping = {
+    "a": 0,
+    "b": 1,
+    "select": 8,
+    "start": 9,
+    "up": 12,
+    "down": 13,
+    "left": 14,
+    "right": 15,
   };
-}
+      for (let [k,v] of Object.entries(defaultMapping)) {
+    console.log(k,gamepad.buttons[v].pressed,v);
+  }
+    }
+  }
