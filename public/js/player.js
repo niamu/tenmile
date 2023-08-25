@@ -16,7 +16,7 @@ window.debug = function () {
 
 let dpadDirection = null;
 
-const fsm = new StateMachine({
+const fsm = window.fsm = new StateMachine({
   init: "idle",
   transitions: [
     {
@@ -680,7 +680,6 @@ async function displayQuote({ blob, filename }) {
 window.addEventListener("DOMContentLoaded", (event) => {
   onPageLoad();
 });
-
 
 let lastGamepadState = {start: true};
 function pollGamepad() {
