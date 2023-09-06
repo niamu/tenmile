@@ -161,7 +161,7 @@ const fsm = window.fsm = new StateMachine({
 
         this.gameboy._unproxiedMemory = {};
 
-        for (let [e, { state_slot }] of Object.entries(SLICED_MEMORIES)) {
+        for (let e of Object.keys(SLICED_MEMORIES)) {
           this.gameboy._unproxiedMemory[e] = this.gameboy[e];
           this.gameboy[e] = new Proxy(this.gameboy[e], {
             get: (target, prop) => {
