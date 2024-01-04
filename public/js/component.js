@@ -52,15 +52,15 @@ class PlayableQuote extends HTMLElement {
     // Load necessary libraries if not yet loaded
     Promise.all(
       [
-        "/lib/jszip-3.6.0.min.js",
-        "/lib/pako-2.0.3.min.js",
-        "/lib/UPNG-2.2.0.js",
-        "/lib/msgpack-1.0.3.js",
-        "/lib/emitter-1.3.0.js",
-        "/lib/resampler-899c314.js",
-        "/lib/XAudioServer-899c314.js",
-        "/lib/gameboy-0.2.0.js",
-        "/lib/state-machine-3.1.0.js",
+        "lib/jszip-3.6.0.min.js",
+        "lib/pako-2.0.3.min.js",
+        "lib/UPNG-2.2.0.js",
+        "lib/msgpack-1.0.3.js",
+        "lib/emitter-1.3.0.js",
+        "lib/resampler-899c314.js",
+        "lib/XAudioServer-899c314.js",
+        "lib/gameboy-0.2.0.js",
+        "lib/state-machine-3.1.0.js",
       ].map((url) => {
         return this.loadLib(url);
       })
