@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>&lt;playable-quote&gt; HTML Web Component</title>
+    <link rel="stylesheet" type="text/css" href="/css/component.css" />
+    <script src="/js/component.js" type="module" defer></script>
+  </head>
+  <body>
+    <h1>
+      &lt;playable-quote&gt; HTML Web Component
+    </h1>
+    <p>The following is a demonstration of the &lt;playable-quote&gt; <a href="https://adactio.com/journal/20618">HTML Web Component</a> which wraps a valid &lt;img&gt; tag that has a <em>src</em> attribute of a playable PNG quote.</p>
+
+    <p>The brilliance of the playable quote encoded as a PNG is it provides an adequate fallback solution for when JavaScript fails to progressively enhance the image into an interactive piece of media. Additionally, the &lt;img&gt; remains accessible after the enhancement. So the quote PNG can be copied and shared while it is interactive.</p>
+
+    <h2>Prerequisites</h2>
+
+    <h3>&lt;playable-quote&gt;</h3>
+    <p>The &lt;playable-quote&gt; component has a JS module and related CSS file that should be placed in the &lt;head&gt; of your HTML document:</p>
+    <pre>
+      <code>
+        &lt;script src=<a href="/js/component.js">&quot;/js/component.js&quot;</a> type=&quot;module&quot; defer&gt;&lt;/script&gt;
+        &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=<a href="/css/component.css">&quot;/css/component.css&quot;</a> /&gt;
+      </code>
+    </pre>
+
+    <h3>3rd party libraries</h3>
+    <p><em>component.js</em> currently expects the following libraries to be accessible at the following path from your webserver:</p>
+    <ul>
+      <li><a href="/lib/jszip-3.6.0.min.js">/lib/jszip-3.6.0.min.js</a></li>
+      <li><a href="/lib/pako-2.0.3.min.js">/lib/pako-2.0.3.min.js</a></li>
+      <li><a href="/lib/UPNG-2.2.0.js">/lib/UPNG-2.2.0.js</a></li>
+      <li><a href="/lib/msgpack-1.0.3.js">/lib/msgpack-1.0.3.js</a></li>
+      <li><a href="/lib/emitter-1.3.0.js">/lib/emitter-1.3.0.js</a></li>
+      <li><a href="/lib/resampler-899c314.js">/lib/resampler-899c314.js</a></li>
+      <li><a href="/lib/XAudioServer-899c314.js">/lib/XAudioServer-899c314.js</a></li>
+      <li><a href="/lib/gameboy-0.2.0.js">/lib/gameboy-0.2.0.js</a></li>
+      <li><a href="/lib/state-machine-3.1.0.js">/lib/state-machine-3.1.0.js</a></li>
+    </ul>
+
+    <h2>Usage</h2>
+
+    <p>The markup looks like this:</p>
+    <pre>
+      <code>
+        &lt;playable-quote controls autoplay&gt;
+          &lt;img
+            alt=&quot;Playable Quote file for the Game Boy game called Tetris&quot;
+            src=&quot;images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-TETRIS-0d65-65740ab2.png&quot;&gt;
+        &lt;/playable-quote&gt;
+      </code>
+    </pre>
+
+    <ul>
+      <li>
+        <p><strong>controls</strong></p>
+        <p>
+          The <em>controls</em> attribute allews for the user to take control of the playable quote using the "Take Control" button. If this attribute is not present, the button will not be available.
+        </p>
+        <p>
+          Once a user clicks the "Take control" button their inputs are scoped to the &lt;playable-quote&gt; component and the border of image changes to green to indicate they are in control. When the component loses focus the pre-recorded gameplay begins again.
+        </p>
+      </li>
+      <li>
+        <p><strong>autoplay</strong></p>
+        <p>
+          The <em>autoplay</em> attribute starts the pre-recorded playback immediately. If this attribute is not present a "Load" button is available to start the recorded playback.
+        </p>
+      </li>
+    </ul>
+
+    <h2>Known issues/limitations</h2>
+
+    <ul>
+      <li>Unmuting a single component will unmute all loaded components on the page.</li>
+      <li>On-screen controls have not been added in yet.</li>
+      <li>Recording new quotes are playing ROMs is outside the scope for this component. The intention of this component is to provide an accessible and simple method for existing quotes to be shared.</li>
+    </ul>
+
+    <h2>Examples</h2>
+
+    <playable-quote controls autoplay>
+      <img
+        alt="Playable Quote file for the Game Boy game called Tetris"
+        src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-TETRIS-0d65-65740ab2.png">
+    </playable-quote>
+
+    <playable-quote>
+      <img alt="Playable Quote file for the Game Boy game called Metroid II: Return of Samus"
+           src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-METROID2-3080-72baabf4.png">
+    </playable-quote>
+
+    <playable-quote>
+      <img alt="Playable Quote file for the Game Boy game called Zelda"
+           src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-ZELDA-ed42-67fdbb51.png">
+    </playable-quote>
+
+    <playable-quote>
+      <img alt="Playable Quote file for the Game Boy game called Icon of the Hurdy-Gurdy"
+           src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-ICON OF THE-1542-2b117733.png">
+    </playable-quote>
+
+    <playable-quote>
+      <img alt="Playable Quote file for the Game Boy game called Alice"
+           src="images/ALICE-f8eb-6b2bc0db.png">
+    </playable-quote>
+  </body>
+</html>
