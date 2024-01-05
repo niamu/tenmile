@@ -20,14 +20,14 @@
     <h3>&lt;playable-quote&gt;</h3>
     <p>The &lt;playable-quote&gt; component has a JS module and related CSS file that should be placed in the &lt;head&gt; of your HTML document:</p>
     <pre>
-      <code>
-        &lt;script src=<a href="js/component.js">&quot;/js/component.js&quot;</a> type=&quot;module&quot; defer&gt;&lt;/script&gt;
-        &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=<a href="css/component.css">&quot;/css/component.css&quot;</a> /&gt;
-      </code>
+<code>
+&lt;script src=&quot;<a href="js/component.js">js/component.js</a>&quot; type=&quot;module&quot; defer&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;<a href="css/component.css">css/component.css</a>&quot; /&gt;
+</code>
     </pre>
 
     <h3>3rd party libraries</h3>
-    <p><em>component.js</em> currently expects the following libraries to be accessible at the following path from your webserver:</p>
+    <p><em>component.js</em> currently expects the following libraries to be accessible at the following relative path to the page the &lt;playable-quote&gt; is displayed: <br><small>(alter the array for <em>this.THIRD_PARTY_LIBS</em> in <em>component.js</em> to change this expectation)</small></p>
     <ul>
       <li><a href="lib/jszip-3.6.0.min.js">lib/jszip-3.6.0.min.js</a></li>
       <li><a href="lib/pako-2.0.3.min.js">lib/pako-2.0.3.min.js</a></li>
@@ -44,20 +44,19 @@
 
     <p>The markup looks like this:</p>
     <pre>
-      <code>
-        &lt;playable-quote controls autoplay&gt;
-          &lt;img
-            alt=&quot;Playable Quote file for the Game Boy game called Tetris&quot;
-            src=&quot;images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-TETRIS-0d65-65740ab2.png&quot;&gt;
-        &lt;/playable-quote&gt;
-      </code>
+<code>
+&lt;playable-quote controls autoplay&gt;
+  &lt;img alt=&quot;Playable Quote file for the Game Boy game called Tetris&quot;
+       src=&quot;images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-TETRIS-0d65-65740ab2.png&quot;&gt;
+&lt;/playable-quote&gt;
+</code>
     </pre>
 
     <ul>
       <li>
         <p><strong>controls</strong></p>
         <p>
-          The <em>controls</em> attribute allews for the user to take control of the playable quote using the "Take Control" button. If this attribute is not present, the button will not be available.
+          The <em>controls</em> attribute allows for the user to take control of the playable quote using the "Take Control" button. If this attribute is not present, the button will not be available.
         </p>
         <p>
           Once a user clicks the "Take control" button their inputs are scoped to the &lt;playable-quote&gt; component and the border of image changes to green to indicate they are in control. When the component loses focus the pre-recorded gameplay begins again.
@@ -76,7 +75,7 @@
     <ul>
       <li>Unmuting a single component will unmute all loaded components on the page.</li>
       <li>On-screen controls have not been added in yet.</li>
-      <li>Recording new quotes are playing ROMs is outside the scope for this component. The intention of this component is to provide an accessible and simple method for existing quotes to be shared.</li>
+      <li>Recording new quotes or playing ROMs is outside the scope for this component. The intention of this component is to provide an accessible and simple method for existing quotes to be shared.</li>
     </ul>
 
     <h2>Examples</h2>
@@ -87,22 +86,22 @@
         src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-TETRIS-0d65-65740ab2.png">
     </playable-quote>
 
-    <playable-quote>
+    <playable-quote controls>
       <img alt="Playable Quote file for the Game Boy game called Metroid II: Return of Samus"
            src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-METROID2-3080-72baabf4.png">
     </playable-quote>
 
-    <playable-quote>
+    <playable-quote controls>
       <img alt="Playable Quote file for the Game Boy game called Zelda"
            src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-ZELDA-ed42-67fdbb51.png">
     </playable-quote>
 
-    <playable-quote>
+    <playable-quote controls>
       <img alt="Playable Quote file for the Game Boy game called Icon of the Hurdy-Gurdy"
            src="images/80f5a65b-f7e3-4b40-b639-8e2c014de0ca-ICON OF THE-1542-2b117733.png">
     </playable-quote>
 
-    <playable-quote>
+    <playable-quote controls>
       <img alt="Playable Quote file for the Game Boy game called Alice"
            src="images/ALICE-f8eb-6b2bc0db.png">
     </playable-quote>

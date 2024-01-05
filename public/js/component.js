@@ -50,19 +50,21 @@ class PlayableQuote extends HTMLElement {
     this.autoplay = this.getAttribute("autoplay") != null;
     this.controls = this.getAttribute("controls") != null;
 
+    this.THIRD_PARTY_LIBS = [
+      "lib/jszip-3.6.0.min.js",
+      "lib/pako-2.0.3.min.js",
+      "lib/UPNG-2.2.0.js",
+      "lib/msgpack-1.0.3.js",
+      "lib/emitter-1.3.0.js",
+      "lib/resampler-899c314.js",
+      "lib/XAudioServer-899c314.js",
+      "lib/gameboy-0.2.0.js",
+      "lib/state-machine-3.1.0.js",
+    ];
+
     // Load necessary libraries if not yet loaded
     Promise.all(
-      [
-        "lib/jszip-3.6.0.min.js",
-        "lib/pako-2.0.3.min.js",
-        "lib/UPNG-2.2.0.js",
-        "lib/msgpack-1.0.3.js",
-        "lib/emitter-1.3.0.js",
-        "lib/resampler-899c314.js",
-        "lib/XAudioServer-899c314.js",
-        "lib/gameboy-0.2.0.js",
-        "lib/state-machine-3.1.0.js",
-      ].map((url) => {
+      this.THIRD_PARTY_LIBS.map((url) => {
         return this.loadLib(url);
       })
     ).then(
@@ -86,6 +88,10 @@ class PlayableQuote extends HTMLElement {
     this.canvas = document.createElement("canvas");
     this.canvas.width = this.image.width - (BORDER_SIZE * 2);
     this.canvas.height = this.image.height - (BORDER_SIZE * 2);
+    this.canvas.style.position = "absolute";
+    this.canvas.style.margin = BORDER_SIZE + "px";
+    this.canvas.style.top = 0;
+    this.canvas.style.left = 0;
     this.appendChild(this.canvas);
 
     let controlsContainer = document.createElement("div");

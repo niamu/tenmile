@@ -14,9 +14,6 @@ playable-quote {
     transition: filter 0.15s linear;
   }
   & canvas {
-    position: absolute;
-    top: 12px;
-    left: 12px;
     pointer-events: none;
   }
 
