@@ -21,6 +21,7 @@ class PlayableQuote extends HTMLElement {
         existingScript.addEventListener("error", function (error) {
           reject(error);
         });
+        return;
       }
       let script = document.createElement('script');
       script.type = 'text/javascript';
